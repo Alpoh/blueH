@@ -38,7 +38,13 @@ public partial class App
             diagnosticsLog,
             settingsStore,
             TimeProvider.System);
-        _mainViewModel = new MainViewModel(devices, new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
+        CoreAudioEndpointService endpointService = new(diagnosticsLog);
+        EndpointsViewModel endpoints = new(endpointService, uiScheduler, diagnosticsLog);
+
+        _mainViewModel = new MainViewModel(
+            devices,
+            endpoints,
+            new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
 
         MainWindow window = new()
         {
@@ -48,7 +54,7 @@ public partial class App
 
         window.Show();
 
-        _ = InitializeDevicesAsync(devices, diagnosticsLog);
+        _ = InitializeAsync(devices, endpoints, diagnosticsLog);
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -59,11 +65,15 @@ public partial class App
         base.OnExit(e);
     }
 
-    private static async Task InitializeDevicesAsync(DevicesViewModel devices, IDiagnosticsLog diagnosticsLog)
+    private static async Task InitializeAsync(
+        DevicesViewModel devices,
+        EndpointsViewModel endpoints,
+        IDiagnosticsLog diagnosticsLog)
     {
         try
         {
             await devices.RefreshAsync(CancellationToken.None);
+            await endpoints.RefreshAsync(CancellationToken.None);
             devices.StartWatching();
             devices.StartBatteryPolling(DevicesViewModel.DefaultBatteryPollingInterval);
         }

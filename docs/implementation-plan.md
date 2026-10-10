@@ -15,11 +15,13 @@ because Windows exposes almost none of this where a user can act on it.
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
 - `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
-- Phases 0, 1 and 2 complete. 177 tests green.
+- Phases 0, 1, 2 and 3 complete. 220 tests green.
 - The window lists paired Bluetooth audio devices with their type, connection state and battery, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones at 80%, Sony SRS-XE300 as a disconnected speaker with battery unknown.
 - Battery is polled every minute and whenever a device becomes connected, through `FirstKnownBatteryService` over the Hands-Free device property, with GATT behind it as an unverified fallback.
+- Selecting a device lists its audio outputs with a volume slider, a mute toggle, and buttons to make an output the default for playback or for calls. Volume writes are coalesced so dragging the slider issues one call per completed write.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
-- Next: phase 3, audio endpoint control. Spike it first: the join key is `System.Devices.ContainerId` on the audio endpoint, and increment 3.5 depends on the undocumented `IPolicyConfig`.
+- **Not yet verified by hand: everything in phase 3.** Reads were verified by spike against Core Audio, but the UI and `IPolicyConfig.SetDefaultEndpoint` have never been exercised. Reconnect the earbuds, run the app, and click the default buttons deliberately — that call is the one undocumented thing in the project.
+- Next: phase 4, media transport. It is public API and low risk, so no spike is strictly needed; a short one confirming `GlobalSystemMediaTransportControlsSessionManager` sees a session is still worth ten minutes.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -67,6 +69,7 @@ BlueH/
   Views/           XAML windows and user controls
   Converters/      IValueConverter implementations
   Diagnostics/     logging and the in-app diagnostics panel
+  Services/Interop/ COM declarations for Core Audio and the undocumented IPolicyConfig
   Time/            CanonicalTimestamp: the one date-time format, with its parser
   Properties/      Resources.resx — all user-facing text
 BlueH.Tests/       NUnit, no hardware required
@@ -150,7 +153,7 @@ is knowing what to model.
 
 ## 7. Increments
 
-36 increments, each one commit, each ending with a green suite and a running app. The
+38 increments, each one commit, each ending with a green suite and a running app. The
 deliverable column says what is observable when it is done — and says so honestly when the
 answer is "a test" rather than something on screen.
 
@@ -274,20 +277,58 @@ behind the route that works. Do not let it block the phase.
 
 ### Phase 3 — Audio endpoint control
 
-Safe parts first; the undocumented call last and alone.
+Spike findings, 2026-10-10. Core Audio reads work, the join to Bluetooth works, and
+`IPolicyConfig` is reachable on this Windows build.
+
+- **The join between the two worlds is the MMDevice id**, embedded in the WinRT endpoint id:
+  `\\?\SWD#MMDEVAPI#{0.0.0.00000000}.{<guid>}#{e6327cad-…}`. Extract the part between
+  `MMDEVAPI#` and the next `#` and it matches `IMMDevice.GetId` exactly. That is how a name and
+  a container id from WinRT get attached to a volume and a mute flag from Core Audio. Extraction
+  is pure string work, so it is unit-testable and must be tested.
+- **The Bluetooth join is `System.Devices.ContainerId`** on the render endpoint, confirmed: the
+  INZONE H5's two endpoints both carry container `4969f11a-…`.
+- **An audio endpoint exists only while the device is connected.** Observed live: the earbuds had
+  `Headphones (OPPO Enco Air5)` while connected, and once they disconnected the endpoint was gone
+  from both the WinRT selector and Core Audio. So "connected device with no endpoint yet" and
+  "disconnected device with no endpoint" are both real states, and neither is an error. Volume,
+  mute and default-switching are only meaningful for a connected device.
+- **Volume and mute are per endpoint, not per device.** At one moment the INZONE's
+  `Headset Earphone (… - Chat)` read 100% while its `Headphones (… - Game)` read 76%. A single
+  per-device volume would be wrong; the UI shows one row per endpoint.
+- **Core Audio reports volume as a scalar from 0 to 1**, not a percentage.
+  `GetMasterVolumeLevelScalar` returned 0.86 for an endpoint sitting at 86%. Convert at the
+  adapter boundary and name the member for its unit — `VolumePercent` in the domain, never a bare
+  `Volume` carrying a scalar. This is exactly the mismatch the units rule exists to prevent.
+- **Playback and communications are separate defaults.** `GetDefaultAudioEndpoint` takes a role,
+  and `eConsole` and `eCommunications` can point at different endpoints. On this machine both
+  currently point at the INZONE's *Chat* endpoint, which is precisely the annoyance the app
+  exists to fix: the communications endpoint has taken over playback.
+- **`IPolicyConfig` is reachable here.** CLSID `870af99c-171d-4f9e-af0d-e63df40c2bc9` creates,
+  and `QueryInterface` for IID `f8679f50-850a-41cf-9c72-430f290290c8` returns `S_OK`. The spike
+  only created and queried it; nothing was changed. It remains undocumented and may break between
+  Windows releases, so it stays behind `IAudioEndpointService` in one file.
+- **Core Audio and WinRT agree on which endpoints exist**: `EnumAudioEndpoints(eRender,
+  DEVICE_STATE_ACTIVE)` and `MediaDevice.GetAudioRenderSelector()` both returned the same four.
+- **An endpoint may have no Bluetooth device behind it.** The INZONE H5 connects over its own
+  2.4 GHz dongle; it has a container and two endpoints and appears in no Bluetooth enumeration.
+  The join must leave such endpoints unattached rather than treating them as a failure.
+
+Verification note: the earbuds disconnected during the spike, so the two-endpoint case was
+confirmed against the INZONE H5 rather than against them. Reconnect the earbuds before verifying
+increments 3.2 onward by hand.
 
 | # | Increment | Deliverable | Tests |
 |---|---|---|---|
-| 3.1 | Enumerate the audio endpoints belonging to the selected device | the headset's endpoints are listed, including the A2DP / Hands-Free pair | mapping; a device with no endpoint; an endpoint with no device |
-| 3.2 | Read volume and mute | current volume and mute shown per endpoint | mapping; clamping to 0-100; a value out of range |
-| 3.3 | Set volume | a working slider | command not re-entrant; value clamped before the call; a failing call surfaces an error state and logs it |
-| 3.4 | Set mute | a working mute button | toggle semantics; failure handled |
-| 3.5 | Switch the default playback / communication device (`IPolicyConfig`) | one click makes the headset the default output | command enablement and state; the adapter itself verified by hand |
+| 3.1 | `AudioEndpoint` model and MMDevice-id extraction | a test | the id is extracted from a real `SWD#MMDEVAPI#…` string; an id in another shape is left alone; an empty string is handled |
+| 3.2 | `IAudioEndpointService` and enumeration joined by container | the selected device's endpoints are listed, including the A2DP and Hands-Free pair | mapping; a device with no endpoint while disconnected; an endpoint whose container matches no device |
+| 3.3 | Read volume and mute | current volume and mute per endpoint | the scalar is converted to a percentage at the boundary; 0 and 1 map to 0% and 100%; a value outside the range is rejected rather than clamped silently |
+| 3.4 | Set volume | a working slider | the percentage is converted back to a scalar; out-of-range input refused; the command is not re-entrant; a failure surfaces and is logged |
+| 3.5 | Set mute | a working mute button | toggle semantics; failure handled |
+| 3.6 | Show which endpoint is default, per role | the playback and communications defaults are visible and distinguishable | both roles mapped; the same endpoint holding both roles; neither role resolving |
+| 3.7 | Make an endpoint the default, per role (`IPolicyConfig`) | one click makes the headset the default output | command enablement and state; the adapter itself verified by hand |
 
-Risk: **3.5 has no public API.** The route is the undocumented `IPolicyConfig` COM interface,
-which can break between Windows releases. It lives in exactly one file behind
-`IAudioEndpointService`, and it is built last precisely because 3.1-3.4 already deliver value
-without it.
+Increment 3.7 is the only place in the project that depends on an undocumented API. It is built
+last, lives in one file behind the port, and 3.1-3.6 deliver value without it.
 
 ### Phase 4 — Media transport
 
@@ -395,4 +436,5 @@ of `dotnet test`. Green means "the logic is correct", not "the app works".
 - Mutation-checked whenever the increment adds logic: break the implementation deliberately and confirm the new tests go red. Check that the tests actually ran: a mutation that fails to compile, or one that makes a test hang instead of fail, proves nothing. Both have happened — the second is a signal to rewrite the test so it fails fast. A test that has never failed proves nothing — this is how the string-interning gap in increment 0.1 was found.
 - Verified by hand against a real headset, with the result written down.
 - One increment, one commit.
+- Run the suite with `-p:UseAppHost=false` when a running instance of the app locks `BlueH.exe` and the build cannot replace it. This happens often during mutation checks and silently turns them into no-ops.
 - `CLAUDE.md` updated if a convention or a platform constraint changed.

@@ -236,5 +236,86 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("DiagnosticsTimeHeader", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calls.
+        /// </summary>
+        internal static string EndpointDefaultForCommunicationsLabel {
+            get {
+                return ResourceManager.GetString("EndpointDefaultForCommunicationsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Playback.
+        /// </summary>
+        internal static string EndpointDefaultForPlaybackLabel {
+            get {
+                return ResourceManager.GetString("EndpointDefaultForPlaybackLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use for calls.
+        /// </summary>
+        internal static string EndpointMakeDefaultForCommunicationsLabel {
+            get {
+                return ResourceManager.GetString("EndpointMakeDefaultForCommunicationsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use for playback.
+        /// </summary>
+        internal static string EndpointMakeDefaultForPlaybackLabel {
+            get {
+                return ResourceManager.GetString("EndpointMakeDefaultForPlaybackLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mute.
+        /// </summary>
+        internal static string EndpointMuteLabel {
+            get {
+                return ResourceManager.GetString("EndpointMuteLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This device has no audio output while it is disconnected.
+        /// </summary>
+        internal static string EndpointsEmptyMessage {
+            get {
+                return ResourceManager.GetString("EndpointsEmptyMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not read the audio outputs.
+        /// </summary>
+        internal static string EndpointsErrorMessage {
+            get {
+                return ResourceManager.GetString("EndpointsErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Audio outputs.
+        /// </summary>
+        internal static string EndpointsHeader {
+            get {
+                return ResourceManager.GetString("EndpointsHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volume.
+        /// </summary>
+        internal static string EndpointVolumeHeader {
+            get {
+                return ResourceManager.GetString("EndpointVolumeHeader", resourceCulture);
+            }
+        }
     }
 }

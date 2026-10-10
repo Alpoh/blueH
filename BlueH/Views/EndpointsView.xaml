@@ -1,0 +1,69 @@
+<UserControl x:Class="BlueH.Views.EndpointsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </UserControl.Resources>
+    <DockPanel Margin="12">
+        <TextBlock DockPanel.Dock="Top"
+                   Text="{Binding Header}"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8" />
+        <TextBlock DockPanel.Dock="Top"
+                   Text="{Binding EmptyMessage}"
+                   Visibility="{Binding HasNoEndpoints, Converter={StaticResource BooleanToVisibility}}"
+                   TextWrapping="Wrap" />
+        <StackPanel DockPanel.Dock="Top"
+                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
+            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
+        </StackPanel>
+        <ItemsControl ItemsSource="{Binding Endpoints}" HorizontalContentAlignment="Stretch">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="0,0,0,1" Padding="0,8" Margin="0,0,0,4">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding DataContext.DefaultForPlaybackLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           Visibility="{Binding IsDefaultForPlayback, Converter={StaticResource BooleanToVisibility}}"
+                                           Opacity="0.7"
+                                           Margin="12,0,0,0" />
+                                <TextBlock Text="{Binding DataContext.DefaultForCommunicationsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           Visibility="{Binding IsDefaultForCommunications, Converter={StaticResource BooleanToVisibility}}"
+                                           Opacity="0.7"
+                                           Margin="8,0,0,0" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="{Binding DataContext.VolumeHeader, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0" />
+                                <Slider Value="{Binding VolumePercent, Mode=TwoWay}"
+                                        Minimum="0"
+                                        Maximum="100"
+                                        Width="220"
+                                        VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding VolumePercent}"
+                                           VerticalAlignment="Center"
+                                           MinWidth="36"
+                                           Margin="8,0,0,0" />
+                                <ToggleButton Content="{Binding DataContext.MuteLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              IsChecked="{Binding IsMuted, Mode=OneWay}"
+                                              Command="{Binding ToggleMuteCommand}"
+                                              Margin="16,0,0,0" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="{Binding DataContext.MakeDefaultForPlaybackLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding MakeDefaultForPlaybackCommand}" />
+                                <Button Content="{Binding DataContext.MakeDefaultForCommunicationsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding MakeDefaultForCommunicationsCommand}"
+                                        Margin="8,0,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DockPanel>
+</UserControl>

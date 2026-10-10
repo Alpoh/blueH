@@ -124,6 +124,9 @@ Common WPF practice as it applies to this project.
 
 ### Reading device properties
 
+- **Convert units at the adapter boundary and name the member for its unit.** Windows hands over values in whatever unit it likes: `Cod.Minor` as `UInt16`, the battery as a `Byte` percentage, and Core Audio volume as a `float` scalar from 0 to 1 rather than a percentage. Convert once in the adapter, through a tested pure helper such as `VolumeScale`, and let the domain carry `VolumePercent` or `BatteryChargePercent`. A bare `Volume` holding a scalar is the exact mistake the units rule exists to stop.
+- **Reject a value outside its range instead of clamping it.** A scalar above 1 or a percentage above 100 means the assumption was wrong; clamping hides that, and absence is already a modelled state.
+
 - **Never pattern-match a WinRT device property on the type you expect.** The values arrive boxed and the runtime type is often not the obvious one: `System.Devices.Aep.Bluetooth.Cod.Minor` is a `UInt16`, not a `UInt32`. A `value is uint` check against it fails silently and yields an absent value, so the UI quietly shows "unknown" instead of an error. Read every property through `DevicePropertyReader`, which accepts any plausible type and is unit-tested against each one, and add a case there rather than matching inline.
 - **Verify every new property against real hardware**, printing its runtime type, before writing the code that reads it. Unit tests cannot catch this class of bug, because the test supplies the type the code already expects.
 
@@ -189,6 +192,16 @@ Supporting multiple languages is a planned implementation step. Even before it i
 - **Expose strings for binding, not `{x:Static}`.** `{x:Static p:Resources.Key}` resolves once and will not update if the culture changes at runtime. If runtime language switching is required, bind through a localization provider (a singleton with a string indexer that raises `PropertyChanged` on culture change); if only restart-time switching is needed, `{x:Static}` is acceptable and simpler. Decide this explicitly before building the feature.
 - **Mirror the UI for RTL languages** by binding `FlowDirection` to the culture rather than leaving it `LeftToRight`, if an RTL locale is in scope.
 - **Test with a pseudo-locale** before real translations exist: a `Resources.qps-ploc.resx` with accented, lengthened strings surfaces hardcoded text and clipped layout immediately.
+
+## COM interop
+
+One part of the project reaches an undocumented Windows interface, and it comes with rules of its own.
+
+- **`IPolicyConfig` is the only undocumented dependency in the project.** It lives in `Services/Interop/IPolicyConfig.cs` behind `IAudioEndpointService`, and nothing else may call it.
+- **The declared method order of a COM interface IS its vtable.** Removing an unused member, reordering members, or changing one member's parameter count silently redirects every later call to a different function, with a garbage argument list. Those declarations are append-only: never tidy them. This is the one place in the codebase where a comment is required rather than merely allowed, because no name can carry that constraint.
+- **Guard the call site.** Verify the target endpoint still exists in the live enumeration before passing an id to an undocumented method, so a stale id never reaches it.
+- **Release what you create.** Every COM object obtained from an enumerator, collection, or `Activate` call is released in a `finally`; the interop code uses no `using` because these are COM wrappers rather than `IDisposable`.
+- **Report the `HRESULT`.** Interop members are declared `[PreserveSig]`, so failures arrive as a number and must be recorded in diagnostics rather than ignored.
 
 ## Testing / TDD
 

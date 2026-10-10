@@ -9,8 +9,10 @@ a single GUI for the whole set: status and battery, volume and default-device sw
 transport, pairing, and, per vendor, device features such as active noise cancelling and
 equaliser presets.
 
-Early stage: the solution layout, the MVVM base, and the project conventions are in place. No
-feature code yet.
+It reads paired Bluetooth audio devices live, tells headphones from speakers, shows battery where
+the headset reports it, and lets you set the volume, mute, and choose which audio output Windows
+uses for playback and for calls. A diagnostics panel shows every platform call and its raw
+result, so a failure names itself instead of showing an empty screen.
 
 ## Requirements
 
@@ -44,6 +46,9 @@ BlueH/
     ViewModelBase.cs                INotifyPropertyChanged base for ViewModels
   Properties/
     Resources.resx / .Designer.cs   Localizable strings
+  Services/                         Ports and their WinRT, Core Audio and file-system adapters
+  Models/ ViewModels/ Views/        Domain, presentation and XAML
+  Diagnostics/                      Structured log and the in-app diagnostics panel
 ```
 
 `bin/` and `obj/` are build output and are git-ignored.
@@ -76,28 +81,40 @@ The full C#, XAML, WPF, i18n, and testing conventions are in [CLAUDE.md](CLAUDE.
 
 ## Tests
 
-No test project yet. ViewModels, commands, domain models, and service logic are the layers
-meant to be unit-tested, with every WinRT call faked behind the service interfaces so the suite
-never needs hardware. See the Testing / TDD section of [CLAUDE.md](CLAUDE.md).
+```bash
+dotnet test
+```
+
+220 tests. ViewModels, commands, domain models, and the pure logic inside services are covered,
+with every WinRT, Core Audio and file-system call faked behind the ports, so the suite never
+needs a headset. If a running instance of the app locks `BlueH.exe`, add `-p:UseAppHost=false`.
+
+Every increment that adds logic is also mutation-checked: the implementation is broken on purpose
+and the new tests must go red. A test that has never failed proves nothing. See the Testing / TDD
+section of [CLAUDE.md](CLAUDE.md).
 
 ## Roadmap
 
-Ordered by dependency:
+Done:
 
-1. **Device discovery and status** — enumerate paired and connected Bluetooth audio devices,
-   live connection state.
-2. **Battery level** — GATT Battery Service for BLE, Windows device property for classic
-   devices. Coverage varies by headset, so "unknown" is a real state.
-3. **Audio endpoint control** — per-endpoint volume and mute, switching the default playback
-   and communication device.
+1. **Device discovery and status** — paired devices keyed on their container id so a headset
+   appears once rather than twice, headphones told from speakers, live connection state.
+2. **Battery level** — read over Hands-Free Profile, where it turns out to live. "Unknown" is a
+   real state, not a zero: a speaker with no Hands-Free service genuinely has no battery to
+   report.
+3. **Audio endpoint control** — per-endpoint volume and mute, and choosing the default output for
+   playback and for calls separately.
+
+Next:
+
 4. **Media transport** — play, pause, next, previous.
 5. **Pairing management** — pair, unpair, reconnect.
-6. **Internationalization** — multi-language support. Until it lands, code is written
-   i18n-ready: no user-facing string literals, no sentence concatenation, no fixed widths that
-   would clip longer translations.
+6. **Internationalization** — multi-language support. Until it lands, code is written i18n-ready:
+   no user-facing string literals, no sentence concatenation, no fixed widths that would clip
+   longer translations.
 7. **Vendor-specific features** — ANC, equaliser, touch controls. No Windows API exposes these;
-   each is a proprietary protocol over RFCOMM or BLE GATT, implemented per vendor as an
-   optional plug-in.
+   each is a proprietary protocol over RFCOMM or BLE GATT, implemented per vendor as an optional
+   plug-in.
 
 Known limits of the platform, worth knowing before filing a feature request: Windows exposes no
 public API to **choose the Bluetooth audio codec** (SBC/AAC/aptX/LDAC), and none to **set the

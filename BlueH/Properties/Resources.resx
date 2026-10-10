@@ -174,4 +174,31 @@
   <data name="DeviceBatteryUnknownLabel" xml:space="preserve">
     <value>Unknown</value>
   </data>
+  <data name="EndpointsHeader" xml:space="preserve">
+    <value>Audio outputs</value>
+  </data>
+  <data name="EndpointsEmptyMessage" xml:space="preserve">
+    <value>This device has no audio output while it is disconnected</value>
+  </data>
+  <data name="EndpointsErrorMessage" xml:space="preserve">
+    <value>Could not read the audio outputs</value>
+  </data>
+  <data name="EndpointVolumeHeader" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="EndpointMuteLabel" xml:space="preserve">
+    <value>Mute</value>
+  </data>
+  <data name="EndpointMakeDefaultForPlaybackLabel" xml:space="preserve">
+    <value>Use for playback</value>
+  </data>
+  <data name="EndpointMakeDefaultForCommunicationsLabel" xml:space="preserve">
+    <value>Use for calls</value>
+  </data>
+  <data name="EndpointDefaultForPlaybackLabel" xml:space="preserve">
+    <value>Playback</value>
+  </data>
+  <data name="EndpointDefaultForCommunicationsLabel" xml:space="preserve">
+    <value>Calls</value>
+  </data>
 </root>

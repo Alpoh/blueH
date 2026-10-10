@@ -67,6 +67,114 @@ namespace BlueH.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connected.
+        /// </summary>
+        internal static string DeviceConnectedLabel {
+            get {
+                return ResourceManager.GetString("DeviceConnectedLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Status.
+        /// </summary>
+        internal static string DeviceConnectionHeader {
+            get {
+                return ResourceManager.GetString("DeviceConnectionHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        internal static string DeviceConnectionUnknownLabel {
+            get {
+                return ResourceManager.GetString("DeviceConnectionUnknownLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnected.
+        /// </summary>
+        internal static string DeviceDisconnectedLabel {
+            get {
+                return ResourceManager.GetString("DeviceDisconnectedLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string DeviceKindHeader {
+            get {
+                return ResourceManager.GetString("DeviceKindHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Headphones.
+        /// </summary>
+        internal static string DeviceKindHeadphonesLabel {
+            get {
+                return ResourceManager.GetString("DeviceKindHeadphonesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speaker.
+        /// </summary>
+        internal static string DeviceKindLoudspeakerLabel {
+            get {
+                return ResourceManager.GetString("DeviceKindLoudspeakerLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown device.
+        /// </summary>
+        internal static string DeviceKindUnknownLabel {
+            get {
+                return ResourceManager.GetString("DeviceKindUnknownLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device.
+        /// </summary>
+        internal static string DeviceNameHeader {
+            get {
+                return ResourceManager.GetString("DeviceNameHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No paired Bluetooth audio devices found.
+        /// </summary>
+        internal static string DevicesEmptyMessage {
+            get {
+                return ResourceManager.GetString("DevicesEmptyMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not read Bluetooth devices.
+        /// </summary>
+        internal static string DevicesErrorMessage {
+            get {
+                return ResourceManager.GetString("DevicesErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Devices.
+        /// </summary>
+        internal static string DevicesHeader {
+            get {
+                return ResourceManager.GetString("DevicesHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Detail.
         /// </summary>
         internal static string DiagnosticsDetailHeader {

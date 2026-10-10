@@ -1,0 +1,61 @@
+<UserControl x:Class="BlueH.Views.DevicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:BlueH.Converters">
+    <UserControl.Resources>
+        <converters:DeviceKindToTextConverter x:Key="DeviceKindToText" />
+        <converters:ConnectionStateToTextConverter x:Key="ConnectionStateToText" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </UserControl.Resources>
+    <DockPanel Grid.IsSharedSizeScope="True" Margin="12">
+        <TextBlock DockPanel.Dock="Top"
+                   Text="{Binding Header}"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8" />
+        <TextBlock DockPanel.Dock="Top"
+                   Text="{Binding EmptyMessage}"
+                   Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibility}}"
+                   TextWrapping="Wrap"
+                   Margin="0,4,0,0" />
+        <StackPanel DockPanel.Dock="Top"
+                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"
+                    Margin="0,4,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
+        </StackPanel>
+        <Grid DockPanel.Dock="Top" Margin="0,8,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" SharedSizeGroup="DeviceName" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceKind" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{Binding NameHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="1" Text="{Binding KindHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="2" Text="{Binding ConnectionHeader}" FontWeight="SemiBold" />
+        </Grid>
+        <ListBox ItemsSource="{Binding Devices}"
+                 SelectedValue="{Binding SelectedContainerId, Mode=TwoWay}"
+                 SelectedValuePath="ContainerId"
+                 HorizontalContentAlignment="Stretch"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" SharedSizeGroup="DeviceName" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceKind" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" TextTrimming="CharacterEllipsis" Margin="0,0,16,0" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Kind, Converter={StaticResource DeviceKindToText}}"
+                                   Margin="0,0,16,0" />
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding IsConnected, Converter={StaticResource ConnectionStateToText}}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

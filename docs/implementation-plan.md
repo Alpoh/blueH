@@ -15,9 +15,10 @@ because Windows exposes almost none of this where a user can act on it.
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
 - `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
-- Phase 0 complete: 0.1 test project, 0.2 `Time/CanonicalTimestamp`, 0.3 `JsonSettingsStore`, 0.4 diagnostics panel. 63 tests green.
-- `MainWindow` hosts `Views/DiagnosticsView`, which lists every recorded platform call. Services are hand-wired in `App.xaml.cs`; there is no container yet.
-- Next: phase 1, starting with a spike on the AQS filter for Bluetooth audio devices.
+- Phases 0 and 1 complete. 135 tests green.
+- The window lists paired Bluetooth audio devices with their type and connection state, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones, Sony SRS-XE300 as a disconnected speaker.
+- Services are hand-wired in `App.xaml.cs`; there is no container yet.
+- Next: phase 2, battery. Spike it first: the phase 1 spike found no battery property on any device, and the earbuds' LE endpoint reads disconnected while their classic endpoint is playing audio.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -148,7 +149,7 @@ is knowing what to model.
 
 ## 7. Increments
 
-33 increments, each one commit, each ending with a green suite and a running app. The
+34 increments, each one commit, each ending with a green suite and a running app. The
 deliverable column says what is observable when it is done — and says so honestly when the
 answer is "a test" rather than something on screen.
 
@@ -163,16 +164,68 @@ answer is "a test" rather than something on screen.
 
 ### Phase 1 — Device discovery and status
 
-Spike first: does the AQS filter actually match Bluetooth audio devices?
+Spike findings, 2026-10-10, run against this machine's own devices (OPPO Enco Air5 earbuds
+connected, Sony SRS-XE300 speaker paired, an iPhone paired, and a Sony INZONE H5 headset present
+as an audio endpoint but not over Bluetooth). These replace the assumptions the increments below
+were written on.
 
+- **Identity is `System.Devices.Aep.ContainerId`, not `DeviceInformation.Id`.** The same earbuds
+  appear twice, once as a classic endpoint (`Bluetooth#...`) and once as a Bluetooth LE endpoint
+  (`BluetoothLE#...`), with different ids, different signal strengths, and even different
+  `IsConnected` values — classic `True` while LE reads `False`. Both carry the same
+  `ContainerId`. Keying the list on `Id` would show every headset twice and let the two rows
+  disagree about whether it is connected.
+- **Connection state is `System.Devices.Aep.IsConnected`.** `DeviceInformation.IsEnabled` came
+  back `False` for every association endpoint, connected ones included; it does not mean what
+  its name suggests. `BluetoothDevice.ConnectionStatus` agrees with the AEP property but costs a
+  `FromIdAsync` call per device and cannot be watched, so the property is the one to use.
+- **Filter on `Cod.Major:=4` (AudioVideo).** Filtering on
+  `System.Devices.Aep.Bluetooth.Cod.Services.Audio` does not work: the iPhone reports it `True`,
+  and the AQS filter returned all three devices. `Cod.Major` cleanly separates the phone (2) from
+  the earbuds and the speaker (4), and it can go in the AQS string rather than being filtered in
+  our own code.
+- **Use the raw `Cod.Minor` number, never WinRT's `ClassOfDevice.MinorClass`.** The projected
+  enum is wrong: the earbuds report `ComputerDesktop` and the speaker reports `PhoneIsdn`. The
+  raw values are correct and useful — 1 is a wearable headset, 5 a loudspeaker — which is how the
+  app can tell headphones from a speaker. Minor-class values only have meaning inside a major
+  class, and the projection ignores that.
+- **No battery anywhere in device properties.** Both known battery property keys came back absent
+  on all three devices, including the connected earbuds. Battery must therefore be modelled as
+  genuinely unknown rather than as a value waiting to be read, and phase 2 has to go through
+  GATT. A warning for that phase: the earbuds' LE endpoint reads `IsConnected = False` while the
+  classic endpoint is connected and playing audio, so the GATT route may be unreachable exactly
+  when the battery matters most.
+- **Device property types are not what you would guess.** `Cod.Minor` comes back as `UInt16`, not `UInt32`; `ContainerId` as `Guid`; `IsConnected` as `Boolean`. A pattern match on the wrong numeric type fails silently and leaves the value absent, which is how the first build of this phase shipped with every device classified as unknown. `DevicePropertyReader` therefore accepts any plausible integral type and is unit-tested against each one.
+- **`SignalStrength` is in dBm and is not comparable across transports.** The same earbuds read
+  -8 over classic and -52 over LE. Never put the two on one scale.
+- **The audio-endpoint join key is `System.Devices.ContainerId`** — a different property name
+  from the association endpoint's `System.Devices.Aep.ContainerId`, holding the same value. The
+  endpoint named `Headphones (OPPO Enco Air5)` carries the earbuds' container id, which is what
+  phase 3 will join on. Audio endpoints are `DeviceInformationKind.DeviceInterface`, Bluetooth
+  devices are `AssociationEndpoint`, and the two kinds expose different property sets.
+- **Not every audio endpoint has a Bluetooth device behind it.** The INZONE H5 appears as two
+  endpoints with a shared container id and never appears in any Bluetooth enumeration, because it
+  connects over its own 2.4 GHz dongle. The join must tolerate endpoints with no Bluetooth device
+  and Bluetooth devices with no endpoint — a paired but disconnected headset has none.
+- **The A2DP and Hands-Free split is real but not universal.** The INZONE H5 shows two endpoints,
+  `Headphones (… - Game)` and `Headset Earphone (… - Chat)`; the connected earbuds currently show
+  only one. Phase 3 cannot assume a pair.
+- **Windows supplies an icon per device** in `System.Devices.Icon` and
+  `System.Devices.GlyphIcon`, as `DDORes.dll` resource ids that differ by device type. Free
+  iconography if we ever want to extract them, and a fallback is still needed.
+- **`GetDeviceSelectorFromPairingState(true)` is not strictly "paired only".** The selector it
+  generates is `IsPaired OR IssueInquiry:=False`. It returned 3 devices where the raw protocol
+  AQS returned 10, so it is a useful filter, but read it as "paired or already known" rather than
+  a guarantee.
 | # | Increment | Deliverable | Tests |
 |---|---|---|---|
-| 1.1 | `BluetoothHeadphones` model (`Id`, `Name`) + `IBluetoothDeviceService` + one-shot enumeration | the window lists your headphones by name | ViewModel maps results; duplicate ids; a device with a blank name |
-| 1.2 | Empty and error states | "no devices found", and a visible error if enumeration fails | empty list renders the empty state; a throwing service renders the error, and logs it |
-| 1.3 | Connection state per device | each row shows connected or disconnected | state mapping; unknown state stays unknown |
-| 1.4 | Watcher: devices appearing and disappearing | the list reacts when you turn the headset on or off | added and removed events; cross-thread marshalling; watcher stopped and unsubscribed on close |
-| 1.5 | Watcher: property changes on a device already listed | a rename or a state change updates in place, without the row jumping | updated event changes the existing item rather than re-adding; an update for an unknown id is ignored |
-| 1.6 | Device selection, persisted | the selected device is remembered across restarts | selection survives a refresh; the selected device disappears; nothing selected; a persisted id that no longer exists |
+| 1.1 | `BluetoothAudioDevice` model keyed on `ContainerId`, `IBluetoothDeviceService`, and one-shot enumeration filtered with `Cod.Major:=4` | the window lists the paired audio devices by name, each appearing once | ViewModel maps results; the same container arriving twice from the classic and LE endpoints collapses to one row; a device with a blank name |
+| 1.2 | Headphones told apart from speakers by the raw `Cod.Minor` value | the speaker is distinguishable from the earbuds in the list | 1, 2 and 6 read as headphones, 5 as a loudspeaker, an unknown value stays unknown rather than defaulting |
+| 1.3 | Empty and error states | "no devices found", and a visible error if enumeration fails | empty list renders the empty state; a throwing service renders the error and records it in diagnostics |
+| 1.4 | Connection state from `Aep.IsConnected` | each row shows connected or disconnected | state mapping; the two endpoints of one container disagreeing resolves to connected; a device whose state is absent stays unknown |
+| 1.5 | Watcher: devices appearing and disappearing | the list reacts when you turn the headset on or off | added and removed events; marshalling through `IUiScheduler`; watcher stopped and unsubscribed on close |
+| 1.6 | Watcher: property changes on a device already listed | a rename or a connection change updates in place, without the row jumping or duplicating | updated event changes the existing container's row rather than adding one; an update for an unknown container is ignored |
+| 1.7 | Device selection, persisted through `ISettingsStore` | the selected device is remembered across restarts | selection survives a refresh; the selected device disappears; nothing selected; a persisted container id that no longer exists |
 
 ### Phase 2 — Battery level
 

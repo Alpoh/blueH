@@ -122,6 +122,11 @@ Common WPF practice as it applies to this project.
 - Prefer the built-in `RoutedUICommand`s (`ApplicationCommands.Save`, `Copy`, …) where they fit; they come with key gestures already bound.
 - Event handlers in code-behind are acceptable only where no command equivalent exists (low-level keyboard, drag & drop) — and they should delegate straight to the ViewModel.
 
+### Reading device properties
+
+- **Never pattern-match a WinRT device property on the type you expect.** The values arrive boxed and the runtime type is often not the obvious one: `System.Devices.Aep.Bluetooth.Cod.Minor` is a `UInt16`, not a `UInt32`. A `value is uint` check against it fails silently and yields an absent value, so the UI quietly shows "unknown" instead of an error. Read every property through `DevicePropertyReader`, which accepts any plausible type and is unit-tested against each one, and add a case there rather than matching inline.
+- **Verify every new property against real hardware**, printing its runtime type, before writing the code that reads it. Unit tests cannot catch this class of bug, because the test supplies the type the code already expects.
+
 ### Threading
 
 - WinRT device callbacks and `DeviceWatcher` events arrive on a thread pool thread. Marshal to the UI thread with `Dispatcher.InvokeAsync` before touching bound state that WPF is not synchronizing.

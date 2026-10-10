@@ -129,4 +129,40 @@
   <data name="DiagnosticsDetailHeader" xml:space="preserve">
     <value>Detail</value>
   </data>
+  <data name="DevicesHeader" xml:space="preserve">
+    <value>Devices</value>
+  </data>
+  <data name="DevicesEmptyMessage" xml:space="preserve">
+    <value>No paired Bluetooth audio devices found</value>
+  </data>
+  <data name="DevicesErrorMessage" xml:space="preserve">
+    <value>Could not read Bluetooth devices</value>
+  </data>
+  <data name="DeviceNameHeader" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="DeviceKindHeader" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="DeviceConnectionHeader" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="DeviceConnectedLabel" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="DeviceDisconnectedLabel" xml:space="preserve">
+    <value>Disconnected</value>
+  </data>
+  <data name="DeviceConnectionUnknownLabel" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="DeviceKindHeadphonesLabel" xml:space="preserve">
+    <value>Headphones</value>
+  </data>
+  <data name="DeviceKindLoudspeakerLabel" xml:space="preserve">
+    <value>Speaker</value>
+  </data>
+  <data name="DeviceKindUnknownLabel" xml:space="preserve">
+    <value>Unknown device</value>
+  </data>
 </root>

@@ -4,7 +4,8 @@ public sealed record BluetoothAudioDevice(
     Guid ContainerId,
     string Name,
     BluetoothAudioDeviceKind Kind,
-    bool? IsConnected)
+    bool? IsConnected,
+    BatteryCharge Battery)
 {
     public static IReadOnlyList<BluetoothAudioDevice> FromEndpoints(IEnumerable<BluetoothAudioEndpoint> endpoints)
     {
@@ -22,7 +23,8 @@ public sealed record BluetoothAudioDevice(
             endpoints[0].ContainerId,
             NameOf(endpoints),
             KindOf(endpoints),
-            ConnectionStateOf(endpoints));
+            ConnectionStateOf(endpoints),
+            BatteryCharge.Unknown);
     }
 
     private static string NameOf(BluetoothAudioEndpoint[] endpoints)

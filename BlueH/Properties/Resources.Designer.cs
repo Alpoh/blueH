@@ -67,6 +67,33 @@ namespace BlueH.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Battery.
+        /// </summary>
+        internal static string DeviceBatteryHeader {
+            get {
+                return ResourceManager.GetString("DeviceBatteryHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}%.
+        /// </summary>
+        internal static string DeviceBatteryPercentFormat {
+            get {
+                return ResourceManager.GetString("DeviceBatteryPercentFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        internal static string DeviceBatteryUnknownLabel {
+            get {
+                return ResourceManager.GetString("DeviceBatteryUnknownLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connected.
         /// </summary>
         internal static string DeviceConnectedLabel {

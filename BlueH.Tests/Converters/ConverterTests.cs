@@ -84,6 +84,56 @@ public class ConverterTests
             Throws.InstanceOf<NotSupportedException>());
     }
 
+    [Test]
+    public void AKnownBatteryShowsItsPercentage()
+    {
+        Assert.That(
+            Convert(new BatteryChargeToTextConverter().Convert, BatteryCharge.FromPercent(80)),
+            Does.Contain("80"));
+    }
+
+    [Test]
+    public void AnEmptyBatteryShowsZeroRatherThanUnknown()
+    {
+        Assert.That(
+            Convert(new BatteryChargeToTextConverter().Convert, BatteryCharge.FromPercent(0)),
+            Does.Contain("0"));
+    }
+
+    [Test]
+    public void AnUnknownBatteryReadsDifferentlyFromAnEmptyOne()
+    {
+        BatteryChargeToTextConverter converter = new();
+
+        Assert.That(
+            Convert(converter.Convert, BatteryCharge.Unknown),
+            Is.Not.EqualTo(Convert(converter.Convert, BatteryCharge.FromPercent(0))));
+    }
+
+    [Test]
+    public void AnUnknownBatteryStillHasText()
+    {
+        Assert.That(Convert(new BatteryChargeToTextConverter().Convert, BatteryCharge.Unknown), Is.Not.Null.And.Not.Empty);
+    }
+
+    [Test]
+    public void SomethingThatIsNotABatteryReadsAsUnknownRatherThanThrowing()
+    {
+        BatteryChargeToTextConverter converter = new();
+
+        Assert.That(
+            Convert(converter.Convert, "not a battery"),
+            Is.EqualTo(Convert(converter.Convert, BatteryCharge.Unknown)));
+    }
+
+    [Test]
+    public void TheBatteryConverterRefusesToConvertBack()
+    {
+        Assert.That(
+            () => new BatteryChargeToTextConverter().ConvertBack(null, typeof(object), null, CultureInfo.InvariantCulture),
+            Throws.InstanceOf<NotSupportedException>());
+    }
+
     private static object? Convert(Func<object?, Type, object?, CultureInfo, object?> convert, object? value)
     {
         return convert(value, typeof(string), null, CultureInfo.InvariantCulture);

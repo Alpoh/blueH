@@ -165,4 +165,13 @@
   <data name="DeviceKindUnknownLabel" xml:space="preserve">
     <value>Unknown device</value>
   </data>
+  <data name="DeviceBatteryHeader" xml:space="preserve">
+    <value>Battery</value>
+  </data>
+  <data name="DeviceBatteryPercentFormat" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="DeviceBatteryUnknownLabel" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

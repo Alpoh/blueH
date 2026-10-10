@@ -5,6 +5,7 @@
     <UserControl.Resources>
         <converters:DeviceKindToTextConverter x:Key="DeviceKindToText" />
         <converters:ConnectionStateToTextConverter x:Key="ConnectionStateToText" />
+        <converters:BatteryChargeToTextConverter x:Key="BatteryChargeToText" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
     <DockPanel Grid.IsSharedSizeScope="True" Margin="12">
@@ -29,10 +30,12 @@
                 <ColumnDefinition Width="*" SharedSizeGroup="DeviceName" />
                 <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceKind" />
                 <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceBattery" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="{Binding NameHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
             <TextBlock Grid.Column="1" Text="{Binding KindHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="2" Text="{Binding ConnectionHeader}" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="2" Text="{Binding ConnectionHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="3" Text="{Binding BatteryHeader}" FontWeight="SemiBold" />
         </Grid>
         <ListBox ItemsSource="{Binding Devices}"
                  SelectedValue="{Binding SelectedContainerId, Mode=TwoWay}"
@@ -46,13 +49,17 @@
                             <ColumnDefinition Width="*" SharedSizeGroup="DeviceName" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceKind" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceBattery" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding Name}" TextTrimming="CharacterEllipsis" Margin="0,0,16,0" />
                         <TextBlock Grid.Column="1"
                                    Text="{Binding Kind, Converter={StaticResource DeviceKindToText}}"
                                    Margin="0,0,16,0" />
                         <TextBlock Grid.Column="2"
-                                   Text="{Binding IsConnected, Converter={StaticResource ConnectionStateToText}}" />
+                                   Text="{Binding IsConnected, Converter={StaticResource ConnectionStateToText}}"
+                                   Margin="0,0,16,0" />
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding Battery, Converter={StaticResource BatteryChargeToText}}" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

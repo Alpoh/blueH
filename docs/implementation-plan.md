@@ -15,10 +15,11 @@ because Windows exposes almost none of this where a user can act on it.
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
 - `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
-- Phases 0 and 1 complete. 135 tests green.
-- The window lists paired Bluetooth audio devices with their type and connection state, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones, Sony SRS-XE300 as a disconnected speaker.
+- Phases 0, 1 and 2 complete. 177 tests green.
+- The window lists paired Bluetooth audio devices with their type, connection state and battery, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones at 80%, Sony SRS-XE300 as a disconnected speaker with battery unknown.
+- Battery is polled every minute and whenever a device becomes connected, through `FirstKnownBatteryService` over the Hands-Free device property, with GATT behind it as an unverified fallback.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
-- Next: phase 2, battery. Spike it first: the phase 1 spike found no battery property on any device, and the earbuds' LE endpoint reads disconnected while their classic endpoint is playing audio.
+- Next: phase 3, audio endpoint control. Spike it first: the join key is `System.Devices.ContainerId` on the audio endpoint, and increment 3.5 depends on the undocumented `IPolicyConfig`.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -149,7 +150,7 @@ is knowing what to model.
 
 ## 7. Increments
 
-34 increments, each one commit, each ending with a green suite and a running app. The
+36 increments, each one commit, each ending with a green suite and a running app. The
 deliverable column says what is observable when it is done — and says so honestly when the
 answer is "a test" rather than something on screen.
 
@@ -229,15 +230,47 @@ were written on.
 
 ### Phase 2 — Battery level
 
-Spike first, both paths: GATT `0x180F` and the Windows battery device property. Coverage is
-decided by the headset, not by the app.
+Spike findings, 2026-10-10. Battery **is** reachable, but through none of the routes this plan
+originally assumed. Four were probed; one works.
+
+| Route | Result |
+|---|---|
+| Property on the association endpoint | absent on every device, connected ones included |
+| **Property on the PnP `Device` object** | **the value, as a `Byte`** |
+| GATT Battery Service `0x180F` over LE | `Unreachable`: the LE endpoint stays disconnected while the classic endpoint carries audio |
+| `Windows.Devices.Power.Battery` | zero devices; it covers system batteries, not peripherals |
+
+- **The battery lives on one PnP `Device` object out of twenty-four** sharing the container. For
+  the earbuds it is the object whose id carries the Hands-Free Profile UUID
+  `0000111e-0000-1000-8000-00805f9b34fb`, named `OPPO Enco Air5 Hands-Free AG`, and the value
+  arrives on `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2`.
+- **Enumerate with `DeviceInformationKind.Device`** and the AQS
+  `System.Devices.ContainerId:="{<container>}"`, then take whichever object carries the property.
+  **Never match on the device name** — it is vendor text and may be localised. AQS cannot express
+  "this property exists", so the scan happens in our code.
+- **The value is a `Byte`**, not a `UInt16` like `Cod.Minor` and not a `UInt32`. This is the
+  second property in two phases whose type is not the obvious one; read it through
+  `DevicePropertyReader`.
+- **Battery arrives over Hands-Free Profile**, which explains the coverage pattern precisely: the
+  speaker is A2DP-only, has no HFP service object, and therefore has no battery — not a bug, and
+  not something a different API would fix. A headset reports battery only while HFP-connected.
+- **`System.Devices.BatteryLifePercent` is not a valid property key** at all (the enumeration
+  throws a syntax error), and `System.Devices.BatteryPlusCharging`, while a valid key, carried no
+  value. Neither is a route.
+- **GATT is not worth building against this hardware.** It cannot be verified here, so it is
+  deferred to the last increment of the phase rather than being the first as originally planned.
 
 | # | Increment | Deliverable | Tests |
 |---|---|---|---|
-| 2.1 | `BatteryCharge` model with **unknown as a first-class state** | a percentage, or an explicit "unknown" — never a misleading 0 | known value; unknown; 0 distinguished from unknown; out-of-range value rejected |
-| 2.2 | GATT adapter | battery for a BLE headset | adapter logic against a faked GATT surface; no battery characteristic present |
-| 2.3 | Device-property adapter, as a fallback chain behind the GATT one | battery for a classic headset | the chain tries GATT, falls back, and reports unknown when both fail — each step logged |
-| 2.4 | Refresh on connect and on an interval | the number updates without reopening the app | driven by `FakeTimeProvider`: nothing before the interval, a refresh after it, no overlapping refreshes |
+| 2.1 | `BatteryCharge` model with **unknown as a first-class state** | a percentage, or an explicit "unknown" — never a misleading 0 | known value; unknown; 0 distinguished from unknown; a value above 100 rejected |
+| 2.2 | `DevicePropertyReader` reads the battery byte | a test | read from `Byte`; from the other plausible integral types; absent stays unknown; a value out of range rejected |
+| 2.3 | `IBatteryService` and the HFP device-property adapter | the earbuds show a charge percentage, the speaker shows unknown | ViewModel maps a value, an unknown, and a failure; the container with no battery-bearing object reports unknown and logs why |
+| 2.4 | Battery shown per device in the list | a battery column that reads "unknown" rather than blank or zero | the column renders all three states; unknown is not styled as an error |
+| 2.5 | Refresh on connect and on an interval | the number updates without reopening the app | driven by `FakeTimeProvider`: nothing before the interval, a refresh after it, no overlapping refreshes, a refresh when a device becomes connected |
+| 2.6 | GATT `0x180F` as a secondary route, tried only when no HFP battery exists | battery for an LE-only headset, if one is ever available | adapter logic against a faked GATT surface; `Unreachable` falls through to unknown and is logged; the chain never masks a working HFP value |
+
+Increment 2.6 cannot be verified against the hardware available today, so it ships last and
+behind the route that works. Do not let it block the phase.
 
 ### Phase 3 — Audio endpoint control
 
@@ -359,7 +392,7 @@ of `dotnet test`. Green means "the logic is correct", not "the app works".
 - No comments in the code; no user-facing string literals; no hardcoded colours.
 - Every platform call the increment adds logs through the diagnostics channel.
 - No exception from a device call is swallowed; failures reach an error state the UI shows.
-- Mutation-checked whenever the increment adds logic: break the implementation deliberately and confirm the new tests go red. A test that has never failed proves nothing — this is how the string-interning gap in increment 0.1 was found.
+- Mutation-checked whenever the increment adds logic: break the implementation deliberately and confirm the new tests go red. Check that the tests actually ran: a mutation that fails to compile, or one that makes a test hang instead of fail, proves nothing. Both have happened — the second is a signal to rewrite the test so it fails fast. A test that has never failed proves nothing — this is how the string-interning gap in increment 0.1 was found.
 - Verified by hand against a real headset, with the result written down.
 - One increment, one commit.
 - `CLAUDE.md` updated if a convention or a platform constraint changed.

@@ -10,30 +10,43 @@ namespace BlueH.ViewModels;
 
 public sealed class DevicesViewModel : ViewModelBase, IDisposable
 {
+    public static readonly TimeSpan DefaultBatteryPollingInterval = TimeSpan.FromMinutes(1);
+
     private const string FindDevicesOperation = "Find paired audio devices";
     private const string WatchDevicesOperation = "Watch audio devices";
     private const string SaveSelectionOperation = "Save selected device";
+    private const string RefreshBatteriesOperation = "Refresh batteries";
 
     private readonly IBluetoothDeviceService _deviceService;
+    private readonly IBatteryService _batteryService;
     private readonly IUiScheduler _uiScheduler;
     private readonly IDiagnosticsLog _diagnosticsLog;
     private readonly ISettingsStore _settingsStore;
+    private readonly TimeProvider _timeProvider;
     private readonly Dictionary<string, BluetoothAudioEndpoint> _endpoints = [];
+    private readonly Dictionary<Guid, BatteryCharge> _batteries = [];
 
     private IBluetoothAudioEndpointWatcher? _watcher;
+    private ITimer? _batteryTimer;
+    private Guid[] _connectedContainers = [];
     private Guid? _selectedContainerId;
     private string? _errorDetail;
+    private bool _batteryRefreshInFlight;
 
     public DevicesViewModel(
         IBluetoothDeviceService deviceService,
+        IBatteryService batteryService,
         IUiScheduler uiScheduler,
         IDiagnosticsLog diagnosticsLog,
-        ISettingsStore settingsStore)
+        ISettingsStore settingsStore,
+        TimeProvider timeProvider)
     {
         _deviceService = deviceService;
+        _batteryService = batteryService;
         _uiScheduler = uiScheduler;
         _diagnosticsLog = diagnosticsLog;
         _settingsStore = settingsStore;
+        _timeProvider = timeProvider;
         _selectedContainerId = ReadPersistedSelection();
     }
 
@@ -84,6 +97,8 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
 
     public string ConnectionHeader => AppResources.DeviceConnectionHeader;
 
+    public string BatteryHeader => AppResources.DeviceBatteryHeader;
+
     public async Task RefreshAsync(CancellationToken cancellationToken)
     {
         try
@@ -117,6 +132,38 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public async Task RefreshBatteriesAsync(CancellationToken cancellationToken)
+    {
+        if (_batteryRefreshInFlight)
+        {
+            return;
+        }
+
+        _batteryRefreshInFlight = true;
+
+        try
+        {
+            foreach (Guid containerId in _connectedContainers)
+            {
+                BatteryCharge charge = await _batteryService.ReadChargeAsync(containerId, cancellationToken);
+
+                _uiScheduler.Post(() => ApplyBattery(containerId, charge));
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception failure)
+        {
+            _diagnosticsLog.Record(DiagnosticOutcome.Failure, RefreshBatteriesOperation, failure.Message);
+        }
+        finally
+        {
+            _batteryRefreshInFlight = false;
+        }
+    }
+
     public void StartWatching()
     {
         if (_watcher is not null)
@@ -133,8 +180,20 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
         _diagnosticsLog.Record(DiagnosticOutcome.Information, WatchDevicesOperation);
     }
 
+    public void StartBatteryPolling(TimeSpan interval)
+    {
+        _batteryTimer ??= _timeProvider.CreateTimer(
+            _ => BeginBatteryRefresh(),
+            state: null,
+            interval,
+            interval);
+    }
+
     public void Dispose()
     {
+        _batteryTimer?.Dispose();
+        _batteryTimer = null;
+
         if (_watcher is null)
         {
             return;
@@ -182,6 +241,19 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
         });
     }
 
+    private void ApplyBattery(Guid containerId, BatteryCharge charge)
+    {
+        _batteries[containerId] = charge;
+
+        int index = IndexOf(containerId);
+
+        if (index >= 0)
+        {
+            Devices[index] = Devices[index] with { Battery = charge };
+            OnPropertyChanged(nameof(SelectedDevice));
+        }
+    }
+
     private void ApplyEndpoints()
     {
         IReadOnlyList<BluetoothAudioDevice> incoming = BluetoothAudioDevice.FromEndpoints(_endpoints.Values);
@@ -196,20 +268,51 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
 
         foreach (BluetoothAudioDevice device in incoming)
         {
-            int existing = IndexOf(device.ContainerId);
+            BluetoothAudioDevice withBattery = device with
+            {
+                Battery = _batteries.TryGetValue(device.ContainerId, out BatteryCharge charge)
+                    ? charge
+                    : BatteryCharge.Unknown
+            };
+
+            int existing = IndexOf(withBattery.ContainerId);
 
             if (existing < 0)
             {
-                Devices.Add(device);
+                Devices.Add(withBattery);
             }
-            else if (Devices[existing] != device)
+            else if (Devices[existing] != withBattery)
             {
-                Devices[existing] = device;
+                Devices[existing] = withBattery;
             }
         }
 
         OnPropertyChanged(nameof(HasNoDevices));
         OnPropertyChanged(nameof(SelectedDevice));
+
+        UpdateConnectedContainers(incoming);
+    }
+
+    private void UpdateConnectedContainers(IReadOnlyList<BluetoothAudioDevice> devices)
+    {
+        Guid[] previous = _connectedContainers;
+
+        _connectedContainers =
+        [
+            .. devices
+                .Where(device => device.IsConnected == true)
+                .Select(device => device.ContainerId)
+        ];
+
+        if (_connectedContainers.Except(previous).Any())
+        {
+            BeginBatteryRefresh();
+        }
+    }
+
+    private void BeginBatteryRefresh()
+    {
+        _ = RefreshBatteriesAsync(CancellationToken.None);
     }
 
     private int IndexOf(Guid containerId)

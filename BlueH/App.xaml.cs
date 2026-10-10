@@ -22,11 +22,22 @@ public partial class App
         DispatcherUiScheduler uiScheduler = new(Dispatcher);
         JsonSettingsStore settingsStore = new(JsonSettingsStore.DefaultFilePath);
         WinRtBluetoothDeviceService deviceService = new(diagnosticsLog);
+        FirstKnownBatteryService batteryService = new(
+        [
+            new DevicePropertyBatteryService(diagnosticsLog),
+            new GattBatteryService(diagnosticsLog)
+        ]);
 
         diagnosticsLog.Record(DiagnosticOutcome.Information, StartUpOperation, JsonSettingsStore.DefaultFilePath);
         RecordSettingsLoad(diagnosticsLog, settingsStore.Load());
 
-        DevicesViewModel devices = new(deviceService, uiScheduler, diagnosticsLog, settingsStore);
+        DevicesViewModel devices = new(
+            deviceService,
+            batteryService,
+            uiScheduler,
+            diagnosticsLog,
+            settingsStore,
+            TimeProvider.System);
         _mainViewModel = new MainViewModel(devices, new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
 
         MainWindow window = new()
@@ -54,6 +65,7 @@ public partial class App
         {
             await devices.RefreshAsync(CancellationToken.None);
             devices.StartWatching();
+            devices.StartBatteryPolling(DevicesViewModel.DefaultBatteryPollingInterval);
         }
         catch (Exception failure)
         {

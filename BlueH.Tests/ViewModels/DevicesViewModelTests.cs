@@ -24,14 +24,18 @@ public class DevicesViewModelTests
     private RecordingUiScheduler _uiScheduler = null!;
     private InMemoryDiagnosticsLog _diagnosticsLog = null!;
     private FakeSettingsStore _settingsStore = null!;
+    private FakeBatteryService _batteryService = null!;
+    private FakeTimeProvider _timeProvider = null!;
 
     [SetUp]
     public void SetUp()
     {
         _deviceService = new FakeBluetoothDeviceService();
         _uiScheduler = new RecordingUiScheduler();
-        _diagnosticsLog = new InMemoryDiagnosticsLog(new FakeTimeProvider());
+        _timeProvider = new FakeTimeProvider();
+        _diagnosticsLog = new InMemoryDiagnosticsLog(_timeProvider);
         _settingsStore = new FakeSettingsStore();
+        _batteryService = new FakeBatteryService();
     }
 
     [Test]
@@ -396,9 +400,185 @@ public class DevicesViewModelTests
         Assert.That(viewModel.SelectedContainerId, Is.EqualTo(SpeakerContainer));
     }
 
+    [Test]
+    public async Task ADeviceStartsWithAnUnknownBattery()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass, isConnected: false));
+        using DevicesViewModel viewModel = CreateViewModel();
+
+        await viewModel.RefreshAsync(CancellationToken.None);
+
+        Assert.That(viewModel.Devices[0].Battery, Is.EqualTo(BatteryCharge.Unknown));
+    }
+
+    [Test]
+    public async Task AConnectedDeviceGetsItsBatteryWithoutBeingAsked()
+    {
+        _batteryService.SetCharge(EarbudsContainer, BatteryCharge.FromPercent(80));
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Devices[0].Battery.ChargePercent, Is.EqualTo(80));
+    }
+
+    [Test]
+    public async Task ADisconnectedDeviceIsNeverAskedForItsBattery()
+    {
+        _deviceService.Endpoints.Add(Classic(SpeakerContainer, SpeakerName, LoudspeakerMinorClass, isConnected: false));
+        using DevicesViewModel viewModel = CreateViewModel();
+
+        await viewModel.RefreshAsync(CancellationToken.None);
+        await viewModel.RefreshBatteriesAsync(CancellationToken.None);
+
+        Assert.That(_batteryService.ReadContainerIds, Does.Not.Contain(SpeakerContainer));
+    }
+
+    [Test]
+    public async Task ADeviceThatReportsNoBatteryShowsUnknownRatherThanZero()
+    {
+        _deviceService.Endpoints.Add(Classic(SpeakerContainer, SpeakerName, LoudspeakerMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Devices[0].Battery.IsKnown, Is.False);
+    }
+
+    [Test]
+    public async Task AKnownBatterySurvivesAnEndpointUpdate()
+    {
+        _batteryService.SetCharge(EarbudsContainer, BatteryCharge.FromPercent(80));
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _uiScheduler.RunPendingWork();
+        viewModel.StartWatching();
+
+        _deviceService.Watcher.RaiseUpdated(Classic(EarbudsContainer, "OPPO Enco Air5 renamed", WearableHeadsetMinorClass));
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Devices[0].Battery.ChargePercent, Is.EqualTo(80));
+    }
+
+    [Test]
+    public async Task ABatteryRefreshAlreadyRunningIsNotStartedAgain()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _batteryService.ReadContainerIds.Clear();
+        _batteryService.BlockUntilReleased();
+
+        Task first = viewModel.RefreshBatteriesAsync(CancellationToken.None);
+        Task second = viewModel.RefreshBatteriesAsync(CancellationToken.None);
+        int readsWhileOneWasRunning = _batteryService.ReadCount;
+
+        _batteryService.Release();
+        await Task.WhenAll(first, second);
+
+        Assert.That(readsWhileOneWasRunning, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task AFailedBatteryReadIsRecordedRatherThanThrown()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _batteryService.FailureToReturn = new InvalidOperationException("the device went away");
+
+        await viewModel.RefreshBatteriesAsync(CancellationToken.None);
+
+        Assert.That(
+            _diagnosticsLog.Entries.Select(entry => entry.Detail),
+            Does.Contain("the device went away"));
+    }
+
+    [Test]
+    public async Task NoBatteryIsReadBeforeThePollingIntervalElapses()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartBatteryPolling(TimeSpan.FromMinutes(1));
+        _batteryService.ReadContainerIds.Clear();
+
+        _timeProvider.Advance(TimeSpan.FromSeconds(59));
+
+        Assert.That(_batteryService.ReadCount, Is.Zero);
+    }
+
+    [Test]
+    public async Task TheBatteryIsReadAgainOnceThePollingIntervalElapses()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartBatteryPolling(TimeSpan.FromMinutes(1));
+        _batteryService.ReadContainerIds.Clear();
+
+        _timeProvider.Advance(TimeSpan.FromMinutes(1));
+
+        Assert.That(_batteryService.ReadCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task PollingKeepsGoingAfterSeveralIntervals()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartBatteryPolling(TimeSpan.FromMinutes(1));
+        _batteryService.ReadContainerIds.Clear();
+
+        _timeProvider.Advance(TimeSpan.FromMinutes(3));
+
+        Assert.That(_batteryService.ReadCount, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task DisposingStopsThePolling()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartBatteryPolling(TimeSpan.FromMinutes(1));
+        viewModel.Dispose();
+        _batteryService.ReadContainerIds.Clear();
+
+        _timeProvider.Advance(TimeSpan.FromMinutes(5));
+
+        Assert.That(_batteryService.ReadCount, Is.Zero);
+    }
+
+    [Test]
+    public async Task ADeviceThatBecomesConnectedIsAskedForItsBattery()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass, isConnected: false));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartWatching();
+        _batteryService.ReadContainerIds.Clear();
+
+        _deviceService.Watcher.RaiseUpdated(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass, isConnected: true));
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(_batteryService.ReadContainerIds, Does.Contain(EarbudsContainer));
+    }
+
     private DevicesViewModel CreateViewModel()
     {
-        return new DevicesViewModel(_deviceService, _uiScheduler, _diagnosticsLog, _settingsStore);
+        return new DevicesViewModel(
+            _deviceService,
+            _batteryService,
+            _uiScheduler,
+            _diagnosticsLog,
+            _settingsStore,
+            _timeProvider);
     }
 
     private static BluetoothAudioEndpoint Classic(

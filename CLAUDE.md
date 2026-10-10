@@ -141,7 +141,7 @@ Common WPF practice as it applies to this project.
 - **`DataTemplate` for how data looks, `ControlTemplate` for how a control looks.** Never subclass a control just to change its appearance.
 - **`StaticResource` by default**; `DynamicResource` only for resources that change at runtime (theming, language) — it costs more.
 - **`Freeze()` shared brushes and geometries** that never change.
-- **The app is fixed to the Fluent dark theme** (`ThemeMode="Dark"` in `App.xaml`), not following the system preference. Never hardcode a colour a theme should supply: take colours from theme resources so the app stays correct if the theme ever becomes a user setting, and so the system accent colour keeps coming through.
+- **The app is fixed to the Fluent dark theme** (`ThemeMode="Dark"` in `App.xaml`), not following the system preference. `ThemeMode` is marked `[Experimental]` as `WPF0001`, which is an error rather than a warning: setting it from XAML compiles clean because the XAML loader assigns it at runtime, but any C# assignment fails the build. Do not add a project-wide `NoWarn` for it — that would hide the diagnostic everywhere. When the theme becomes a user setting (it is settable at runtime), wrap that single call site in `#pragma warning disable WPF0001` and restore immediately after. Microsoft may change or remove the API, so keep the dependency to that one attribute. Never hardcode a colour a theme should supply: take colours from theme resources so the app stays correct if the theme ever becomes a user setting, and so the system accent colour keeps coming through.
 
 ### Validation
 
@@ -172,6 +172,7 @@ Supporting multiple languages is a planned implementation step. Even before it i
 - **Units of measure are a display concern, never a storage one.** Values stay SI internally (see the metric-units rule); if a culture needs different units shown, convert in the presentation layer and pull the unit symbol from the `.resx` alongside the formatted number.
 - **Use `StringComparison.Ordinal` for internal keys and identifiers** — Bluetooth device ids, MAC addresses, GUIDs, AQS filter strings — and culture-aware comparison only for text shown to the user. Never use culture-sensitive comparison on protocol strings.
 - **Layout must absorb text growth.** Translations commonly run 30-40% longer than English; this is the practical reason behind the no-fixed-`Width` rule in the layout section. Let text wrap or the container grow, and verify with the longest available translation.
+- **Reach resources through an alias**: `using AppResources = BlueH.Properties.Resources;`. The bare name `Resources` collides with the inherited `Application.Resources` and `FrameworkElement.Resources` property present in every `App`, `Window`, and `UserControl` code-behind, and the inherited `ResourceDictionary` silently wins the name lookup. Expose strings as ViewModel properties bound with `{Binding}` rather than `{x:Static}`: the generated resource class is `internal`, and the runtime-switching decision below is still open.
 - **Device names come from the device, not from resources.** Never translate or normalise a name the hardware reports; display it verbatim.
 
 ### When the feature is implemented

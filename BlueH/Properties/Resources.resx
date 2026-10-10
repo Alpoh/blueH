@@ -114,4 +114,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ApplicationTitle" xml:space="preserve">
+    <value>BlueH</value>
+  </data>
+  <data name="DiagnosticsOutcomeHeader" xml:space="preserve">
+    <value>Outcome</value>
+  </data>
+  <data name="DiagnosticsTimeHeader" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="DiagnosticsOperationHeader" xml:space="preserve">
+    <value>Operation</value>
+  </data>
+  <data name="DiagnosticsDetailHeader" xml:space="preserve">
+    <value>Detail</value>
+  </data>
 </root>

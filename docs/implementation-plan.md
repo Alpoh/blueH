@@ -14,9 +14,10 @@ because Windows exposes almost none of this where a user can act on it.
 - WPF app on .NET 10 (`net10.0-windows10.0.26100.0`), SDK-style project, builds clean with
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
-- `BlueH.Tests` (NUnit 4, NSubstitute) on the same TFM as the app; 29 tests green.
-- Done: increment 0.1 (`ViewModelBase` tests) and 0.2 (`Time/CanonicalTimestamp`).
-- `MainWindow` is still an empty `Grid`, so the app opens dark and blank. That is the expected look until increment 0.4, not a defect. No feature code, no dependency injection yet.
+- `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
+- Phase 0 complete: 0.1 test project, 0.2 `Time/CanonicalTimestamp`, 0.3 `JsonSettingsStore`, 0.4 diagnostics panel. 63 tests green.
+- `MainWindow` hosts `Views/DiagnosticsView`, which lists every recorded platform call. Services are hand-wired in `App.xaml.cs`; there is no container yet.
+- Next: phase 1, starting with a spike on the AQS filter for Bluetooth audio devices.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored

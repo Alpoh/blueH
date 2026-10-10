@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueH", "BlueH\BlueH.csproj", "{0DD0D954-DEF9-4303-9BE2-688B502F514B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueH", "BlueH\BlueH.csproj", "{0DD0D954-DEF9-4303-9BE2-688B502F514B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

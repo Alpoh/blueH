@@ -141,7 +141,7 @@ Common WPF practice as it applies to this project.
 - **`DataTemplate` for how data looks, `ControlTemplate` for how a control looks.** Never subclass a control just to change its appearance.
 - **`StaticResource` by default**; `DynamicResource` only for resources that change at runtime (theming, language) — it costs more.
 - **`Freeze()` shared brushes and geometries** that never change.
-- **Respect the system theme.** The app follows Windows 11 light/dark and the system accent colour; never hardcode a colour a theme should supply.
+- **The app is fixed to the Fluent dark theme** (`ThemeMode="Dark"` in `App.xaml`), not following the system preference. Never hardcode a colour a theme should supply: take colours from theme resources so the app stays correct if the theme ever becomes a user setting, and so the system accent colour keeps coming through.
 
 ### Validation
 

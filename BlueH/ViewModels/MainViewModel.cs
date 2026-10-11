@@ -7,10 +7,12 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public MainViewModel(
         DevicesViewModel devices,
         EndpointsViewModel endpoints,
+        MediaTransportViewModel mediaTransport,
         DiagnosticsViewModel diagnostics)
     {
         Devices = devices;
         Endpoints = endpoints;
+        MediaTransport = mediaTransport;
         Diagnostics = diagnostics;
         Devices.PropertyChanged += OnDevicesPropertyChanged;
     }
@@ -19,12 +21,15 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
     public EndpointsViewModel Endpoints { get; }
 
+    public MediaTransportViewModel MediaTransport { get; }
+
     public DiagnosticsViewModel Diagnostics { get; }
 
     public void Dispose()
     {
         Devices.PropertyChanged -= OnDevicesPropertyChanged;
         Devices.Dispose();
+        MediaTransport.Dispose();
         Diagnostics.Dispose();
     }
 

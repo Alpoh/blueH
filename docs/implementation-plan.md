@@ -1,6 +1,6 @@
 # BlueH — Implementation Plan
 
-Last updated: 2026-10-10
+Last updated: 2026-10-11
 
 ## 1. Goal
 
@@ -15,13 +15,14 @@ because Windows exposes almost none of this where a user can act on it.
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
 - `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
-- Phases 0, 1, 2 and 3 complete. 220 tests green.
+- Phases 0 to 3 complete and verified by hand; phase 4 implemented, awaiting hand verification. 291 tests green.
 - The window lists paired Bluetooth audio devices with their type, connection state and battery, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones at 80%, Sony SRS-XE300 as a disconnected speaker with battery unknown.
 - Battery is polled every minute and whenever a device becomes connected, through `FirstKnownBatteryService` over the Hands-Free device property, with GATT behind it as an unverified fallback.
 - Selecting a device lists its audio outputs with a volume slider, a mute toggle, and buttons to make an output the default for playback or for calls. Volume writes are coalesced so dragging the slider issues one call per completed write.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
-- **Not yet verified by hand: everything in phase 3.** Reads were verified by spike against Core Audio, but the UI and `IPolicyConfig.SetDefaultEndpoint` have never been exercised. Reconnect the earbuds, run the app, and click the default buttons deliberately — that call is the one undocumented thing in the project.
-- Next: phase 4, media transport. It is public API and low risk, so no spike is strictly needed; a short one confirming `GlobalSystemMediaTransportControlsSessionManager` sees a session is still worth ten minutes.
+- A "Now playing" panel shows the current media session's title, artist and source app, with previous, play/pause and next buttons enabled from what the session itself allows.
+- **Not yet verified by hand: phase 4.** The adapter `WindowsMediaTransportService` has only run as a spike. Run the app with something playing and work through the checklist under phase 4.
+- Next: hand-verify phase 4, then phase 5, pairing management.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -357,6 +358,31 @@ correct and `IPolicyConfig.SetDefaultEndpoint` moves the Windows default. That u
 now verified against this build rather than merely reachable.
 
 ### Phase 4 — Media transport
+
+Spike findings, 2026-10-11, against Edge playing music on this machine.
+
+- **Play and Pause enablement swaps with the state.** While playing, `IsPlayEnabled=False` and
+  `IsPauseEnabled=True`; once paused, the reverse. Enablement is read from the session per state,
+  never inferred from the status alone: the button is enabled by `CanPause` while playing and by
+  `CanPlay` otherwise.
+- **`PlaybackInfoChanged` fires twice for every change**, so applying a session must be idempotent.
+  `MediaSession` is a record and the ViewModel compares by value, so the duplicate raises nothing.
+- **Events arrive on a thread-pool thread**, not the UI thread; they are marshalled through `IUiScheduler`.
+- **Events belong to one session.** When another app becomes current the adapter moves its
+  subscriptions to the new session, or the panel would freeze on the old one.
+- **Metadata is partial.** Edge reports title and artist but an empty album, so blank fields are
+  modelled as absent and shown as "unknown", never as an empty line.
+- **Commands can be refused.** `TryPlayAsync` and its siblings return `false` rather than throwing;
+  a refusal is shown in the panel and logged, not ignored.
+- **Command enablement must be re-announced.** A button bound to a command re-reads `CanExecute`
+  only when WPF requeries, which normally follows user input. Pausing from the earbuds produces no
+  input in the app, so `AsyncRelayCommand.RaiseCanExecuteChanged` was added and is called on
+  every session change.
+
+Hand-verification checklist: with music playing, the title, artist and app appear; pausing from the
+app flips the button to Play; pausing from the earbuds or the media keys flips it too, without
+touching the window; next and previous change the track; closing the player shows "Nothing is
+playing."; starting a second player moves the panel to it.
 
 | # | Increment | Deliverable | Tests |
 |---|---|---|---|

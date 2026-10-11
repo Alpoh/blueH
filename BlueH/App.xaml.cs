@@ -11,8 +11,10 @@ public partial class App
     private const string LoadSettingsOperation = "Load settings";
     private const string StartUpOperation = "Start up";
     private const string InitializeDevicesOperation = "Initialize device list";
+    private const string InitializeMediaTransportOperation = "Initialize media transport";
 
     private MainViewModel? _mainViewModel;
+    private WindowsMediaTransportService? _mediaTransportService;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -40,10 +42,13 @@ public partial class App
             TimeProvider.System);
         CoreAudioEndpointService endpointService = new(diagnosticsLog);
         EndpointsViewModel endpoints = new(endpointService, uiScheduler, diagnosticsLog);
+        _mediaTransportService = new WindowsMediaTransportService(diagnosticsLog);
+        MediaTransportViewModel mediaTransport = new(_mediaTransportService, uiScheduler, diagnosticsLog);
 
         _mainViewModel = new MainViewModel(
             devices,
             endpoints,
+            mediaTransport,
             new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
 
         MainWindow window = new()
@@ -55,12 +60,15 @@ public partial class App
         window.Show();
 
         _ = InitializeAsync(devices, endpoints, diagnosticsLog);
+        _ = InitializeMediaTransportAsync(mediaTransport, diagnosticsLog);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         _mainViewModel?.Dispose();
         _mainViewModel = null;
+        _mediaTransportService?.Dispose();
+        _mediaTransportService = null;
 
         base.OnExit(e);
     }
@@ -80,6 +88,20 @@ public partial class App
         catch (Exception failure)
         {
             diagnosticsLog.Record(DiagnosticOutcome.Failure, InitializeDevicesOperation, failure.Message);
+        }
+    }
+
+    private static async Task InitializeMediaTransportAsync(
+        MediaTransportViewModel mediaTransport,
+        IDiagnosticsLog diagnosticsLog)
+    {
+        try
+        {
+            await mediaTransport.StartAsync(CancellationToken.None);
+        }
+        catch (Exception failure)
+        {
+            diagnosticsLog.Record(DiagnosticOutcome.Failure, InitializeMediaTransportOperation, failure.Message);
         }
     }
 

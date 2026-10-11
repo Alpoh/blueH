@@ -210,4 +210,34 @@
   <data name="EndpointVolumeOutOfRangeFormat" xml:space="preserve">
     <value>Enter a whole number between {0} and {1}.</value>
   </data>
+  <data name="MediaErrorMessage" xml:space="preserve">
+    <value>Media controls are unavailable.</value>
+  </data>
+  <data name="MediaHeader" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="MediaNoSessionMessage" xml:space="preserve">
+    <value>Nothing is playing.</value>
+  </data>
+  <data name="MediaUnknownArtist" xml:space="preserve">
+    <value>Unknown artist</value>
+  </data>
+  <data name="MediaUnknownTitle" xml:space="preserve">
+    <value>Unknown title</value>
+  </data>
+  <data name="MediaCommandRefusedMessage" xml:space="preserve">
+    <value>The playing app refused the command.</value>
+  </data>
+  <data name="MediaPauseLabel" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="MediaPlayLabel" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="MediaNextLabel" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="MediaPreviousLabel" xml:space="preserve">
+    <value>Previous</value>
+  </data>
 </root>

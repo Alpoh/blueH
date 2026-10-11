@@ -118,6 +118,7 @@ Common WPF practice as it applies to this project.
 ### Commands
 
 - **`CanExecute` drives enablement** — don't set `IsEnabled` by hand.
+- **Re-announce enablement that changes without user input.** WPF re-reads `CanExecute` on `CommandManager.RequerySuggested`, which follows keyboard and mouse activity in the app. When a device or platform event changes what a command allows — media paused from the earbuds, a device disconnecting — call `AsyncRelayCommand.RaiseCanExecuteChanged()`, or the button stays stale until the user next moves the mouse.
 - Commands that talk to a device are asynchronous and must not be re-entrant: disable the command while it runs rather than queueing duplicate device calls.
 - Prefer the built-in `RoutedUICommand`s (`ApplicationCommands.Save`, `Copy`, …) where they fit; they come with key gestures already bound.
 - Event handlers in code-behind are acceptable only where no command equivalent exists (low-level keyboard, drag & drop) — and they should delegate straight to the ViewModel.

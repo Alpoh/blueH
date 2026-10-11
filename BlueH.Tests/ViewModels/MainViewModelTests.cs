@@ -17,6 +17,7 @@ public class MainViewModelTests
 
     private FakeBluetoothDeviceService _deviceService = null!;
     private FakeAudioEndpointService _endpointService = null!;
+    private FakeMediaTransportService _mediaService = null!;
     private FakeBatteryService _batteryService = null!;
     private FakeSettingsStore _settingsStore = null!;
     private RecordingUiScheduler _uiScheduler = null!;
@@ -28,11 +29,18 @@ public class MainViewModelTests
     {
         _deviceService = new FakeBluetoothDeviceService();
         _endpointService = new FakeAudioEndpointService();
+        _mediaService = new FakeMediaTransportService();
         _batteryService = new FakeBatteryService();
         _settingsStore = new FakeSettingsStore();
         _uiScheduler = new RecordingUiScheduler();
         _timeProvider = new FakeTimeProvider();
         _diagnosticsLog = new InMemoryDiagnosticsLog(_timeProvider);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _mediaService.Dispose();
     }
 
     [Test]
@@ -125,6 +133,7 @@ public class MainViewModelTests
         return new MainViewModel(
             devices,
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
+            new MediaTransportViewModel(_mediaService, _uiScheduler, _diagnosticsLog),
             new DiagnosticsViewModel(_diagnosticsLog, _uiScheduler));
     }
 }

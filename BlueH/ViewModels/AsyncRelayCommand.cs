@@ -40,6 +40,11 @@ public sealed class AsyncRelayCommand : ICommand
         _ = ExecuteAsync(parameter);
     }
 
+    public void RaiseCanExecuteChanged()
+    {
+        _canExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     public async Task ExecuteAsync(object? parameter)
     {
         if (!CanExecute(parameter))

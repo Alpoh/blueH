@@ -344,5 +344,95 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("EndpointVolumeOutOfRangeFormat", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Media controls are unavailable..
+        /// </summary>
+        internal static string MediaErrorMessage {
+            get {
+                return ResourceManager.GetString("MediaErrorMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Now playing.
+        /// </summary>
+        internal static string MediaHeader {
+            get {
+                return ResourceManager.GetString("MediaHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing is playing..
+        /// </summary>
+        internal static string MediaNoSessionMessage {
+            get {
+                return ResourceManager.GetString("MediaNoSessionMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown artist.
+        /// </summary>
+        internal static string MediaUnknownArtist {
+            get {
+                return ResourceManager.GetString("MediaUnknownArtist", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown title.
+        /// </summary>
+        internal static string MediaUnknownTitle {
+            get {
+                return ResourceManager.GetString("MediaUnknownTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The playing app refused the command..
+        /// </summary>
+        internal static string MediaCommandRefusedMessage {
+            get {
+                return ResourceManager.GetString("MediaCommandRefusedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pause.
+        /// </summary>
+        internal static string MediaPauseLabel {
+            get {
+                return ResourceManager.GetString("MediaPauseLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Play.
+        /// </summary>
+        internal static string MediaPlayLabel {
+            get {
+                return ResourceManager.GetString("MediaPlayLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        internal static string MediaNextLabel {
+            get {
+                return ResourceManager.GetString("MediaNextLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Previous.
+        /// </summary>
+        internal static string MediaPreviousLabel {
+            get {
+                return ResourceManager.GetString("MediaPreviousLabel", resourceCulture);
+            }
+        }
     }
 }

@@ -30,7 +30,8 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
     private void OnDevicesPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(DevicesViewModel.SelectedContainerId))
+        if (e.PropertyName is not (nameof(DevicesViewModel.SelectedContainerId)
+            or nameof(DevicesViewModel.ConnectedContainerIds)))
         {
             return;
         }

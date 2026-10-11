@@ -1,8 +1,11 @@
 <UserControl x:Class="BlueH.Views.EndpointsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:BlueH.Behaviors"
+             xmlns:converters="clr-namespace:BlueH.Converters">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
     </UserControl.Resources>
     <DockPanel Margin="12">
         <TextBlock DockPanel.Dock="Top"
@@ -44,10 +47,38 @@
                                         Maximum="100"
                                         Width="220"
                                         VerticalAlignment="Center" />
-                                <TextBlock Text="{Binding VolumePercent}"
-                                           VerticalAlignment="Center"
-                                           MinWidth="36"
-                                           Margin="8,0,0,0" />
+                                <Grid MinWidth="56" Margin="8,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding VolumePercent}"
+                                               ToolTip="{Binding DataContext.VolumeEditHint, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                               Visibility="{Binding IsEditingVolume, Converter={StaticResource InverseBooleanToVisibility}}"
+                                               Background="Transparent"
+                                               VerticalAlignment="Center">
+                                        <TextBlock.InputBindings>
+                                            <MouseBinding MouseAction="LeftDoubleClick"
+                                                          Command="{Binding BeginEditVolumeCommand}" />
+                                        </TextBlock.InputBindings>
+                                    </TextBlock>
+                                    <TextBox Text="{Binding VolumeInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                             Visibility="{Binding IsEditingVolume, Converter={StaticResource BooleanToVisibility}}"
+                                             behaviors:FocusWhenVisible.IsEnabled="True"
+                                             LostFocus="VolumeInputLostFocus"
+                                             VerticalAlignment="Center">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                <Style.Triggers>
+                                                    <Trigger Property="Validation.HasError" Value="True">
+                                                        <Setter Property="ToolTip"
+                                                                Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Enter" Command="{Binding CommitVolumeInputCommand}" />
+                                            <KeyBinding Key="Escape" Command="{Binding CancelVolumeEditCommand}" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                </Grid>
                                 <ToggleButton Content="{Binding DataContext.MuteLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                               IsChecked="{Binding IsMuted, Mode=OneWay}"
                                               Command="{Binding ToggleMuteCommand}"

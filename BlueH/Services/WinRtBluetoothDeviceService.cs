@@ -32,24 +32,13 @@ public sealed class WinRtBluetoothDeviceService : IBluetoothDeviceService
         CancellationToken cancellationToken)
     {
         BluetoothAudioEndpoint[] classic = await FindAsync(ClassicAudioSelector, cancellationToken);
-        HashSet<Guid> audioContainers = [.. classic.Select(endpoint => endpoint.ContainerId)];
-
-        BluetoothAudioEndpoint[] lowEnergy = await FindAsync(
-            BluetoothLEDevice.GetDeviceSelectorFromPairingState(true),
-            cancellationToken);
-
-        BluetoothAudioEndpoint[] endpoints =
-        [
-            .. classic,
-            .. lowEnergy.Where(endpoint => audioContainers.Contains(endpoint.ContainerId))
-        ];
 
         _diagnosticsLog.Record(
             DiagnosticOutcome.Success,
             FindEndpointsOperation,
-            FormatEndpointSummary(classic.Length, endpoints.Length - classic.Length));
+            FormatEndpointSummary(classic.Length));
 
-        return endpoints;
+        return classic;
     }
 
     public IBluetoothAudioEndpointWatcher CreateEndpointWatcher()
@@ -67,9 +56,9 @@ public sealed class WinRtBluetoothDeviceService : IBluetoothDeviceService
             DevicePropertyReader.ReadMinorClass(device.Properties));
     }
 
-    private static string FormatEndpointSummary(int classicCount, int lowEnergyCount)
+    private static string FormatEndpointSummary(int classicCount)
     {
-        return $"classic={classicCount} lowEnergy={lowEnergyCount}";
+        return $"classic={classicCount}";
     }
 
     private async Task<BluetoothAudioEndpoint[]> FindAsync(string selector, CancellationToken cancellationToken)

@@ -68,6 +68,8 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
     public BluetoothAudioDevice? SelectedDevice =>
         Devices.FirstOrDefault(device => device.ContainerId == _selectedContainerId);
 
+    public IReadOnlyList<Guid> ConnectedContainerIds => _connectedContainers;
+
     public bool HasError => _errorDetail is not null;
 
     public bool HasNoDevices => Devices.Count == 0 && !HasError;
@@ -303,6 +305,14 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
                 .Where(device => device.IsConnected == true)
                 .Select(device => device.ContainerId)
         ];
+
+        bool connectedContainersChanged = _connectedContainers.Length != previous.Length
+            || _connectedContainers.Except(previous).Any();
+
+        if (connectedContainersChanged)
+        {
+            OnPropertyChanged(nameof(ConnectedContainerIds));
+        }
 
         if (_connectedContainers.Except(previous).Any())
         {

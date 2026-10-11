@@ -326,9 +326,35 @@ increments 3.2 onward by hand.
 | 3.5 | Set mute | a working mute button | toggle semantics; failure handled |
 | 3.6 | Show which endpoint is default, per role | the playback and communications defaults are visible and distinguishable | both roles mapped; the same endpoint holding both roles; neither role resolving |
 | 3.7 | Make an endpoint the default, per role (`IPolicyConfig`) | one click makes the headset the default output | command enablement and state; the adapter itself verified by hand |
+| 3.8 | Type an exact volume (double-click the number) | the number beside the slider becomes an editable field | the text is parsed per culture; out-of-range and non-numeric entries are rejected rather than clamped, and reported through `INotifyDataErrorInfo`; cancelling discards the entry and its error |
+| 3.9 | Refresh the audio outputs when a device connects or disconnects | connecting a headset updates the outputs panel without clicking the device | the connected-container set announces additions and removals; a rename announces nothing; the outputs refresh on connect, on disconnect and on selection |
 
 Increment 3.7 is the only place in the project that depends on an undocumented API. It is built
 last, lives in one file behind the port, and 3.1-3.6 deliver value without it.
+
+Spike, 2026-10-11, on the live `DeviceWatcher`. The watcher layer is sound and was wrongly
+suspected: with BlueH's own selector, disconnecting the SRS-XE300 raised `Updated` carrying
+`IsConnected=False (Boolean)` and reconnecting raised it with `True`, both within a second. The
+real defect was downstream — `MainViewModel` refreshed the endpoints only on a selection change,
+so the outputs panel went stale on connect and disconnect (increment 3.9). The spike also showed
+both audio devices matching `Cod.Major:=4` (`Minor=1` earbuds, `Minor=5` loudspeaker) while the
+iPhone is correctly excluded by `Major=2`, and confirmed again that `IsEnabled` reads `False` even
+for connected endpoints.
+
+A second finding: the Bluetooth LE endpoint of a classic audio device contributes nothing. The
+earbuds' LE endpoint reports `IsConnected=False` while the classic one reports `True`, and it
+carries no `Cod`, so it yields no name and no kind. It was also never watched — only the classic
+selector had a watcher — so those records went stale the moment the app started. Enumeration is
+now classic-only, which makes enumerating and watching consistent and removes a record that could
+only ever pin a device to a wrong state. The collapse-by-container logic stays, and restoring LE
+endpoints is one query if an LE-only audio device ever has to be supported.
+
+Hand verification, 2026-10-11, against the OPPO Enco Air5 earbuds connected over Bluetooth. All of
+phase 3 confirmed working in the running app: the earbuds appear once rather than twice, so the
+container-id collapse holds; their endpoints are listed; battery reads a real percentage rather
+than unknown; volume and mute act per endpoint; and 3.6 and 3.7 behave — the default badges are
+correct and `IPolicyConfig.SetDefaultEndpoint` moves the Windows default. That undocumented call is
+now verified against this build rather than merely reachable.
 
 ### Phase 4 — Media transport
 

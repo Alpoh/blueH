@@ -60,6 +60,8 @@ public sealed class EndpointsViewModel : ViewModelBase
 
     public string VolumeHeader => AppResources.EndpointVolumeHeader;
 
+    public string VolumeEditHint => AppResources.EndpointVolumeEditHint;
+
     public string MuteLabel => AppResources.EndpointMuteLabel;
 
     public string MakeDefaultForPlaybackLabel => AppResources.EndpointMakeDefaultForPlaybackLabel;

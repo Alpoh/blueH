@@ -570,6 +570,65 @@ public class DevicesViewModelTests
         Assert.That(_batteryService.ReadContainerIds, Does.Contain(EarbudsContainer));
     }
 
+    [Test]
+    public async Task ADeviceBecomingConnectedAnnouncesTheConnectedContainers()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass, isConnected: false));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartWatching();
+        List<string> changedProperties = [];
+        viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName ?? string.Empty);
+
+        _deviceService.Watcher.RaiseUpdated(
+            Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass, isConnected: true));
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(changedProperties, Does.Contain(nameof(DevicesViewModel.ConnectedContainerIds)));
+            Assert.That(viewModel.ConnectedContainerIds, Is.EqualTo(new[] { EarbudsContainer }));
+        });
+    }
+
+    [Test]
+    public async Task ADeviceBecomingDisconnectedAnnouncesTheConnectedContainers()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartWatching();
+        List<string> changedProperties = [];
+        viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName ?? string.Empty);
+
+        _deviceService.Watcher.RaiseUpdated(
+            Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass, isConnected: false));
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(changedProperties, Does.Contain(nameof(DevicesViewModel.ConnectedContainerIds)));
+            Assert.That(viewModel.ConnectedContainerIds, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task AnUpdateThatLeavesTheConnectedContainersAloneAnnouncesNothing()
+    {
+        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
+        using DevicesViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        viewModel.StartWatching();
+        List<string> changedProperties = [];
+        viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName ?? string.Empty);
+
+        _deviceService.Watcher.RaiseUpdated(
+            Classic(EarbudsContainer, "OPPO Enco Air5 renamed", WearableHeadsetMinorClass));
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(changedProperties, Does.Not.Contain(nameof(DevicesViewModel.ConnectedContainerIds)));
+    }
+
     private DevicesViewModel CreateViewModel()
     {
         return new DevicesViewModel(

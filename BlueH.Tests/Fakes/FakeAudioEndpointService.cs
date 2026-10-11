@@ -28,8 +28,12 @@ public sealed class FakeAudioEndpointService : IAudioEndpointService
         _gate = null;
     }
 
+    public int FindCalls { get; private set; }
+
     public Task<IReadOnlyList<AudioEndpoint>> FindRenderEndpointsAsync(CancellationToken cancellationToken)
     {
+        FindCalls++;
+
         if (FailureToThrow is not null)
         {
             return Task.FromException<IReadOnlyList<AudioEndpoint>>(FailureToThrow);

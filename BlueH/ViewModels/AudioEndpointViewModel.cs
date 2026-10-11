@@ -1,11 +1,15 @@
+using System.Collections;
+using System.ComponentModel;
+using System.Globalization;
 using System.Windows.Input;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Services;
+using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels;
 
-public sealed class AudioEndpointViewModel : ViewModelBase
+public sealed class AudioEndpointViewModel : ViewModelBase, INotifyDataErrorInfo
 {
     private const string ApplyVolumeOperation = "Apply endpoint volume";
     private const string ToggleMuteOperation = "Toggle endpoint mute";
@@ -13,6 +17,7 @@ public sealed class AudioEndpointViewModel : ViewModelBase
 
     private readonly IAudioEndpointService _endpointService;
     private readonly IDiagnosticsLog _diagnosticsLog;
+    private readonly Dictionary<string, string> _errors = new(StringComparer.Ordinal);
 
     private string _name;
     private int _volumePercent;
@@ -21,6 +26,8 @@ public sealed class AudioEndpointViewModel : ViewModelBase
     private bool _isDefaultForCommunications;
     private int? _pendingVolumePercent;
     private bool _volumeApplyInFlight;
+    private bool _isEditingVolume;
+    private string _volumeInput = string.Empty;
 
     public AudioEndpointViewModel(
         AudioEndpoint endpoint,
@@ -44,7 +51,12 @@ public sealed class AudioEndpointViewModel : ViewModelBase
         MakeDefaultForCommunicationsCommand = new AsyncRelayCommand(
             _ => MakeDefaultAsync(AudioEndpointRole.Communications),
             _ => !_isDefaultForCommunications);
+        BeginEditVolumeCommand = new RelayCommand(_ => BeginEditVolume());
+        CommitVolumeInputCommand = new RelayCommand(_ => CommitVolumeInput(), _ => _isEditingVolume);
+        CancelVolumeEditCommand = new RelayCommand(_ => CancelVolumeEdit(), _ => _isEditingVolume);
     }
+
+    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
     public string MmDeviceId { get; }
 
@@ -55,6 +67,14 @@ public sealed class AudioEndpointViewModel : ViewModelBase
     public ICommand MakeDefaultForPlaybackCommand { get; }
 
     public ICommand MakeDefaultForCommunicationsCommand { get; }
+
+    public ICommand BeginEditVolumeCommand { get; }
+
+    public ICommand CommitVolumeInputCommand { get; }
+
+    public ICommand CancelVolumeEditCommand { get; }
+
+    public bool HasErrors => _errors.Count > 0;
 
     public string Name
     {
@@ -92,6 +112,36 @@ public sealed class AudioEndpointViewModel : ViewModelBase
         }
     }
 
+    public bool IsEditingVolume
+    {
+        get => _isEditingVolume;
+        private set => SetField(ref _isEditingVolume, value);
+    }
+
+    public string VolumeInput
+    {
+        get => _volumeInput;
+        set
+        {
+            if (SetField(ref _volumeInput, value))
+            {
+                ValidateVolumeInput();
+            }
+        }
+    }
+
+    public IEnumerable GetErrors(string? propertyName)
+    {
+        if (string.IsNullOrEmpty(propertyName))
+        {
+            return _errors.Values.ToArray();
+        }
+
+        return _errors.TryGetValue(propertyName, out string? message)
+            ? new[] { message }
+            : Array.Empty<string>();
+    }
+
     public void Update(AudioEndpoint endpoint)
     {
         Name = endpoint.Name;
@@ -103,6 +153,75 @@ public sealed class AudioEndpointViewModel : ViewModelBase
         {
             SetField(ref _volumePercent, volumePercent, nameof(VolumePercent));
         }
+    }
+
+    private void BeginEditVolume()
+    {
+        VolumeInput = _volumePercent.ToString(CultureInfo.CurrentCulture);
+        IsEditingVolume = true;
+    }
+
+    private void CommitVolumeInput()
+    {
+        VolumePercentInput input = VolumePercentInput.Parse(_volumeInput, CultureInfo.CurrentCulture);
+
+        if (!input.IsValid)
+        {
+            SetVolumeInputError(input.Status);
+
+            return;
+        }
+
+        IsEditingVolume = false;
+        ClearVolumeInputError();
+        VolumePercent = input.VolumePercent;
+    }
+
+    private void CancelVolumeEdit()
+    {
+        IsEditingVolume = false;
+        ClearVolumeInputError();
+    }
+
+    private void ValidateVolumeInput()
+    {
+        VolumePercentInput input = VolumePercentInput.Parse(_volumeInput, CultureInfo.CurrentCulture);
+
+        if (input.IsValid)
+        {
+            ClearVolumeInputError();
+
+            return;
+        }
+
+        SetVolumeInputError(input.Status);
+    }
+
+    private void SetVolumeInputError(VolumeInputStatus status)
+    {
+        _errors[nameof(VolumeInput)] = status == VolumeInputStatus.OutOfRange
+            ? string.Format(
+                CultureInfo.CurrentCulture,
+                AppResources.EndpointVolumeOutOfRangeFormat,
+                VolumeScale.MinimumPercent,
+                VolumeScale.MaximumPercent)
+            : AppResources.EndpointVolumeNotANumberMessage;
+
+        RaiseErrorsChanged();
+    }
+
+    private void ClearVolumeInputError()
+    {
+        if (_errors.Remove(nameof(VolumeInput)))
+        {
+            RaiseErrorsChanged();
+        }
+    }
+
+    private void RaiseErrorsChanged()
+    {
+        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(VolumeInput)));
+        OnPropertyChanged(nameof(HasErrors));
     }
 
     private void BeginApplyVolume(int volumePercent)

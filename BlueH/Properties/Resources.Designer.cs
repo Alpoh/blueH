@@ -317,5 +317,32 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("EndpointVolumeHeader", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Double-click to type a volume.
+        /// </summary>
+        internal static string EndpointVolumeEditHint {
+            get {
+                return ResourceManager.GetString("EndpointVolumeEditHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter a whole number..
+        /// </summary>
+        internal static string EndpointVolumeNotANumberMessage {
+            get {
+                return ResourceManager.GetString("EndpointVolumeNotANumberMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter a whole number between {0} and {1}..
+        /// </summary>
+        internal static string EndpointVolumeOutOfRangeFormat {
+            get {
+                return ResourceManager.GetString("EndpointVolumeOutOfRangeFormat", resourceCulture);
+            }
+        }
     }
 }

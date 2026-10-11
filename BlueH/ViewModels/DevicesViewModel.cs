@@ -349,7 +349,8 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            _settingsStore.Save(new AppSettings(containerId?.ToString()));
+            AppSettings current = _settingsStore.Load().Settings;
+            _settingsStore.Save(current with { SelectedDeviceId = containerId?.ToString() });
         }
         catch (Exception failure) when (failure is IOException or UnauthorizedAccessException)
         {

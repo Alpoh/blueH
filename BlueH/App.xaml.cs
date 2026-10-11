@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Windows;
+using System.Windows.Markup;
 using BlueH.Diagnostics;
 using BlueH.Services;
 using BlueH.ViewModels;
@@ -10,6 +12,7 @@ public partial class App
 {
     private const string LoadSettingsOperation = "Load settings";
     private const string StartUpOperation = "Start up";
+    private const string ApplyCultureOperation = "Apply user interface culture";
     private const string InitializeDevicesOperation = "Initialize device list";
     private const string InitializeMediaTransportOperation = "Initialize media transport";
 
@@ -31,7 +34,11 @@ public partial class App
         ]);
 
         diagnosticsLog.Record(DiagnosticOutcome.Information, StartUpOperation, JsonSettingsStore.DefaultFilePath);
-        RecordSettingsLoad(diagnosticsLog, settingsStore.Load());
+        SettingsLoad settingsLoad = settingsStore.Load();
+        RecordSettingsLoad(diagnosticsLog, settingsLoad);
+        string? activeLanguageTag = CultureSelection.NormalizeSupportedTag(settingsLoad.Settings.LanguageTag);
+        ApplyCultures(activeLanguageTag);
+        diagnosticsLog.Record(DiagnosticOutcome.Information, ApplyCultureOperation, CultureInfo.CurrentUICulture.Name);
 
         DevicesViewModel devices = new(
             deviceService,
@@ -45,8 +52,19 @@ public partial class App
         _mediaTransportService = new WindowsMediaTransportService(diagnosticsLog);
         MediaTransportViewModel mediaTransport = new(_mediaTransportService, uiScheduler, diagnosticsLog);
 
+        WinRtBluetoothPairingService pairingService = new(diagnosticsLog);
+        SelectedDeviceViewModel selectedDevice = new(
+            new KernelStreamingBluetoothConnectionService(diagnosticsLog),
+            pairingService,
+            diagnosticsLog,
+            TimeProvider.System);
+        PairingViewModel pairing = new(pairingService, uiScheduler, diagnosticsLog, TimeProvider.System);
+
         _mainViewModel = new MainViewModel(
             devices,
+            selectedDevice,
+            new SettingsViewModel(settingsStore, diagnosticsLog, activeLanguageTag),
+            pairing,
             endpoints,
             mediaTransport,
             new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
@@ -103,6 +121,17 @@ public partial class App
         {
             diagnosticsLog.Record(DiagnosticOutcome.Failure, InitializeMediaTransportOperation, failure.Message);
         }
+    }
+
+    private static void ApplyCultures(string? languageTag)
+    {
+        CultureInfo uiCulture = CultureSelection.ResolveUiCulture(languageTag, CultureInfo.CurrentUICulture);
+        CultureInfo.DefaultThreadCurrentUICulture = uiCulture;
+        CultureInfo.CurrentUICulture = uiCulture;
+
+        FrameworkElement.LanguageProperty.OverrideMetadata(
+            typeof(FrameworkElement),
+            new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
     }
 
     private static void RecordSettingsLoad(IDiagnosticsLog diagnosticsLog, SettingsLoad load)

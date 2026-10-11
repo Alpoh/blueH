@@ -342,6 +342,17 @@ public class DevicesViewModelTests
     }
 
     [Test]
+    public void SelectingADeviceKeepsTheOtherSettings()
+    {
+        _settingsStore.Settings = new AppSettings(SelectedDeviceId: null, LanguageTag: "es-ES");
+        using DevicesViewModel viewModel = CreateViewModel();
+
+        viewModel.SelectedContainerId = EarbudsContainer;
+
+        Assert.That(_settingsStore.Settings.LanguageTag, Is.EqualTo("es-ES"));
+    }
+
+    [Test]
     public void SelectingTheSameDeviceTwiceSavesOnce()
     {
         using DevicesViewModel viewModel = CreateViewModel();

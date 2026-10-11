@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ApplicationTitle" xml:space="preserve">
+    <value>[BlüéH··]</value>
+  </data>
+  <data name="DiagnosticsOutcomeHeader" xml:space="preserve">
+    <value>[Öütçömé···]</value>
+  </data>
+  <data name="DiagnosticsTimeHeader" xml:space="preserve">
+    <value>[Tímé··]</value>
+  </data>
+  <data name="DiagnosticsOperationHeader" xml:space="preserve">
+    <value>[Öpérátíöñ····]</value>
+  </data>
+  <data name="DiagnosticsDetailHeader" xml:space="preserve">
+    <value>[Détáíl···]</value>
+  </data>
+  <data name="DevicesHeader" xml:space="preserve">
+    <value>[Dévíçés···]</value>
+  </data>
+  <data name="DevicesEmptyMessage" xml:space="preserve">
+    <value>[Ñö páíréd Blüétööth áüdíö dévíçés föüñd················]</value>
+  </data>
+  <data name="DevicesErrorMessage" xml:space="preserve">
+    <value>[Çöüld ñöt réád Blüétööth dévíçés·············]</value>
+  </data>
+  <data name="DeviceNameHeader" xml:space="preserve">
+    <value>[Dévíçé···]</value>
+  </data>
+  <data name="DeviceKindHeader" xml:space="preserve">
+    <value>[Týpé··]</value>
+  </data>
+  <data name="DeviceConnectionHeader" xml:space="preserve">
+    <value>[Státüs···]</value>
+  </data>
+  <data name="DeviceConnectedLabel" xml:space="preserve">
+    <value>[Çöññéçtéd····]</value>
+  </data>
+  <data name="DeviceDisconnectedLabel" xml:space="preserve">
+    <value>[Dísçöññéçtéd·····]</value>
+  </data>
+  <data name="DeviceConnectionUnknownLabel" xml:space="preserve">
+    <value>[Üñkñöwñ···]</value>
+  </data>
+  <data name="DeviceKindHeadphonesLabel" xml:space="preserve">
+    <value>[Héádphöñés····]</value>
+  </data>
+  <data name="DeviceKindLoudspeakerLabel" xml:space="preserve">
+    <value>[Spéákér···]</value>
+  </data>
+  <data name="DeviceKindUnknownLabel" xml:space="preserve">
+    <value>[Üñkñöwñ dévíçé······]</value>
+  </data>
+  <data name="DeviceBatteryHeader" xml:space="preserve">
+    <value>[Báttérý···]</value>
+  </data>
+  <data name="DeviceBatteryPercentFormat" xml:space="preserve">
+    <value>[{0}%··]</value>
+  </data>
+  <data name="DeviceBatteryUnknownLabel" xml:space="preserve">
+    <value>[Üñkñöwñ···]</value>
+  </data>
+  <data name="EndpointsHeader" xml:space="preserve">
+    <value>[Åüdíö öütpüts······]</value>
+  </data>
+  <data name="EndpointsEmptyMessage" xml:space="preserve">
+    <value>[Thís dévíçé hás ñö áüdíö öütpüt whílé ít ís dísçöññéçtéd·······················]</value>
+  </data>
+  <data name="EndpointsErrorMessage" xml:space="preserve">
+    <value>[Çöüld ñöt réád thé áüdíö öütpüts·············]</value>
+  </data>
+  <data name="EndpointVolumeHeader" xml:space="preserve">
+    <value>[Völümé···]</value>
+  </data>
+  <data name="EndpointMuteLabel" xml:space="preserve">
+    <value>[Müté··]</value>
+  </data>
+  <data name="EndpointMakeDefaultForPlaybackLabel" xml:space="preserve">
+    <value>[Üsé för pláýbáçk·······]</value>
+  </data>
+  <data name="EndpointMakeDefaultForCommunicationsLabel" xml:space="preserve">
+    <value>[Üsé för çálls······]</value>
+  </data>
+  <data name="EndpointDefaultForPlaybackLabel" xml:space="preserve">
+    <value>[Pláýbáçk····]</value>
+  </data>
+  <data name="EndpointDefaultForCommunicationsLabel" xml:space="preserve">
+    <value>[Çálls··]</value>
+  </data>
+  <data name="EndpointVolumeEditHint" xml:space="preserve">
+    <value>[Döüblé-çlíçk tö týpé á völümé············]</value>
+  </data>
+  <data name="EndpointVolumeNotANumberMessage" xml:space="preserve">
+    <value>[Éñtér á whölé ñümbér.·········]</value>
+  </data>
+  <data name="EndpointVolumeOutOfRangeFormat" xml:space="preserve">
+    <value>[Éñtér á whölé ñümbér bétwééñ {0} áñd {1}.·················]</value>
+  </data>
+  <data name="MediaErrorMessage" xml:space="preserve">
+    <value>[Médíá çöñtröls áré üñáváíláblé.·············]</value>
+  </data>
+  <data name="MediaHeader" xml:space="preserve">
+    <value>[Ñöw pláýíñg·····]</value>
+  </data>
+  <data name="MediaNoSessionMessage" xml:space="preserve">
+    <value>[Ñöthíñg ís pláýíñg.········]</value>
+  </data>
+  <data name="MediaUnknownArtist" xml:space="preserve">
+    <value>[Üñkñöwñ ártíst······]</value>
+  </data>
+  <data name="MediaUnknownTitle" xml:space="preserve">
+    <value>[Üñkñöwñ títlé······]</value>
+  </data>
+  <data name="MediaCommandRefusedMessage" xml:space="preserve">
+    <value>[Thé pláýíñg ápp réfüséd thé çömmáñd.···············]</value>
+  </data>
+  <data name="MediaPauseLabel" xml:space="preserve">
+    <value>[Páüsé··]</value>
+  </data>
+  <data name="MediaPlayLabel" xml:space="preserve">
+    <value>[Pláý··]</value>
+  </data>
+  <data name="MediaNextLabel" xml:space="preserve">
+    <value>[Ñéxt··]</value>
+  </data>
+  <data name="MediaPreviousLabel" xml:space="preserve">
+    <value>[Prévíöüs····]</value>
+  </data>
+  <data name="DeviceCancelLabel" xml:space="preserve">
+    <value>[Çáñçél···]</value>
+  </data>
+  <data name="DeviceConnectingMessage" xml:space="preserve">
+    <value>[Çöññéçtíñg…·····]</value>
+  </data>
+  <data name="DeviceConnectionCancelledMessage" xml:space="preserve">
+    <value>[Çáñçélléd.····]</value>
+  </data>
+  <data name="DeviceConnectionFailedFormat" xml:space="preserve">
+    <value>[Çöüld ñöt çháñgé thé çöññéçtíöñ: {0}···············]</value>
+  </data>
+  <data name="DeviceConnectionTimedOutMessage" xml:space="preserve">
+    <value>[Thé dévíçé díd ñöt réspöñd. Máké süré ít ís swítçhéd öñ áñd íñ ráñgé.····························]</value>
+  </data>
+  <data name="DeviceConnectLabel" xml:space="preserve">
+    <value>[Çöññéçt···]</value>
+  </data>
+  <data name="DeviceDisconnectingMessage" xml:space="preserve">
+    <value>[Dísçöññéçtíñg…······]</value>
+  </data>
+  <data name="DeviceDisconnectLabel" xml:space="preserve">
+    <value>[Dísçöññéçt····]</value>
+  </data>
+  <data name="SelectedDeviceNoneMessage" xml:space="preserve">
+    <value>[Séléçt á dévíçé tö máñágé ít.············]</value>
+  </data>
+  <data name="PairingAcceptLabel" xml:space="preserve">
+    <value>[Åççépt···]</value>
+  </data>
+  <data name="PairingAlreadyPairedMessage" xml:space="preserve">
+    <value>[Thé dévíçé wás álréádý páíréd.············]</value>
+  </data>
+  <data name="PairingAuthenticationFailedMessage" xml:space="preserve">
+    <value>[Åüthéñtíçátíöñ fáíléd. Püt thé dévíçé íñ páíríñg mödé áñd trý ágáíñ.····························]</value>
+  </data>
+  <data name="PairingCancelledMessage" xml:space="preserve">
+    <value>[Páíríñg çáñçélléd.········]</value>
+  </data>
+  <data name="PairingConfirmMessage" xml:space="preserve">
+    <value>[Ållöw thé dévíçé tö páír?··········]</value>
+  </data>
+  <data name="PairingConfirmPinFormat" xml:space="preserve">
+    <value>[Döés thé dévíçé shöw thé PÎÑ {0}?··············]</value>
+  </data>
+  <data name="PairingDeviceNotReadyMessage" xml:space="preserve">
+    <value>[Thé dévíçé ís ñöt réádý tö páír. Püt ít íñ páíríñg mödé áñd trý ágáíñ.····························]</value>
+  </data>
+  <data name="PairingDisplayPinFormat" xml:space="preserve">
+    <value>[Éñtér thé PÎÑ {0} öñ thé dévíçé.·············]</value>
+  </data>
+  <data name="PairingErrorFormat" xml:space="preserve">
+    <value>[Páíríñg fáíléd: {0}········]</value>
+  </data>
+  <data name="PairingFailedMessage" xml:space="preserve">
+    <value>[Páíríñg fáíléd.······]</value>
+  </data>
+  <data name="PairingHeader" xml:space="preserve">
+    <value>[Ådd á dévíçé·····]</value>
+  </data>
+  <data name="PairingInProgressFormat" xml:space="preserve">
+    <value>[Páíríñg wíth {0}…·······]</value>
+  </data>
+  <data name="PairingPairLabel" xml:space="preserve">
+    <value>[Páír··]</value>
+  </data>
+  <data name="PairingPinInputLabel" xml:space="preserve">
+    <value>[PÎÑ··]</value>
+  </data>
+  <data name="PairingProvidePinMessage" xml:space="preserve">
+    <value>[Éñtér thé PÎÑ för thé dévíçé.············]</value>
+  </data>
+  <data name="PairingRejectedMessage" xml:space="preserve">
+    <value>[Páíríñg wás réjéçtéd.·········]</value>
+  </data>
+  <data name="PairingRejectLabel" xml:space="preserve">
+    <value>[Réjéçt···]</value>
+  </data>
+  <data name="PairingSearchingMessage" xml:space="preserve">
+    <value>[Séárçhíñg… Püt thé dévíçé íñ páíríñg mödé.·················]</value>
+  </data>
+  <data name="PairingSearchLabel" xml:space="preserve">
+    <value>[Séárçh···]</value>
+  </data>
+  <data name="PairingStopSearchLabel" xml:space="preserve">
+    <value>[Stöp séárçhíñg······]</value>
+  </data>
+  <data name="PairingSucceededMessage" xml:space="preserve">
+    <value>[Páíréd.···]</value>
+  </data>
+  <data name="PairingTimedOutMessage" xml:space="preserve">
+    <value>[Páíríñg tíméd öüt.········]</value>
+  </data>
+  <data name="DeviceConfirmUnpairLabel" xml:space="preserve">
+    <value>[Üñpáír···]</value>
+  </data>
+  <data name="DeviceNotPairedMessage" xml:space="preserve">
+    <value>[Thé dévíçé wás ñöt páíréd.···········]</value>
+  </data>
+  <data name="DeviceUnpairConfirmFormat" xml:space="preserve">
+    <value>[Üñpáír {0}? Yöü wíll hávé tö páír ít ágáíñ tö üsé ít.······················]</value>
+  </data>
+  <data name="DeviceUnpairedMessage" xml:space="preserve">
+    <value>[Üñpáíréd.····]</value>
+  </data>
+  <data name="DeviceUnpairFailedFormat" xml:space="preserve">
+    <value>[Çöüld ñöt üñpáír: {0}·········]</value>
+  </data>
+  <data name="DeviceUnpairingMessage" xml:space="preserve">
+    <value>[Üñpáíríñg…····]</value>
+  </data>
+  <data name="DeviceUnpairLabel" xml:space="preserve">
+    <value>[Üñpáír···]</value>
+  </data>
+  <data name="LanguageSystemDefault" xml:space="preserve">
+    <value>[Sýstém défáült······]</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>[Séttíñgs····]</value>
+  </data>
+  <data name="SettingsLanguageLabel" xml:space="preserve">
+    <value>[Láñgüágé····]</value>
+  </data>
+  <data name="SettingsRestartRequiredMessage" xml:space="preserve">
+    <value>[Réstárt BlüéH tö ápplý thé ñéw láñgüágé.················]</value>
+  </data>
+  <data name="SettingsSaveFailedFormat" xml:space="preserve">
+    <value>[Çöüld ñöt sávé thé séttíñgs: {0}·············]</value>
+  </data>
+</root>

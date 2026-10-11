@@ -240,4 +240,133 @@
   <data name="MediaPreviousLabel" xml:space="preserve">
     <value>Previous</value>
   </data>
+  <data name="DeviceCancelLabel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="DeviceConnectingMessage" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="DeviceConnectionCancelledMessage" xml:space="preserve">
+    <value>Cancelled.</value>
+  </data>
+  <data name="DeviceConnectionFailedFormat" xml:space="preserve">
+    <value>Could not change the connection: {0}</value>
+  </data>
+  <data name="DeviceConnectionTimedOutMessage" xml:space="preserve">
+    <value>The device did not respond. Make sure it is switched on and in range.</value>
+  </data>
+  <data name="DeviceConnectLabel" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="DeviceDisconnectingMessage" xml:space="preserve">
+    <value>Disconnecting…</value>
+  </data>
+  <data name="DeviceDisconnectLabel" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="SelectedDeviceNoneMessage" xml:space="preserve">
+    <value>Select a device to manage it.</value>
+  </data>
+  <data name="PairingAcceptLabel" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="PairingAlreadyPairedMessage" xml:space="preserve">
+    <value>The device was already paired.</value>
+  </data>
+  <data name="PairingAuthenticationFailedMessage" xml:space="preserve">
+    <value>Authentication failed. Put the device in pairing mode and try again.</value>
+  </data>
+  <data name="PairingCancelledMessage" xml:space="preserve">
+    <value>Pairing cancelled.</value>
+  </data>
+  <data name="PairingConfirmMessage" xml:space="preserve">
+    <value>Allow the device to pair?</value>
+  </data>
+  <data name="PairingConfirmPinFormat" xml:space="preserve">
+    <value>Does the device show the PIN {0}?</value>
+  </data>
+  <data name="PairingDeviceNotReadyMessage" xml:space="preserve">
+    <value>The device is not ready to pair. Put it in pairing mode and try again.</value>
+  </data>
+  <data name="PairingDisplayPinFormat" xml:space="preserve">
+    <value>Enter the PIN {0} on the device.</value>
+  </data>
+  <data name="PairingErrorFormat" xml:space="preserve">
+    <value>Pairing failed: {0}</value>
+  </data>
+  <data name="PairingFailedMessage" xml:space="preserve">
+    <value>Pairing failed.</value>
+  </data>
+  <data name="PairingHeader" xml:space="preserve">
+    <value>Add a device</value>
+  </data>
+  <data name="PairingInProgressFormat" xml:space="preserve">
+    <value>Pairing with {0}…</value>
+  </data>
+  <data name="PairingPairLabel" xml:space="preserve">
+    <value>Pair</value>
+  </data>
+  <data name="PairingPinInputLabel" xml:space="preserve">
+    <value>PIN</value>
+  </data>
+  <data name="PairingProvidePinMessage" xml:space="preserve">
+    <value>Enter the PIN for the device.</value>
+  </data>
+  <data name="PairingRejectedMessage" xml:space="preserve">
+    <value>Pairing was rejected.</value>
+  </data>
+  <data name="PairingRejectLabel" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="PairingSearchingMessage" xml:space="preserve">
+    <value>Searching… Put the device in pairing mode.</value>
+  </data>
+  <data name="PairingSearchLabel" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="PairingStopSearchLabel" xml:space="preserve">
+    <value>Stop searching</value>
+  </data>
+  <data name="PairingSucceededMessage" xml:space="preserve">
+    <value>Paired.</value>
+  </data>
+  <data name="PairingTimedOutMessage" xml:space="preserve">
+    <value>Pairing timed out.</value>
+  </data>
+  <data name="DeviceConfirmUnpairLabel" xml:space="preserve">
+    <value>Unpair</value>
+  </data>
+  <data name="DeviceNotPairedMessage" xml:space="preserve">
+    <value>The device was not paired.</value>
+  </data>
+  <data name="DeviceUnpairConfirmFormat" xml:space="preserve">
+    <value>Unpair {0}? You will have to pair it again to use it.</value>
+  </data>
+  <data name="DeviceUnpairedMessage" xml:space="preserve">
+    <value>Unpaired.</value>
+  </data>
+  <data name="DeviceUnpairFailedFormat" xml:space="preserve">
+    <value>Could not unpair: {0}</value>
+  </data>
+  <data name="DeviceUnpairingMessage" xml:space="preserve">
+    <value>Unpairing…</value>
+  </data>
+  <data name="DeviceUnpairLabel" xml:space="preserve">
+    <value>Unpair</value>
+  </data>
+  <data name="LanguageSystemDefault" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SettingsLanguageLabel" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="SettingsRestartRequiredMessage" xml:space="preserve">
+    <value>Restart BlueH to apply the new language.</value>
+  </data>
+  <data name="SettingsSaveFailedFormat" xml:space="preserve">
+    <value>Could not save the settings: {0}</value>
+  </data>
 </root>

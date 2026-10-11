@@ -1,0 +1,55 @@
+<UserControl x:Class="BlueH.Views.PairingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </UserControl.Resources>
+    <Expander Header="{Binding Header}" Margin="12,0,12,8">
+        <StackPanel Margin="0,8,0,0">
+            <WrapPanel>
+                <Button Content="{Binding SearchLabel}" Command="{Binding SearchCommand}" Margin="0,0,8,4" />
+                <Button Content="{Binding StopSearchLabel}" Command="{Binding StopSearchCommand}" Margin="0,0,8,4" />
+                <Button Content="{Binding CancelLabel}"
+                        Command="{Binding CancelPairingCommand}"
+                        Visibility="{Binding IsPairing, Converter={StaticResource BooleanToVisibility}}"
+                        Margin="0,0,8,4" />
+            </WrapPanel>
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Margin="0,4,0,0" />
+            <Border Visibility="{Binding HasChallenge, Converter={StaticResource BooleanToVisibility}}"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"
+                    Padding="8"
+                    Margin="0,8,0,0">
+                <StackPanel>
+                    <TextBlock Text="{Binding ChallengeText}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding NeedsPinInput, Converter={StaticResource BooleanToVisibility}}"
+                                Margin="0,6,0,0">
+                        <TextBlock Text="{Binding PinInputLabel}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBox Text="{Binding PinInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="120" />
+                    </StackPanel>
+                    <WrapPanel Margin="0,6,0,0">
+                        <Button Content="{Binding AcceptLabel}" Command="{Binding AcceptChallengeCommand}" Margin="0,0,8,0" />
+                        <Button Content="{Binding RejectLabel}" Command="{Binding RejectChallengeCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+            <ListBox ItemsSource="{Binding FoundDevices}"
+                     HorizontalContentAlignment="Stretch"
+                     MaxHeight="200"
+                     Margin="0,8,0,0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right"
+                                    Content="{Binding DataContext.PairLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    Command="{Binding DataContext.PairCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}" />
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+    </Expander>
+</UserControl>

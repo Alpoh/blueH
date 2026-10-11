@@ -107,6 +107,35 @@ public class MainViewModelTests
         Assert.That(_endpointService.FindCalls, Is.EqualTo(refreshesBefore));
     }
 
+    [Test]
+    public async Task SelectingADeviceHandsItToTheDevicePanel()
+    {
+        _deviceService.Endpoints.Add(Classic());
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.That(viewModel.SelectedDevice.Device?.ContainerId, Is.EqualTo(EarbudsContainer));
+    }
+
+    [Test]
+    public async Task TheDevicePanelFollowsLiveConnectionChanges()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: false));
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+        devices.SelectedContainerId = EarbudsContainer;
+        devices.StartWatching();
+
+        _deviceService.Watcher.RaiseUpdated(Classic(isConnected: true));
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.SelectedDevice.Device?.IsConnected, Is.True);
+    }
+
     private static BluetoothAudioEndpoint Classic(bool? isConnected = true, string name = EarbudsName)
     {
         return new BluetoothAudioEndpoint(
@@ -132,6 +161,13 @@ public class MainViewModelTests
     {
         return new MainViewModel(
             devices,
+            new SelectedDeviceViewModel(
+                new FakeBluetoothConnectionService(),
+                new FakeBluetoothPairingService(),
+                _diagnosticsLog,
+                _timeProvider),
+            new SettingsViewModel(_settingsStore, _diagnosticsLog, activeLanguageTag: null),
+            new PairingViewModel(new FakeBluetoothPairingService(), _uiScheduler, _diagnosticsLog, _timeProvider),
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new MediaTransportViewModel(_mediaService, _uiScheduler, _diagnosticsLog),
             new DiagnosticsViewModel(_diagnosticsLog, _uiScheduler));

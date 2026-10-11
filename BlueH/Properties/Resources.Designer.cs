@@ -434,5 +434,392 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("MediaPreviousLabel", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string DeviceCancelLabel {
+            get {
+                return ResourceManager.GetString("DeviceCancelLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting….
+        /// </summary>
+        internal static string DeviceConnectingMessage {
+            get {
+                return ResourceManager.GetString("DeviceConnectingMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelled..
+        /// </summary>
+        internal static string DeviceConnectionCancelledMessage {
+            get {
+                return ResourceManager.GetString("DeviceConnectionCancelledMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not change the connection: {0}.
+        /// </summary>
+        internal static string DeviceConnectionFailedFormat {
+            get {
+                return ResourceManager.GetString("DeviceConnectionFailedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The device did not respond. Make sure it is switched on and in range..
+        /// </summary>
+        internal static string DeviceConnectionTimedOutMessage {
+            get {
+                return ResourceManager.GetString("DeviceConnectionTimedOutMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect.
+        /// </summary>
+        internal static string DeviceConnectLabel {
+            get {
+                return ResourceManager.GetString("DeviceConnectLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnecting….
+        /// </summary>
+        internal static string DeviceDisconnectingMessage {
+            get {
+                return ResourceManager.GetString("DeviceDisconnectingMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnect.
+        /// </summary>
+        internal static string DeviceDisconnectLabel {
+            get {
+                return ResourceManager.GetString("DeviceDisconnectLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select a device to manage it..
+        /// </summary>
+        internal static string SelectedDeviceNoneMessage {
+            get {
+                return ResourceManager.GetString("SelectedDeviceNoneMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accept.
+        /// </summary>
+        internal static string PairingAcceptLabel {
+            get {
+                return ResourceManager.GetString("PairingAcceptLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The device was already paired..
+        /// </summary>
+        internal static string PairingAlreadyPairedMessage {
+            get {
+                return ResourceManager.GetString("PairingAlreadyPairedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Authentication failed. Put the device in pairing mode and try again..
+        /// </summary>
+        internal static string PairingAuthenticationFailedMessage {
+            get {
+                return ResourceManager.GetString("PairingAuthenticationFailedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing cancelled..
+        /// </summary>
+        internal static string PairingCancelledMessage {
+            get {
+                return ResourceManager.GetString("PairingCancelledMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Allow the device to pair?.
+        /// </summary>
+        internal static string PairingConfirmMessage {
+            get {
+                return ResourceManager.GetString("PairingConfirmMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Does the device show the PIN {0}?.
+        /// </summary>
+        internal static string PairingConfirmPinFormat {
+            get {
+                return ResourceManager.GetString("PairingConfirmPinFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The device is not ready to pair. Put it in pairing mode and try again..
+        /// </summary>
+        internal static string PairingDeviceNotReadyMessage {
+            get {
+                return ResourceManager.GetString("PairingDeviceNotReadyMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the PIN {0} on the device..
+        /// </summary>
+        internal static string PairingDisplayPinFormat {
+            get {
+                return ResourceManager.GetString("PairingDisplayPinFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing failed: {0}.
+        /// </summary>
+        internal static string PairingErrorFormat {
+            get {
+                return ResourceManager.GetString("PairingErrorFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing failed..
+        /// </summary>
+        internal static string PairingFailedMessage {
+            get {
+                return ResourceManager.GetString("PairingFailedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a device.
+        /// </summary>
+        internal static string PairingHeader {
+            get {
+                return ResourceManager.GetString("PairingHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing with {0}….
+        /// </summary>
+        internal static string PairingInProgressFormat {
+            get {
+                return ResourceManager.GetString("PairingInProgressFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pair.
+        /// </summary>
+        internal static string PairingPairLabel {
+            get {
+                return ResourceManager.GetString("PairingPairLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PIN.
+        /// </summary>
+        internal static string PairingPinInputLabel {
+            get {
+                return ResourceManager.GetString("PairingPinInputLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the PIN for the device..
+        /// </summary>
+        internal static string PairingProvidePinMessage {
+            get {
+                return ResourceManager.GetString("PairingProvidePinMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing was rejected..
+        /// </summary>
+        internal static string PairingRejectedMessage {
+            get {
+                return ResourceManager.GetString("PairingRejectedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reject.
+        /// </summary>
+        internal static string PairingRejectLabel {
+            get {
+                return ResourceManager.GetString("PairingRejectLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Searching… Put the device in pairing mode..
+        /// </summary>
+        internal static string PairingSearchingMessage {
+            get {
+                return ResourceManager.GetString("PairingSearchingMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        internal static string PairingSearchLabel {
+            get {
+                return ResourceManager.GetString("PairingSearchLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stop searching.
+        /// </summary>
+        internal static string PairingStopSearchLabel {
+            get {
+                return ResourceManager.GetString("PairingStopSearchLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paired..
+        /// </summary>
+        internal static string PairingSucceededMessage {
+            get {
+                return ResourceManager.GetString("PairingSucceededMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing timed out..
+        /// </summary>
+        internal static string PairingTimedOutMessage {
+            get {
+                return ResourceManager.GetString("PairingTimedOutMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unpair.
+        /// </summary>
+        internal static string DeviceConfirmUnpairLabel {
+            get {
+                return ResourceManager.GetString("DeviceConfirmUnpairLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The device was not paired..
+        /// </summary>
+        internal static string DeviceNotPairedMessage {
+            get {
+                return ResourceManager.GetString("DeviceNotPairedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unpair {0}? You will have to pair it again to use it..
+        /// </summary>
+        internal static string DeviceUnpairConfirmFormat {
+            get {
+                return ResourceManager.GetString("DeviceUnpairConfirmFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unpaired..
+        /// </summary>
+        internal static string DeviceUnpairedMessage {
+            get {
+                return ResourceManager.GetString("DeviceUnpairedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not unpair: {0}.
+        /// </summary>
+        internal static string DeviceUnpairFailedFormat {
+            get {
+                return ResourceManager.GetString("DeviceUnpairFailedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unpairing….
+        /// </summary>
+        internal static string DeviceUnpairingMessage {
+            get {
+                return ResourceManager.GetString("DeviceUnpairingMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unpair.
+        /// </summary>
+        internal static string DeviceUnpairLabel {
+            get {
+                return ResourceManager.GetString("DeviceUnpairLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to System default.
+        /// </summary>
+        internal static string LanguageSystemDefault {
+            get {
+                return ResourceManager.GetString("LanguageSystemDefault", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string SettingsHeader {
+            get {
+                return ResourceManager.GetString("SettingsHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        internal static string SettingsLanguageLabel {
+            get {
+                return ResourceManager.GetString("SettingsLanguageLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Restart BlueH to apply the new language..
+        /// </summary>
+        internal static string SettingsRestartRequiredMessage {
+            get {
+                return ResourceManager.GetString("SettingsRestartRequiredMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not save the settings: {0}.
+        /// </summary>
+        internal static string SettingsSaveFailedFormat {
+            get {
+                return ResourceManager.GetString("SettingsSaveFailedFormat", resourceCulture);
+            }
+        }
     }
 }

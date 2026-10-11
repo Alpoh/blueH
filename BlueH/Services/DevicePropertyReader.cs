@@ -5,6 +5,7 @@ public static class DevicePropertyReader
     public const string ContainerIdProperty = "System.Devices.Aep.ContainerId";
     public const string IsConnectedProperty = "System.Devices.Aep.IsConnected";
     public const string MinorClassProperty = "System.Devices.Aep.Bluetooth.Cod.Minor";
+    public const string MajorClassProperty = "System.Devices.Aep.Bluetooth.Cod.Major";
     public const string BatteryPercentProperty = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
 
     public static Guid ReadContainerId(IReadOnlyDictionary<string, object?> properties)
@@ -20,6 +21,11 @@ public static class DevicePropertyReader
     public static uint? ReadMinorClass(IReadOnlyDictionary<string, object?> properties)
     {
         return ReadNonNegativeInteger(properties, MinorClassProperty) is int minorClass ? (uint)minorClass : null;
+    }
+
+    public static uint? ReadMajorClass(IReadOnlyDictionary<string, object?> properties)
+    {
+        return ReadNonNegativeInteger(properties, MajorClassProperty) is int majorClass ? (uint)majorClass : null;
     }
 
     public static int? ReadBatteryPercent(IReadOnlyDictionary<string, object?> properties)

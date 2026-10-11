@@ -13,7 +13,12 @@
             <RowDefinition Height="2*" MinHeight="100" />
         </Grid.RowDefinitions>
         <views:DevicesView Grid.Row="0" DataContext="{Binding Devices}" />
-        <views:MediaTransportView Grid.Row="1" DataContext="{Binding MediaTransport}" />
+        <StackPanel Grid.Row="1">
+            <views:SelectedDeviceView DataContext="{Binding SelectedDevice}" />
+            <views:PairingView DataContext="{Binding Pairing}" />
+            <views:SettingsView DataContext="{Binding Settings}" />
+            <views:MediaTransportView DataContext="{Binding MediaTransport}" />
+        </StackPanel>
         <GridSplitter Grid.Row="2" Height="4" HorizontalAlignment="Stretch" />
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
             <views:EndpointsView DataContext="{Binding Endpoints}" />

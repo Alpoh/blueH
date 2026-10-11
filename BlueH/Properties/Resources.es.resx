@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ApplicationTitle" xml:space="preserve">
+    <value>BlueH</value>
+  </data>
+  <data name="DiagnosticsOutcomeHeader" xml:space="preserve">
+    <value>Resultado</value>
+  </data>
+  <data name="DiagnosticsTimeHeader" xml:space="preserve">
+    <value>Hora</value>
+  </data>
+  <data name="DiagnosticsOperationHeader" xml:space="preserve">
+    <value>Operación</value>
+  </data>
+  <data name="DiagnosticsDetailHeader" xml:space="preserve">
+    <value>Detalle</value>
+  </data>
+  <data name="DevicesHeader" xml:space="preserve">
+    <value>Dispositivos</value>
+  </data>
+  <data name="DevicesEmptyMessage" xml:space="preserve">
+    <value>No se encontraron dispositivos de audio Bluetooth emparejados</value>
+  </data>
+  <data name="DevicesErrorMessage" xml:space="preserve">
+    <value>No se pudieron leer los dispositivos Bluetooth</value>
+  </data>
+  <data name="DeviceNameHeader" xml:space="preserve">
+    <value>Dispositivo</value>
+  </data>
+  <data name="DeviceKindHeader" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="DeviceConnectionHeader" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="DeviceConnectedLabel" xml:space="preserve">
+    <value>Conectado</value>
+  </data>
+  <data name="DeviceDisconnectedLabel" xml:space="preserve">
+    <value>Desconectado</value>
+  </data>
+  <data name="DeviceConnectionUnknownLabel" xml:space="preserve">
+    <value>Desconocido</value>
+  </data>
+  <data name="DeviceKindHeadphonesLabel" xml:space="preserve">
+    <value>Auriculares</value>
+  </data>
+  <data name="DeviceKindLoudspeakerLabel" xml:space="preserve">
+    <value>Altavoz</value>
+  </data>
+  <data name="DeviceKindUnknownLabel" xml:space="preserve">
+    <value>Dispositivo desconocido</value>
+  </data>
+  <data name="DeviceBatteryHeader" xml:space="preserve">
+    <value>Batería</value>
+  </data>
+  <data name="DeviceBatteryPercentFormat" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="DeviceBatteryUnknownLabel" xml:space="preserve">
+    <value>Desconocida</value>
+  </data>
+  <data name="EndpointsHeader" xml:space="preserve">
+    <value>Salidas de audio</value>
+  </data>
+  <data name="EndpointsEmptyMessage" xml:space="preserve">
+    <value>Este dispositivo no tiene salida de audio mientras está desconectado</value>
+  </data>
+  <data name="EndpointsErrorMessage" xml:space="preserve">
+    <value>No se pudieron leer las salidas de audio</value>
+  </data>
+  <data name="EndpointVolumeHeader" xml:space="preserve">
+    <value>Volumen</value>
+  </data>
+  <data name="EndpointMuteLabel" xml:space="preserve">
+    <value>Silenciar</value>
+  </data>
+  <data name="EndpointMakeDefaultForPlaybackLabel" xml:space="preserve">
+    <value>Usar para reproducción</value>
+  </data>
+  <data name="EndpointMakeDefaultForCommunicationsLabel" xml:space="preserve">
+    <value>Usar para llamadas</value>
+  </data>
+  <data name="EndpointDefaultForPlaybackLabel" xml:space="preserve">
+    <value>Reproducción</value>
+  </data>
+  <data name="EndpointDefaultForCommunicationsLabel" xml:space="preserve">
+    <value>Llamadas</value>
+  </data>
+  <data name="EndpointVolumeEditHint" xml:space="preserve">
+    <value>Haz doble clic para escribir un volumen</value>
+  </data>
+  <data name="EndpointVolumeNotANumberMessage" xml:space="preserve">
+    <value>Escribe un número entero.</value>
+  </data>
+  <data name="EndpointVolumeOutOfRangeFormat" xml:space="preserve">
+    <value>Escribe un número entero entre {0} y {1}.</value>
+  </data>
+  <data name="MediaErrorMessage" xml:space="preserve">
+    <value>Los controles multimedia no están disponibles.</value>
+  </data>
+  <data name="MediaHeader" xml:space="preserve">
+    <value>Reproduciendo</value>
+  </data>
+  <data name="MediaNoSessionMessage" xml:space="preserve">
+    <value>No se está reproduciendo nada.</value>
+  </data>
+  <data name="MediaUnknownArtist" xml:space="preserve">
+    <value>Artista desconocido</value>
+  </data>
+  <data name="MediaUnknownTitle" xml:space="preserve">
+    <value>Título desconocido</value>
+  </data>
+  <data name="MediaCommandRefusedMessage" xml:space="preserve">
+    <value>La aplicación que reproduce rechazó la orden.</value>
+  </data>
+  <data name="MediaPauseLabel" xml:space="preserve">
+    <value>Pausa</value>
+  </data>
+  <data name="MediaPlayLabel" xml:space="preserve">
+    <value>Reproducir</value>
+  </data>
+  <data name="MediaNextLabel" xml:space="preserve">
+    <value>Siguiente</value>
+  </data>
+  <data name="MediaPreviousLabel" xml:space="preserve">
+    <value>Anterior</value>
+  </data>
+  <data name="DeviceCancelLabel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="DeviceConnectingMessage" xml:space="preserve">
+    <value>Conectando…</value>
+  </data>
+  <data name="DeviceConnectionCancelledMessage" xml:space="preserve">
+    <value>Cancelado.</value>
+  </data>
+  <data name="DeviceConnectionFailedFormat" xml:space="preserve">
+    <value>No se pudo cambiar la conexión: {0}</value>
+  </data>
+  <data name="DeviceConnectionTimedOutMessage" xml:space="preserve">
+    <value>El dispositivo no respondió. Comprueba que esté encendido y al alcance.</value>
+  </data>
+  <data name="DeviceConnectLabel" xml:space="preserve">
+    <value>Conectar</value>
+  </data>
+  <data name="DeviceDisconnectingMessage" xml:space="preserve">
+    <value>Desconectando…</value>
+  </data>
+  <data name="DeviceDisconnectLabel" xml:space="preserve">
+    <value>Desconectar</value>
+  </data>
+  <data name="SelectedDeviceNoneMessage" xml:space="preserve">
+    <value>Selecciona un dispositivo para administrarlo.</value>
+  </data>
+  <data name="PairingAcceptLabel" xml:space="preserve">
+    <value>Aceptar</value>
+  </data>
+  <data name="PairingAlreadyPairedMessage" xml:space="preserve">
+    <value>El dispositivo ya estaba emparejado.</value>
+  </data>
+  <data name="PairingAuthenticationFailedMessage" xml:space="preserve">
+    <value>Error de autenticación. Pon el dispositivo en modo de emparejamiento y vuelve a intentarlo.</value>
+  </data>
+  <data name="PairingCancelledMessage" xml:space="preserve">
+    <value>Emparejamiento cancelado.</value>
+  </data>
+  <data name="PairingConfirmMessage" xml:space="preserve">
+    <value>¿Permitir que el dispositivo se empareje?</value>
+  </data>
+  <data name="PairingConfirmPinFormat" xml:space="preserve">
+    <value>¿El dispositivo muestra el PIN {0}?</value>
+  </data>
+  <data name="PairingDeviceNotReadyMessage" xml:space="preserve">
+    <value>El dispositivo no está listo para emparejarse. Ponlo en modo de emparejamiento y vuelve a intentarlo.</value>
+  </data>
+  <data name="PairingDisplayPinFormat" xml:space="preserve">
+    <value>Escribe el PIN {0} en el dispositivo.</value>
+  </data>
+  <data name="PairingErrorFormat" xml:space="preserve">
+    <value>Error al emparejar: {0}</value>
+  </data>
+  <data name="PairingFailedMessage" xml:space="preserve">
+    <value>No se pudo emparejar.</value>
+  </data>
+  <data name="PairingHeader" xml:space="preserve">
+    <value>Agregar un dispositivo</value>
+  </data>
+  <data name="PairingInProgressFormat" xml:space="preserve">
+    <value>Emparejando con {0}…</value>
+  </data>
+  <data name="PairingPairLabel" xml:space="preserve">
+    <value>Emparejar</value>
+  </data>
+  <data name="PairingPinInputLabel" xml:space="preserve">
+    <value>PIN</value>
+  </data>
+  <data name="PairingProvidePinMessage" xml:space="preserve">
+    <value>Escribe el PIN del dispositivo.</value>
+  </data>
+  <data name="PairingRejectedMessage" xml:space="preserve">
+    <value>Se rechazó el emparejamiento.</value>
+  </data>
+  <data name="PairingRejectLabel" xml:space="preserve">
+    <value>Rechazar</value>
+  </data>
+  <data name="PairingSearchingMessage" xml:space="preserve">
+    <value>Buscando… Pon el dispositivo en modo de emparejamiento.</value>
+  </data>
+  <data name="PairingSearchLabel" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="PairingStopSearchLabel" xml:space="preserve">
+    <value>Dejar de buscar</value>
+  </data>
+  <data name="PairingSucceededMessage" xml:space="preserve">
+    <value>Emparejado.</value>
+  </data>
+  <data name="PairingTimedOutMessage" xml:space="preserve">
+    <value>Se agotó el tiempo de emparejamiento.</value>
+  </data>
+  <data name="DeviceConfirmUnpairLabel" xml:space="preserve">
+    <value>Desemparejar</value>
+  </data>
+  <data name="DeviceNotPairedMessage" xml:space="preserve">
+    <value>El dispositivo no estaba emparejado.</value>
+  </data>
+  <data name="DeviceUnpairConfirmFormat" xml:space="preserve">
+    <value>¿Desemparejar {0}? Tendrás que volver a emparejarlo para usarlo.</value>
+  </data>
+  <data name="DeviceUnpairedMessage" xml:space="preserve">
+    <value>Desemparejado.</value>
+  </data>
+  <data name="DeviceUnpairFailedFormat" xml:space="preserve">
+    <value>No se pudo desemparejar: {0}</value>
+  </data>
+  <data name="DeviceUnpairingMessage" xml:space="preserve">
+    <value>Desemparejando…</value>
+  </data>
+  <data name="DeviceUnpairLabel" xml:space="preserve">
+    <value>Desemparejar</value>
+  </data>
+  <data name="LanguageSystemDefault" xml:space="preserve">
+    <value>Predeterminado del sistema</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="SettingsLanguageLabel" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="SettingsRestartRequiredMessage" xml:space="preserve">
+    <value>Reinicia BlueH para aplicar el nuevo idioma.</value>
+  </data>
+  <data name="SettingsSaveFailedFormat" xml:space="preserve">
+    <value>No se pudo guardar la configuración: {0}</value>
+  </data>
+</root>

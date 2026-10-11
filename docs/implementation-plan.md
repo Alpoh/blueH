@@ -15,14 +15,14 @@ because Windows exposes almost none of this where a user can act on it.
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
 - `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
-- Phases 0 to 3 complete and verified by hand; phase 4 implemented, awaiting hand verification. 291 tests green.
+- Phases 0 to 4 complete and verified by hand. 291 tests green.
 - The window lists paired Bluetooth audio devices with their type, connection state and battery, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones at 80%, Sony SRS-XE300 as a disconnected speaker with battery unknown.
 - Battery is polled every minute and whenever a device becomes connected, through `FirstKnownBatteryService` over the Hands-Free device property, with GATT behind it as an unverified fallback.
 - Selecting a device lists its audio outputs with a volume slider, a mute toggle, and buttons to make an output the default for playback or for calls. Volume writes are coalesced so dragging the slider issues one call per completed write.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
 - A "Now playing" panel shows the current media session's title, artist and source app, with previous, play/pause and next buttons enabled from what the session itself allows.
-- **Not yet verified by hand: phase 4.** The adapter `WindowsMediaTransportService` has only run as a spike. Run the app with something playing and work through the checklist under phase 4.
-- Next: hand-verify phase 4, then phase 5, pairing management.
+- Phase 4 verified by hand on 2026-10-11: track display, play/pause from the app and from the earbuds, skipping, and the session ending all behave.
+- Next: app navigation (a menu and a device detail page with Back), then phase 5, pairing management.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored

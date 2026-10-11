@@ -14,6 +14,7 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <NeutralLanguage>en-US</NeutralLanguage>
         <InvariantGlobalization>false</InvariantGlobalization>
+        <ApplicationIcon>Assets\BlueH.ico</ApplicationIcon>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -24,6 +25,10 @@
         <Trademark>CM</Trademark>
         <Version>0.1.0</Version>
     </PropertyGroup>
+
+    <ItemGroup>
+        <Resource Include="Assets\BlueH.ico" />
+    </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">

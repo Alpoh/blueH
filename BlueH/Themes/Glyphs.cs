@@ -6,6 +6,8 @@ public static class Glyphs
     public const string Bluetooth = "\uE702";
     public const string Devices = "\uE772";
     public const string Volume = "\uE767";
+    public const string Muted = "\uE74F";
+    public const string Checkmark = "\uE73E";
     public const string Settings = "\uE713";
     public const string Diagnostics = "\uE9D9";
     public const string Add = "\uE710";

@@ -5,6 +5,7 @@ using System.Windows.Input;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Services;
+using BlueH.Themes;
 using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels;
@@ -85,8 +86,16 @@ public sealed class AudioEndpointViewModel : ViewModelBase, INotifyDataErrorInfo
     public bool? IsMuted
     {
         get => _isMuted;
-        private set => SetField(ref _isMuted, value);
+        private set
+        {
+            if (SetField(ref _isMuted, value))
+            {
+                OnPropertyChanged(nameof(MuteGlyph));
+            }
+        }
     }
+
+    public string MuteGlyph => _isMuted == true ? Glyphs.Muted : Glyphs.Volume;
 
     public bool IsDefaultForPlayback
     {

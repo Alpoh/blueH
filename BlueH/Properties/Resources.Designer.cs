@@ -832,7 +832,7 @@ namespace BlueH.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This device does not report its battery level..
+        ///   Looks up a localized string similar to Battery level not available..
         /// </summary>
         internal static string DeviceBatteryUnknownTooltip {
             get {
@@ -855,6 +855,24 @@ namespace BlueH.Properties {
         internal static string NavigationBackLabel {
             get {
                 return ResourceManager.GetString("NavigationBackLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Windows will forget this device. To use it again you will have to pair it..
+        /// </summary>
+        internal static string DeviceRemovalDescription {
+            get {
+                return ResourceManager.GetString("DeviceRemovalDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove this device.
+        /// </summary>
+        internal static string DeviceRemovalHeader {
+            get {
+                return ResourceManager.GetString("DeviceRemovalHeader", resourceCulture);
             }
         }
     }

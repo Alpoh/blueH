@@ -373,12 +373,18 @@
     <value>[—·]</value>
   </data>
   <data name="DeviceBatteryUnknownTooltip" xml:space="preserve">
-    <value>[Thís dévíçé döés ñöt répört íts báttérý lévél.···················]</value>
+    <value>[Báttérý lévél ñöt áváíláblé.············]</value>
   </data>
   <data name="DiagnosticsHeader" xml:space="preserve">
     <value>[Díágñöstíçs·····]</value>
   </data>
   <data name="NavigationBackLabel" xml:space="preserve">
     <value>[Báçk··]</value>
+  </data>
+  <data name="DeviceRemovalDescription" xml:space="preserve">
+    <value>[Wíñdöws wíll förgét thís dévíçé. Tö üsé ít ágáíñ ýöü wíll hávé tö páír ít.······························]</value>
+  </data>
+  <data name="DeviceRemovalHeader" xml:space="preserve">
+    <value>[Rémövé thís dévíçé········]</value>
   </data>
 </root>

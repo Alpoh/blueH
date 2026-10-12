@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels.Pages;
 
@@ -16,6 +17,8 @@ public sealed class DevicePageViewModel : PageViewModel, IDisposable
     public EndpointsViewModel Outputs { get; }
 
     public override string Title => Device.Device?.Name ?? string.Empty;
+
+    public string OutputsHeader => AppResources.EndpointsHeader;
 
     public void Dispose()
     {

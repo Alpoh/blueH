@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace BlueH.Views;
 
-public partial class SelectedDeviceView : UserControl
+public partial class DeviceRemovalView : UserControl
 {
-    public SelectedDeviceView()
+    public DeviceRemovalView()
     {
         InitializeComponent();
     }

@@ -57,7 +57,16 @@ At the user's request the landing page came first: what the app shows when it op
 
 Not yet done from D2: an empty state with an "Add a device" action, and the quick Connect button on the card. The selected menu item still uses the theme's solid accent block rather than Windows Settings' subtle pill (D8).
 
-## 6. Increments
+## 6. Device page (D3), 2026-10-12
+
+- **Header card**: large kind glyph, status dot, battery glyph and percentage or "Battery level not available", and only the action that applies — Connect (accent button) when disconnected, Disconnect when connected, Cancel while an attempt runs. The status message appears only while there is one.
+- **Outputs as cards**: mute is an icon toggle whose glyph and checked state follow the mute state; slider and the double-click-to-type volume from increment 3.8 kept unchanged; being the default for playback or calls is a check badge, and the "use for" button only appears while the output is not already the default.
+- **Removal card** at the bottom: "Remove this device", an explanation, and Unpair in the theme's critical colour, with the confirmation inline.
+- The old `SelectedDeviceView` was split into `DeviceHeaderView` and `DeviceRemovalView`. Output cards are shared with the Audio outputs page, so that page got the same design.
+- Wording: "This device does not report its battery level" was wrong for earbuds that are merely disconnected; it now reads "Battery level not available".
+- The noise-control selector belongs in this page and lands with phase 7.3.
+
+## 7. Increments
 
 | # | Increment | Deliverable | Verification |
 |---|---|---|---|

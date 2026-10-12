@@ -4,8 +4,12 @@
              xmlns:views="clr-namespace:BlueH.Views">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <views:SelectedDeviceView DataContext="{Binding Device}" />
-            <views:EndpointsView DataContext="{Binding Outputs}" />
+            <views:DeviceHeaderView DataContext="{Binding Device}" />
+            <TextBlock Text="{Binding OutputsHeader}"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
+                       Margin="{StaticResource SectionHeaderMargin}" />
+            <views:EndpointsView DataContext="{Binding Outputs}" Margin="{StaticResource SectionMargin}" />
+            <views:DeviceRemovalView DataContext="{Binding Device}" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>

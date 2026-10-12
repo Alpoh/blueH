@@ -2,51 +2,89 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:BlueH.Behaviors"
-             xmlns:converters="clr-namespace:BlueH.Converters">
+             xmlns:converters="clr-namespace:BlueH.Converters"
+             xmlns:themes="clr-namespace:BlueH.Themes">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
     </UserControl.Resources>
-    <DockPanel>
-        <TextBlock DockPanel.Dock="Top"
-                   Text="{Binding EmptyMessage}"
+    <StackPanel>
+        <TextBlock Text="{Binding EmptyMessage}"
                    Visibility="{Binding HasNoEndpoints, Converter={StaticResource BooleanToVisibility}}"
-                   TextWrapping="Wrap" />
-        <StackPanel DockPanel.Dock="Top"
-                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-            <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
-        </StackPanel>
-        <ItemsControl ItemsSource="{Binding Endpoints}" HorizontalContentAlignment="Stretch">
+                   Style="{StaticResource SecondaryTextStyle}"
+                   TextWrapping="Wrap"
+                   Margin="{StaticResource StackedItemMargin}" />
+        <Border Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"
+                Style="{StaticResource CardBorderStyle}"
+                Margin="{StaticResource StackedItemMargin}">
+            <StackPanel>
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ErrorDetail}"
+                           Style="{StaticResource SecondaryTextStyle}"
+                           TextWrapping="Wrap"
+                           Margin="{StaticResource TightStackedItemMargin}" />
+            </StackPanel>
+        </Border>
+        <ItemsControl ItemsSource="{Binding Endpoints}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderThickness="0,0,0,1" Padding="0,8" Margin="0,0,0,4">
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="{StaticResource StackedItemMargin}">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="{Binding DataContext.DefaultForPlaybackLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                           Visibility="{Binding IsDefaultForPlayback, Converter={StaticResource BooleanToVisibility}}"
-                                           Style="{StaticResource SecondaryTextStyle}"
-                                           Margin="12,0,0,0" />
-                                <TextBlock Text="{Binding DataContext.DefaultForCommunicationsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                           Visibility="{Binding IsDefaultForCommunications, Converter={StaticResource BooleanToVisibility}}"
-                                           Style="{StaticResource SecondaryTextStyle}"
-                                           Margin="8,0,0,0" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                <TextBlock Text="{Binding DataContext.VolumeHeader, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,8,0" />
-                                <Slider Value="{Binding VolumePercent, Mode=TwoWay}"
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Name}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Border Style="{StaticResource BadgeBorderStyle}"
+                                            Visibility="{Binding IsDefaultForPlayback, Converter={StaticResource BooleanToVisibility}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{x:Static themes:Glyphs.Checkmark}" Style="{StaticResource BadgeIconStyle}" />
+                                            <TextBlock Text="{Binding DataContext.DefaultForPlaybackLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Style="{StaticResource BadgeBorderStyle}"
+                                            Visibility="{Binding IsDefaultForCommunications, Converter={StaticResource BooleanToVisibility}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{x:Static themes:Glyphs.Checkmark}" Style="{StaticResource BadgeIconStyle}" />
+                                            <TextBlock Text="{Binding DataContext.DefaultForCommunicationsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="{StaticResource StackedItemTopMargin}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ToggleButton Grid.Column="0"
+                                              Content="{Binding MuteGlyph}"
+                                              IsChecked="{Binding IsMuted, Mode=OneWay}"
+                                              Command="{Binding ToggleMuteCommand}"
+                                              ToolTip="{Binding DataContext.MuteLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              AutomationProperties.Name="{Binding DataContext.MuteLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              Style="{StaticResource IconToggleButtonStyle}"
+                                              Margin="{StaticResource NavigationIconMargin}" />
+                                <Slider Grid.Column="1"
+                                        Value="{Binding VolumePercent, Mode=TwoWay}"
                                         Minimum="0"
                                         Maximum="100"
-                                        Width="220"
+                                        AutomationProperties.Name="{Binding DataContext.VolumeHeader, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         VerticalAlignment="Center" />
-                                <Grid MinWidth="56" Margin="8,0,0,0" VerticalAlignment="Center">
+                                <Grid Grid.Column="2" MinWidth="56" Margin="{StaticResource NavigationIconMargin}" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding VolumePercent}"
                                                ToolTip="{Binding DataContext.VolumeEditHint, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                Visibility="{Binding IsEditingVolume, Converter={StaticResource InverseBooleanToVisibility}}"
                                                Background="Transparent"
+                                               HorizontalAlignment="Right"
                                                VerticalAlignment="Center">
                                         <TextBlock.InputBindings>
                                             <MouseBinding MouseAction="LeftDoubleClick"
@@ -74,22 +112,21 @@
                                         </TextBox.InputBindings>
                                     </TextBox>
                                 </Grid>
-                                <ToggleButton Content="{Binding DataContext.MuteLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                              IsChecked="{Binding IsMuted, Mode=OneWay}"
-                                              Command="{Binding ToggleMuteCommand}"
-                                              Margin="16,0,0,0" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            </Grid>
+                            <WrapPanel>
                                 <Button Content="{Binding DataContext.MakeDefaultForPlaybackLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        Command="{Binding MakeDefaultForPlaybackCommand}" />
+                                        Command="{Binding MakeDefaultForPlaybackCommand}"
+                                        Visibility="{Binding IsDefaultForPlayback, Converter={StaticResource InverseBooleanToVisibility}}"
+                                        Margin="{StaticResource WrappedButtonTopMargin}" />
                                 <Button Content="{Binding DataContext.MakeDefaultForCommunicationsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         Command="{Binding MakeDefaultForCommunicationsCommand}"
-                                        Margin="8,0,0,0" />
-                            </StackPanel>
+                                        Visibility="{Binding IsDefaultForCommunications, Converter={StaticResource InverseBooleanToVisibility}}"
+                                        Margin="{StaticResource WrappedButtonTopMargin}" />
+                            </WrapPanel>
                         </StackPanel>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-    </DockPanel>
+    </StackPanel>
 </UserControl>

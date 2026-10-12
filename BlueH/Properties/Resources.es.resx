@@ -373,12 +373,18 @@
     <value>—</value>
   </data>
   <data name="DeviceBatteryUnknownTooltip" xml:space="preserve">
-    <value>Este dispositivo no informa de su nivel de batería.</value>
+    <value>Nivel de batería no disponible.</value>
   </data>
   <data name="DiagnosticsHeader" xml:space="preserve">
     <value>Diagnóstico</value>
   </data>
   <data name="NavigationBackLabel" xml:space="preserve">
     <value>Atrás</value>
+  </data>
+  <data name="DeviceRemovalDescription" xml:space="preserve">
+    <value>Windows olvidará este dispositivo. Para volver a usarlo tendrás que emparejarlo.</value>
+  </data>
+  <data name="DeviceRemovalHeader" xml:space="preserve">
+    <value>Quitar este dispositivo</value>
   </data>
 </root>

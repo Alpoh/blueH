@@ -70,6 +70,60 @@ public class SelectedDeviceConnectionTests
         });
     }
 
+    [TestCase(true, true)]
+    [TestCase(false, false)]
+    [TestCase(null, false)]
+    public void OnlyAReportedConnectionCountsAsConnected(bool? isConnected, bool expected)
+    {
+        SelectedDeviceViewModel viewModel = CreateViewModel();
+
+        viewModel.Device = Earbuds(isConnected);
+
+        Assert.That(viewModel.IsConnected, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public async Task TheStatusMessageIsFlaggedWhileItIsShown()
+    {
+        SelectedDeviceViewModel viewModel = CreateViewModel();
+        viewModel.Device = Earbuds(isConnected: false);
+        bool flaggedBefore = viewModel.HasStatusMessage;
+        int flagAnnouncements = 0;
+        viewModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(SelectedDeviceViewModel.HasStatusMessage))
+            {
+                flagAnnouncements++;
+            }
+        };
+
+        Task attempt = Connect(viewModel);
+        bool flaggedWhileConnecting = viewModel.HasStatusMessage;
+        viewModel.Device = Earbuds(isConnected: true);
+        await Finished(attempt);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(flaggedBefore, Is.False);
+            Assert.That(flaggedWhileConnecting, Is.True);
+            Assert.That(viewModel.HasStatusMessage, Is.False);
+            Assert.That(flagAnnouncements, Is.EqualTo(2), "shown, then hidden");
+        });
+    }
+
+    [Test]
+    public void AConnectionChangeIsAnnounced()
+    {
+        SelectedDeviceViewModel viewModel = CreateViewModel();
+        viewModel.Device = Earbuds(isConnected: false);
+        List<string?> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        viewModel.Device = Earbuds(isConnected: true);
+
+        Assert.That(changed, Does.Contain(nameof(SelectedDeviceViewModel.IsConnected)));
+    }
+
     [Test]
     public void ADeviceOfUnknownStateCanBeConnected()
     {

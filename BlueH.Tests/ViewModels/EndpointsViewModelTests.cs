@@ -226,6 +226,32 @@ public class EndpointsViewModelTests
         Assert.That(_endpointService.MuteCalls, Is.EqualTo(new[] { (GameEndpointId, true) }));
     }
 
+    [TestCase(false, BlueH.Themes.Glyphs.Volume)]
+    [TestCase(null, BlueH.Themes.Glyphs.Volume)]
+    [TestCase(true, BlueH.Themes.Glyphs.Muted)]
+    public async Task TheMuteGlyphShowsTheMuteState(bool? isMuted, string expectedGlyph)
+    {
+        AudioEndpointViewModel endpoint = await SingleEndpointAsync(76, isMuted);
+
+        Assert.That(endpoint.MuteGlyph, Is.EqualTo(expectedGlyph));
+    }
+
+    [Test]
+    public async Task MutingChangesTheGlyphAndSaysSo()
+    {
+        AudioEndpointViewModel endpoint = await SingleEndpointAsync(76, isMuted: false);
+        List<string?> changed = [];
+        endpoint.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        await ((AsyncRelayCommand)endpoint.ToggleMuteCommand).ExecuteAsync(null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(endpoint.MuteGlyph, Is.EqualTo(BlueH.Themes.Glyphs.Muted));
+            Assert.That(changed, Does.Contain(nameof(AudioEndpointViewModel.MuteGlyph)));
+        });
+    }
+
     [Test]
     public async Task AFailedMuteIsRecordedRatherThanThrown()
     {

@@ -87,6 +87,7 @@ public sealed class SelectedDeviceViewModel : ViewModelBase
 
             OnPropertyChanged(nameof(HasDevice));
             OnPropertyChanged(nameof(HasNoDevice));
+            OnPropertyChanged(nameof(IsConnected));
             RaiseCommandStates();
         }
     }
@@ -94,6 +95,12 @@ public sealed class SelectedDeviceViewModel : ViewModelBase
     public bool HasDevice => _device is not null;
 
     public bool HasNoDevice => _device is null;
+
+    public bool IsConnected => _device?.IsConnected == true;
+
+    public string RemovalHeader => AppResources.DeviceRemovalHeader;
+
+    public string RemovalDescription => AppResources.DeviceRemovalDescription;
 
     public ConnectionActivity Activity
     {
@@ -113,8 +120,18 @@ public sealed class SelectedDeviceViewModel : ViewModelBase
     public string? StatusMessage
     {
         get => _statusMessage;
-        private set => SetField(ref _statusMessage, value);
+        private set
+        {
+            if (SetField(ref _statusMessage, value))
+            {
+                OnPropertyChanged(nameof(HasStatusMessage));
+            }
+        }
     }
+
+    public bool HasStatusMessage => _statusMessage is not null;
+
+    public string BatteryNotReportedText => AppResources.DeviceBatteryUnknownTooltip;
 
     public bool IsConfirmingUnpair
     {

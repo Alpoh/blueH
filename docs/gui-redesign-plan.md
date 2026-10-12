@@ -74,7 +74,34 @@ D2 completed later the same day: the empty state carries an "Add a device" accen
 - A failed or oversized read (above 4 MB) falls back to the music-note placeholder and is logged; it is cosmetic, so it never raises the panel's error state.
 - The cover is drawn as the `ImageBrush` background of a rounded `Border`, because a `Border` clips its own background but not its children.
 
-## 7. Increments
+## 8. Add-device flow (D5), 2026-10-12
+
+- "Add a device" is now its own page instead of an expander under the list. The Devices page carries an "Add a device" button at the top, and the empty state keeps its own.
+- Opening the page starts searching; leaving it by Back or by choosing another section stops the search, so the radio does not keep scanning in the background. Opening a device or any other navigation leaves an unrelated search alone.
+- A successful pairing returns to the device list, where the new device appears through the endpoint watcher. A failure stays on the page with its message.
+- Search state is an indeterminate progress bar plus a sentence that follows the state ("Searching… Put the device in pairing mode." or "Put your device in pairing mode, then search."). A "nothing found yet" hint shows while searching with no results. The PIN challenge is a card outlined in the accent colour; outcomes appear in a card of their own only while there is one.
+- **First real run of the phase 5 discovery**, which had only been tested against a fake: searching found a Samsung Q80CA and an LG webOS TV. Discovery works, and unpaired devices do carry a class to filter on.
+
+## 9. Settings page and developer mode (D6 and D7), 2026-10-12
+
+- Settings became Windows-style cards: Language (with the restart notice in the accent colour), Developer mode, and an About card with the version and the Gadgetbridge credit.
+- **Developer mode** is a stored setting, off by default. It decides whether Diagnostics is in the menu; turning it off while on that page moves to Settings rather than leaving the user on a page the menu no longer lists. D7 was folded into D6 because a switch with no effect would be confusing.
+- **Version** comes from the assembly's informational version with the build metadata (`+commit`) removed.
+- **Credit**: the OPPO protocol facts come from the Gadgetbridge project (AGPL-3.0). No code was copied, so BlueH is not bound by that licence, but the source is credited in the app. The link opens through `IExternalLinkOpener`, so the ViewModel stays testable without launching a browser.
+- **Accessibility fix found while testing**: menu items exposed the record's `ToString()` as their accessible name, which a screen reader would have read aloud. They now carry their label through `AutomationProperties.Name`.
+- **Discovery filter** (user decision): televisions share the audio/video major class with headphones, so discovery now also requires a headphone or loudspeaker minor class. A device that reports no minor class is still offered rather than hidden on a guess, and every excluded device is logged with its classes.
+
+## 10. Polish (D8), 2026-10-12
+
+- **Navigation rail** no longer uses the theme's solid accent block. The selected item gets a subtle fill and a short accent bar on its left edge, as in Windows 11 Settings; hover uses the same subtle fill.
+- **Keyboard**: Alt+Left and the Browser Back key go back, as in Explorer and browsers.
+- **Accessibility, enforced**: `XamlAccessibilityTests` fails the build when a button whose content is a glyph has no `AutomationProperties.Name`. Menu items, cards, media buttons, mute and Back all carry one.
+- **Small window**: checked at the minimum size of 720 × 480, roughly what a 1080p laptop leaves at 150 % scaling. The list fits; the device page scrolls. Scrolling pages now keep a gutter on the right so the scrollbar no longer sits over the cards.
+- **Pseudo-locale**: run in `qps-ploc` at the minimum size. Every piece of interface text came out accented and lengthened by 40 %, so no literal escaped the resources; only device names stay verbatim, as the rule requires. No text was clipped.
+
+The user's `settings.json` was switched to the pseudo-locale for that run and restored byte for byte afterwards.
+
+## 11. Increments
 
 | # | Increment | Deliverable | Verification |
 |---|---|---|---|

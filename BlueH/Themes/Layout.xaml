@@ -8,8 +8,10 @@
     <sys:Double x:Key="SpacingExtraLarge">24</sys:Double>
 
     <Thickness x:Key="PagePadding">24,16,24,16</Thickness>
+    <Thickness x:Key="ScrollContentMargin">0,0,16,0</Thickness>
     <Thickness x:Key="SectionMargin">0,0,0,24</Thickness>
     <Thickness x:Key="SectionHeaderMargin">0,0,0,8</Thickness>
+    <Thickness x:Key="SpacedSectionHeaderMargin">0,16,0,8</Thickness>
     <Thickness x:Key="CardPadding">16,12,16,12</Thickness>
     <Thickness x:Key="StackedItemMargin">0,0,0,8</Thickness>
     <Thickness x:Key="TightStackedItemMargin">0,2,0,0</Thickness>
@@ -28,7 +30,6 @@
     </Style>
 
     <Thickness x:Key="NavigationIconMargin">0,0,12,0</Thickness>
-    <Thickness x:Key="NavigationItemPadding">4,6,4,6</Thickness>
     <Thickness x:Key="DeviceIconMargin">4,0,16,0</Thickness>
     <Thickness x:Key="StatusDotMargin">0,0,6,0</Thickness>
     <Thickness x:Key="CardActionMargin">16,0,0,0</Thickness>
@@ -108,6 +109,43 @@
         <Setter Property="FontSize" Value="20" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+    </Style>
+
+    <Style x:Key="NavigationItemStyle" TargetType="ListBoxItem">
+        <Setter Property="AutomationProperties.Name" Value="{Binding Label}" />
+        <Setter Property="Margin" Value="0,2,0,2" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Container"
+                            Background="Transparent"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="12,8,12,8">
+                        <Grid>
+                            <Border x:Name="SelectionIndicator"
+                                    Width="3"
+                                    Height="16"
+                                    CornerRadius="1.5"
+                                    Margin="-12,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                    Visibility="Collapsed" />
+                            <ContentPresenter />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Container" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Container" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            <Setter TargetName="SelectionIndicator" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="ConnectionDotStyle" TargetType="Ellipse">

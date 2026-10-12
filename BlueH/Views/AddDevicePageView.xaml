@@ -1,0 +1,117 @@
+<UserControl x:Class="BlueH.Views.AddDevicePageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:BlueH.Converters"
+             xmlns:themes="clr-namespace:BlueH.Themes">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" DataContext="{Binding Pairing}">
+        <StackPanel Margin="{StaticResource ScrollContentMargin}">
+            <Border Style="{StaticResource CardBorderStyle}" Margin="{StaticResource SectionMargin}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{x:Static themes:Glyphs.Bluetooth}"
+                                   Style="{StaticResource DeviceIconStyle}"
+                                   Margin="{StaticResource DeviceIconMargin}" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding SearchStatusText}"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="{Binding CancelLabel}"
+                                    Command="{Binding CancelPairingCommand}"
+                                    Visibility="{Binding IsPairing, Converter={StaticResource BooleanToVisibility}}"
+                                    Margin="{StaticResource InlineItemMargin}" />
+                            <Button Content="{Binding SearchLabel}"
+                                    Command="{Binding SearchCommand}"
+                                    Visibility="{Binding IsSearching, Converter={StaticResource InverseBooleanToVisibility}}" />
+                            <Button Content="{Binding StopSearchLabel}"
+                                    Command="{Binding StopSearchCommand}"
+                                    Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibility}}" />
+                        </StackPanel>
+                    </Grid>
+                    <ProgressBar IsIndeterminate="True"
+                                 Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibility}}"
+                                 Margin="{StaticResource StackedItemTopMargin}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}"
+                    Visibility="{Binding HasChallenge, Converter={StaticResource BooleanToVisibility}}"
+                    BorderBrush="{DynamicResource AccentFillColorDefaultBrush}"
+                    Margin="{StaticResource SectionMargin}">
+                <StackPanel>
+                    <TextBlock Text="{Binding ChallengeText}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding NeedsPinInput, Converter={StaticResource BooleanToVisibility}}"
+                                Margin="{StaticResource StackedItemTopMargin}">
+                        <TextBlock Text="{Binding PinInputLabel}" VerticalAlignment="Center" Margin="{StaticResource InlineItemMargin}" />
+                        <TextBox Text="{Binding PinInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="120" />
+                    </StackPanel>
+                    <WrapPanel Margin="{StaticResource StackedItemTopMargin}">
+                        <Button Content="{Binding AcceptLabel}"
+                                Command="{Binding AcceptChallengeCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Margin="{StaticResource InlineItemMargin}" />
+                        <Button Content="{Binding RejectLabel}" Command="{Binding RejectChallengeCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}"
+                    Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibility}}"
+                    Margin="{StaticResource SectionMargin}">
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+            </Border>
+
+            <TextBlock Text="{Binding NothingFoundYetMessage}"
+                       Visibility="{Binding ShowsNothingFoundYet, Converter={StaticResource BooleanToVisibility}}"
+                       Style="{StaticResource SecondaryTextStyle}"
+                       TextWrapping="Wrap"
+                       Margin="{StaticResource SectionMargin}" />
+
+            <ItemsControl ItemsSource="{Binding FoundDevices}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.PairCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+                                CommandParameter="{Binding}"
+                                AutomationProperties.Name="{Binding Name}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Padding="{StaticResource CardPadding}"
+                                Margin="{StaticResource StackedItemMargin}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{x:Static themes:Glyphs.Bluetooth}"
+                                           Style="{StaticResource DeviceIconStyle}"
+                                           Margin="{StaticResource DeviceIconMargin}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Name}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding DataContext.PairLabel, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+                                           Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -387,4 +387,31 @@
   <data name="DeviceRemovalHeader" xml:space="preserve">
     <value>[Rémövé thís dévíçé········]</value>
   </data>
+  <data name="PairingNothingFoundMessage" xml:space="preserve">
+    <value>[Ñöthíñg föüñd ýét. Máké süré thé dévíçé ís íñ páíríñg mödé áñd çlösé tö thís PÇ.································]</value>
+  </data>
+  <data name="PairingSearchIdleMessage" xml:space="preserve">
+    <value>[Püt ýöür dévíçé íñ páíríñg mödé, théñ séárçh.··················]</value>
+  </data>
+  <data name="SettingsAboutHeader" xml:space="preserve">
+    <value>[Åböüt··]</value>
+  </data>
+  <data name="SettingsCreditLinkLabel" xml:space="preserve">
+    <value>[Vísít Gádgétbrídgé········]</value>
+  </data>
+  <data name="SettingsCreditText" xml:space="preserve">
+    <value>[Thé ÖPPÖ héádphöñé prötöçöl ís báséd öñ réséárçh püblíshéd bý thé Gádgétbrídgé pröjéçt (ÅGPL-3.0).········································]</value>
+  </data>
+  <data name="SettingsDeveloperModeDescription" xml:space="preserve">
+    <value>[Shöws thé Díágñöstíçs págé wíth évérý çáll BlüéH mákés tö Wíñdöws áñd tö ýöür dévíçés.···································]</value>
+  </data>
+  <data name="SettingsDeveloperModeLabel" xml:space="preserve">
+    <value>[Dévélöpér mödé······]</value>
+  </data>
+  <data name="SettingsLanguageDescription" xml:space="preserve">
+    <value>[Thé láñgüágé BlüéH ís shöwñ íñ.·············]</value>
+  </data>
+  <data name="SettingsVersionFormat" xml:space="preserve">
+    <value>[Vérsíöñ {0}·····]</value>
+  </data>
 </root>

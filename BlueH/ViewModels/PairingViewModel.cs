@@ -34,7 +34,6 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
     private string _pinInput = string.Empty;
     private string? _statusMessage;
     private bool _cancelledByUser;
-    private bool _isOpen;
 
     public PairingViewModel(
         IBluetoothPairingService pairingService,
@@ -54,17 +53,16 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
         _cancelPairingCommand = new AsyncRelayCommand(_ => CancelPairing(), _ => IsPairing);
         _acceptChallengeCommand = new AsyncRelayCommand(_ => AnswerChallenge(accept: true), _ => CanAcceptChallenge());
         _rejectChallengeCommand = new AsyncRelayCommand(_ => AnswerChallenge(accept: false), _ => HasChallenge);
+        FoundDevices.CollectionChanged += (_, _) => OnPropertyChanged(nameof(ShowsNothingFoundYet));
     }
+
+    public event EventHandler? Paired;
 
     public ObservableCollection<DiscoveredDevice> FoundDevices { get; } = [];
 
-    public bool IsOpen
-    {
-        get => _isOpen;
-        set => SetField(ref _isOpen, value);
-    }
-
     public bool IsSearching => _watcher is not null;
+
+    public bool ShowsNothingFoundYet => IsSearching && FoundDevices.Count == 0;
 
     public bool IsPairing => _pairingCancellation is not null;
 
@@ -89,8 +87,16 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
     public string? StatusMessage
     {
         get => _statusMessage;
-        private set => SetField(ref _statusMessage, value);
+        private set
+        {
+            if (SetField(ref _statusMessage, value))
+            {
+                OnPropertyChanged(nameof(HasStatusMessage));
+            }
+        }
     }
+
+    public bool HasStatusMessage => _statusMessage is not null;
 
     public ICommand SearchCommand => _searchCommand;
 
@@ -112,6 +118,10 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
 
     public string SearchingMessage => AppResources.PairingSearchingMessage;
 
+    public string NothingFoundYetMessage => AppResources.PairingNothingFoundMessage;
+
+    public string SearchStatusText => IsSearching ? SearchingMessage : AppResources.PairingSearchIdleMessage;
+
     public string PairLabel => AppResources.PairingPairLabel;
 
     public string CancelLabel => AppResources.DeviceCancelLabel;
@@ -126,13 +136,19 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
 
     public string TimedOutMessage => AppResources.PairingTimedOutMessage;
 
-    public void Open()
+    public void BeginSearching()
     {
-        IsOpen = true;
-
         if (_watcher is null)
         {
             _ = StartSearch();
+        }
+    }
+
+    public void EndSearching()
+    {
+        if (_watcher is not null)
+        {
+            _ = StopSearch();
         }
     }
 
@@ -183,7 +199,7 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
         try
         {
             watcher.Start();
-            StatusMessage = SearchingMessage;
+            StatusMessage = null;
         }
         catch (Exception failure)
         {
@@ -223,6 +239,8 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
     private void RaiseSearchStates()
     {
         OnPropertyChanged(nameof(IsSearching));
+        OnPropertyChanged(nameof(ShowsNothingFoundYet));
+        OnPropertyChanged(nameof(SearchStatusText));
         _searchCommand.RaiseCanExecuteChanged();
         _stopSearchCommand.RaiseCanExecuteChanged();
     }
@@ -302,6 +320,8 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
                 {
                     FoundDevices.RemoveAt(existing);
                 }
+
+                Paired?.Invoke(this, EventArgs.Empty);
             }
         }
         catch (OperationCanceledException)

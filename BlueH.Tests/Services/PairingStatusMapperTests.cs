@@ -74,13 +74,25 @@ public class PairingStatusMapperTests
         Assert.That(PairingStatusMapper.ChallengeKindOf(kind), Is.Null);
     }
 
-    [TestCase(4u, true)]
-    [TestCase(null, true)]
-    [TestCase(2u, false)]
-    [TestCase(1u, false)]
-    [TestCase(0u, false)]
-    public void OnlyAudioOrUnknownMajorClassesAreOffered(uint? majorClass, bool expected)
+    [TestCase(4u, null, true)]
+    [TestCase(null, null, true)]
+    [TestCase(2u, null, false)]
+    [TestCase(1u, null, false)]
+    [TestCase(0u, null, false)]
+    public void OnlyAudioOrUnknownMajorClassesAreOffered(uint? majorClass, uint? minorClass, bool expected)
     {
-        Assert.That(PairingStatusMapper.IsAudioCandidate(majorClass), Is.EqualTo(expected));
+        Assert.That(PairingStatusMapper.IsAudioCandidate(majorClass, minorClass), Is.EqualTo(expected));
+    }
+
+    [TestCase(1u, true, TestName = "A wearable headset is offered")]
+    [TestCase(2u, true, TestName = "A hands-free kit is offered")]
+    [TestCase(6u, true, TestName = "Headphones are offered")]
+    [TestCase(5u, true, TestName = "A loudspeaker is offered")]
+    [TestCase(15u, false, TestName = "A display with loudspeaker such as a TV is not offered")]
+    [TestCase(12u, false, TestName = "A video camera is not offered")]
+    [TestCase(8u, false, TestName = "A car audio unit is not offered")]
+    public void WithinAudioOnlyHeadphonesAndSpeakersAreOffered(uint minorClass, bool expected)
+    {
+        Assert.That(PairingStatusMapper.IsAudioCandidate(4u, minorClass), Is.EqualTo(expected));
     }
 }

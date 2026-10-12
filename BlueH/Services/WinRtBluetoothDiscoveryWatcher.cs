@@ -12,7 +12,7 @@ public sealed class WinRtBluetoothDiscoveryWatcher : IBluetoothDiscoveryWatcher
     private const string StopOperation = "Stop Bluetooth discovery";
     private const string SkipOperation = "Skip discovered non-audio device";
 
-    private static readonly string[] RequestedProperties = [DevicePropertyReader.MajorClassProperty];
+    private static readonly string[] RequestedProperties = [DevicePropertyReader.MajorClassProperty, DevicePropertyReader.MinorClassProperty];
 
     private readonly IDiagnosticsLog _diagnosticsLog;
     private readonly Dictionary<string, DeviceInformation> _known = new(StringComparer.Ordinal);
@@ -119,13 +119,14 @@ public sealed class WinRtBluetoothDiscoveryWatcher : IBluetoothDiscoveryWatcher
     private void Announce(DeviceInformation device)
     {
         uint? majorClass = DevicePropertyReader.ReadMajorClass(device.Properties);
+        uint? minorClass = DevicePropertyReader.ReadMinorClass(device.Properties);
 
-        if (!PairingStatusMapper.IsAudioCandidate(majorClass) || !device.Pairing.CanPair)
+        if (!PairingStatusMapper.IsAudioCandidate(majorClass, minorClass) || !device.Pairing.CanPair)
         {
             _diagnosticsLog.Record(
                 DiagnosticOutcome.Information,
                 SkipOperation,
-                string.Create(CultureInfo.InvariantCulture, $"{device.Name} major={majorClass} canPair={device.Pairing.CanPair}"));
+                string.Create(CultureInfo.InvariantCulture, $"{device.Name} major={majorClass} minor={minorClass} canPair={device.Pairing.CanPair}"));
 
             return;
         }

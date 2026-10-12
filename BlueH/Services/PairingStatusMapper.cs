@@ -51,8 +51,14 @@ public static class PairingStatusMapper
         };
     }
 
-    public static bool IsAudioCandidate(uint? majorClass)
+    public static bool IsAudioCandidate(uint? majorClass, uint? minorClass)
     {
-        return majorClass is null or AudioVideoMajorClass;
+        if (majorClass is not (null or AudioVideoMajorClass))
+        {
+            return false;
+        }
+
+        return minorClass is null
+            || BluetoothAudioDeviceKinds.FromMinorClass(minorClass) != BluetoothAudioDeviceKind.Unknown;
     }
 }

@@ -387,4 +387,31 @@
   <data name="DeviceRemovalHeader" xml:space="preserve">
     <value>Remove this device</value>
   </data>
+  <data name="PairingNothingFoundMessage" xml:space="preserve">
+    <value>Nothing found yet. Make sure the device is in pairing mode and close to this PC.</value>
+  </data>
+  <data name="PairingSearchIdleMessage" xml:space="preserve">
+    <value>Put your device in pairing mode, then search.</value>
+  </data>
+  <data name="SettingsAboutHeader" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="SettingsCreditLinkLabel" xml:space="preserve">
+    <value>Visit Gadgetbridge</value>
+  </data>
+  <data name="SettingsCreditText" xml:space="preserve">
+    <value>The OPPO headphone protocol is based on research published by the Gadgetbridge project (AGPL-3.0).</value>
+  </data>
+  <data name="SettingsDeveloperModeDescription" xml:space="preserve">
+    <value>Shows the Diagnostics page with every call BlueH makes to Windows and to your devices.</value>
+  </data>
+  <data name="SettingsDeveloperModeLabel" xml:space="preserve">
+    <value>Developer mode</value>
+  </data>
+  <data name="SettingsLanguageDescription" xml:space="preserve">
+    <value>The language BlueH is shown in.</value>
+  </data>
+  <data name="SettingsVersionFormat" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
 </root>

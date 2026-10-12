@@ -6,17 +6,24 @@
         xmlns:themes="clr-namespace:BlueH.Themes"
         Icon="/Assets/BlueH.ico"
         Height="760" Width="1000" MinHeight="480" MinWidth="720">
+    <Window.InputBindings>
+        <KeyBinding Key="Left" Modifiers="Alt" Command="{Binding Navigator.GoBackCommand}" />
+        <KeyBinding Key="BrowserBack" Command="{Binding Navigator.GoBackCommand}" />
+    </Window.InputBindings>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <DataTemplate DataType="{x:Type pages:DevicesPageViewModel}">
             <views:DevicesPageView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type pages:AddDevicePageViewModel}">
+            <views:AddDevicePageView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type pages:DevicePageViewModel}">
             <views:DevicePageView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type pages:AudioPageViewModel}">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <views:EndpointsView DataContext="{Binding Outputs}" />
+                <views:EndpointsView DataContext="{Binding Outputs}" Margin="{StaticResource ScrollContentMargin}" />
             </ScrollViewer>
         </DataTemplate>
         <DataTemplate DataType="{x:Type pages:SettingsPageViewModel}">
@@ -41,11 +48,12 @@
                  SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
                  Background="Transparent"
                  BorderThickness="0"
+                 ItemContainerStyle="{StaticResource NavigationItemStyle}"
                  MinWidth="200"
                  Margin="{StaticResource ShellRailMargin}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="{StaticResource NavigationItemPadding}">
+                    <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Glyph}" Style="{StaticResource IconTextStyle}" Margin="{StaticResource NavigationIconMargin}" />
                         <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
                     </StackPanel>

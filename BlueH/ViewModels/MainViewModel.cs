@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using BlueH.Themes;
 using BlueH.ViewModels.Pages;
@@ -8,6 +9,9 @@ namespace BlueH.ViewModels;
 public sealed class MainViewModel : ViewModelBase, IDisposable
 {
     private NavigationItem? _selectedMenuItem;
+    private PageViewModel? _shownPage;
+    private readonly NavigationItem _settingsItem;
+    private readonly NavigationItem _diagnosticsItem;
 
     public MainViewModel(
         DevicesViewModel devices,
@@ -28,29 +32,39 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         Diagnostics = diagnostics;
         SelectedDevice.Device = devices.SelectedDevice;
 
-        DevicesPage = new DevicesPageViewModel(devices, pairing);
+        DevicesPage = new DevicesPageViewModel(devices);
+        AddDevicePage = new AddDevicePageViewModel(pairing);
         DevicePage = new DevicePageViewModel(selectedDevice, deviceOutputs);
         AudioPage = new AudioPageViewModel(allOutputs);
         SettingsPage = new SettingsPageViewModel(settings);
         DiagnosticsPage = new DiagnosticsPageViewModel(diagnostics);
+        _settingsItem = new NavigationItem(Glyphs.Settings, AppResources.SettingsHeader, SettingsPage);
+        _diagnosticsItem = new NavigationItem(Glyphs.Diagnostics, AppResources.DiagnosticsHeader, DiagnosticsPage);
         MenuItems =
         [
             new NavigationItem(Glyphs.Devices, AppResources.DevicesHeader, DevicesPage),
             new NavigationItem(Glyphs.Volume, AppResources.EndpointsHeader, AudioPage),
-            new NavigationItem(Glyphs.Settings, AppResources.SettingsHeader, SettingsPage),
-            new NavigationItem(Glyphs.Diagnostics, AppResources.DiagnosticsHeader, DiagnosticsPage)
+            _settingsItem
         ];
         Navigator = new PageNavigator(DevicesPage);
+        _shownPage = DevicesPage;
         _selectedMenuItem = MenuItems[0];
 
         Devices.PropertyChanged += OnDevicesPropertyChanged;
         Devices.ConnectRequested += OnConnectRequested;
+        DevicesPage.AddDeviceRequested += OnAddDeviceRequested;
+        Settings = settings;
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
+        ApplyDeveloperMode();
+        Pairing.Paired += OnPaired;
         Navigator.PropertyChanged += OnNavigatorPropertyChanged;
     }
 
     public DevicesViewModel Devices { get; }
 
     public SelectedDeviceViewModel SelectedDevice { get; }
+
+    public SettingsViewModel Settings { get; }
 
     public PairingViewModel Pairing { get; }
 
@@ -64,6 +78,8 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
     public DevicesPageViewModel DevicesPage { get; }
 
+    public AddDevicePageViewModel AddDevicePage { get; }
+
     public DevicePageViewModel DevicePage { get; }
 
     public AudioPageViewModel AudioPage { get; }
@@ -72,7 +88,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
     public DiagnosticsPageViewModel DiagnosticsPage { get; }
 
-    public IReadOnlyList<NavigationItem> MenuItems { get; }
+    public ObservableCollection<NavigationItem> MenuItems { get; }
 
     public PageNavigator Navigator { get; }
 
@@ -94,6 +110,9 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     {
         Devices.PropertyChanged -= OnDevicesPropertyChanged;
         Devices.ConnectRequested -= OnConnectRequested;
+        DevicesPage.AddDeviceRequested -= OnAddDeviceRequested;
+        Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        Pairing.Paired -= OnPaired;
         Navigator.PropertyChanged -= OnNavigatorPropertyChanged;
         DevicePage.Dispose();
         Devices.Dispose();
@@ -116,6 +135,47 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
                 _ = AllOutputs.RefreshAsync(CancellationToken.None);
                 _ = DeviceOutputs.RefreshAsync(CancellationToken.None);
                 break;
+        }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsViewModel.IsDeveloperModeEnabled))
+        {
+            ApplyDeveloperMode();
+        }
+    }
+
+    private void ApplyDeveloperMode()
+    {
+        bool isShown = MenuItems.Contains(_diagnosticsItem);
+
+        if (Settings.IsDeveloperModeEnabled && !isShown)
+        {
+            MenuItems.Add(_diagnosticsItem);
+        }
+        else if (!Settings.IsDeveloperModeEnabled && isShown)
+        {
+            if (ReferenceEquals(Navigator.CurrentPage, DiagnosticsPage))
+            {
+                SelectedMenuItem = _settingsItem;
+            }
+
+            MenuItems.Remove(_diagnosticsItem);
+        }
+    }
+
+    private void OnAddDeviceRequested(object? sender, EventArgs e)
+    {
+        Navigator.Open(AddDevicePage);
+        Pairing.BeginSearching();
+    }
+
+    private void OnPaired(object? sender, EventArgs e)
+    {
+        if (ReferenceEquals(Navigator.CurrentPage, AddDevicePage))
+        {
+            Navigator.GoBack();
         }
     }
 
@@ -147,5 +207,12 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         {
             Devices.SelectedContainerId = null;
         }
+
+        if (ReferenceEquals(_shownPage, AddDevicePage) && !ReferenceEquals(Navigator.CurrentPage, AddDevicePage))
+        {
+            Pairing.EndSearching();
+        }
+
+        _shownPage = Navigator.CurrentPage;
     }
 }

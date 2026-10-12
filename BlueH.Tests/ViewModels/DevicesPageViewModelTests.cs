@@ -10,27 +10,24 @@ namespace BlueH.Tests.ViewModels;
 public class DevicesPageViewModelTests
 {
     [Test]
-    public void AddingADeviceOpensThePairingPanelAndSearches()
+    public void AddingADeviceAsksForTheAddDevicePage()
     {
         FakeTimeProvider timeProvider = new();
-        InMemoryDiagnosticsLog diagnosticsLog = new(timeProvider);
-        RecordingUiScheduler uiScheduler = new();
-        FakeBluetoothPairingService pairingService = new();
-        using PairingViewModel pairing = new(pairingService, uiScheduler, diagnosticsLog, timeProvider);
         using DevicesViewModel devices = new(
             new FakeBluetoothDeviceService(),
             new FakeBatteryService(),
-            uiScheduler,
-            diagnosticsLog,
+            new RecordingUiScheduler(),
+            new InMemoryDiagnosticsLog(timeProvider),
             timeProvider);
-        DevicesPageViewModel page = new(devices, pairing);
+        DevicesPageViewModel page = new(devices);
+        int requests = 0;
+        page.AddDeviceRequested += (_, _) => requests++;
 
         page.AddDeviceCommand.Execute(null);
 
         Assert.Multiple(() =>
         {
-            Assert.That(pairing.IsOpen, Is.True);
-            Assert.That(pairing.IsSearching, Is.True);
+            Assert.That(requests, Is.EqualTo(1));
             Assert.That(page.AddDeviceLabel, Is.Not.Empty);
         });
     }

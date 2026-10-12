@@ -875,5 +875,86 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("DeviceRemovalHeader", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing found yet. Make sure the device is in pairing mode and close to this PC..
+        /// </summary>
+        internal static string PairingNothingFoundMessage {
+            get {
+                return ResourceManager.GetString("PairingNothingFoundMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Put your device in pairing mode, then search..
+        /// </summary>
+        internal static string PairingSearchIdleMessage {
+            get {
+                return ResourceManager.GetString("PairingSearchIdleMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        internal static string SettingsAboutHeader {
+            get {
+                return ResourceManager.GetString("SettingsAboutHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Visit Gadgetbridge.
+        /// </summary>
+        internal static string SettingsCreditLinkLabel {
+            get {
+                return ResourceManager.GetString("SettingsCreditLinkLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The OPPO headphone protocol is based on research published by the Gadgetbridge project (AGPL-3.0)..
+        /// </summary>
+        internal static string SettingsCreditText {
+            get {
+                return ResourceManager.GetString("SettingsCreditText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shows the Diagnostics page with every call BlueH makes to Windows and to your devices..
+        /// </summary>
+        internal static string SettingsDeveloperModeDescription {
+            get {
+                return ResourceManager.GetString("SettingsDeveloperModeDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Developer mode.
+        /// </summary>
+        internal static string SettingsDeveloperModeLabel {
+            get {
+                return ResourceManager.GetString("SettingsDeveloperModeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The language BlueH is shown in..
+        /// </summary>
+        internal static string SettingsLanguageDescription {
+            get {
+                return ResourceManager.GetString("SettingsLanguageDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0}.
+        /// </summary>
+        internal static string SettingsVersionFormat {
+            get {
+                return ResourceManager.GetString("SettingsVersionFormat", resourceCulture);
+            }
+        }
     }
 }

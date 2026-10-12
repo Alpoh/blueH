@@ -49,22 +49,21 @@ public class PairingViewModelTests
     }
 
     [Test]
-    public void OpeningShowsThePanelAndStartsSearching()
+    public void BeginningStartsSearching()
     {
         using PairingViewModel viewModel = CreateViewModel();
 
-        viewModel.Open();
+        viewModel.BeginSearching();
 
         Assert.Multiple(() =>
         {
-            Assert.That(viewModel.IsOpen, Is.True);
             Assert.That(viewModel.IsSearching, Is.True);
             Assert.That(_pairingService.Watcher.IsStarted, Is.True);
         });
     }
 
     [Test]
-    public void OpeningWhileSearchingKeepsTheSearchAndWhatItFound()
+    public void BeginningWhileSearchingKeepsTheSearchAndWhatItFound()
     {
         using PairingViewModel viewModel = CreateViewModel();
         viewModel.SearchCommand.Execute(null);
@@ -72,13 +71,126 @@ public class PairingViewModelTests
         watcher.RaiseFound(Speaker);
         _uiScheduler.RunPendingWork();
 
-        viewModel.Open();
+        viewModel.BeginSearching();
 
         Assert.Multiple(() =>
         {
             Assert.That(_pairingService.Watcher, Is.SameAs(watcher));
             Assert.That(viewModel.FoundDevices, Is.EqualTo(new[] { Speaker }));
         });
+    }
+
+    [Test]
+    public void EndingStopsTheSearch()
+    {
+        using PairingViewModel viewModel = CreateViewModel();
+        viewModel.BeginSearching();
+        FakeDiscoveryWatcher watcher = _pairingService.Watcher;
+
+        viewModel.EndSearching();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.IsSearching, Is.False);
+            Assert.That(watcher.IsStopped, Is.True);
+        });
+    }
+
+    [Test]
+    public void TheSearchTextFollowsTheSearchAndSaysSo()
+    {
+        using PairingViewModel viewModel = CreateViewModel();
+        string idleText = viewModel.SearchStatusText;
+        List<string?> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        viewModel.BeginSearching();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(idleText, Is.Not.Empty.And.Not.EqualTo(viewModel.SearchingMessage));
+            Assert.That(viewModel.SearchStatusText, Is.EqualTo(viewModel.SearchingMessage));
+            Assert.That(changed, Does.Contain(nameof(PairingViewModel.SearchStatusText)));
+        });
+    }
+
+    [Test]
+    public void SearchingIsNotAStatusMessage()
+    {
+        using PairingViewModel viewModel = CreateViewModel();
+
+        viewModel.BeginSearching();
+
+        Assert.That(viewModel.StatusMessage, Is.Null);
+    }
+
+    [Test]
+    public void NothingFoundYetIsShownOnlyWhileSearchingWithNoResults()
+    {
+        using PairingViewModel viewModel = CreateViewModel();
+        bool beforeSearching = viewModel.ShowsNothingFoundYet;
+        List<string?> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        viewModel.BeginSearching();
+        bool whileEmpty = viewModel.ShowsNothingFoundYet;
+        int announcementsAfterStart = changed.Count(name => name == nameof(PairingViewModel.ShowsNothingFoundYet));
+        _pairingService.Watcher.RaiseFound(Speaker);
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(beforeSearching, Is.False);
+            Assert.That(whileEmpty, Is.True);
+            Assert.That(viewModel.ShowsNothingFoundYet, Is.False);
+            Assert.That(announcementsAfterStart, Is.GreaterThan(0));
+            Assert.That(
+                changed.Count(name => name == nameof(PairingViewModel.ShowsNothingFoundYet)),
+                Is.GreaterThan(announcementsAfterStart));
+        });
+    }
+
+    [Test]
+    public async Task AnOutcomeRaisesTheStatusFlagAndSaysSo()
+    {
+        using PairingViewModel viewModel = await SearchingViewModelWith(Speaker);
+        bool flaggedBefore = viewModel.HasStatusMessage;
+        List<string?> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        await Finished(Pair(viewModel, Speaker));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(flaggedBefore, Is.False);
+            Assert.That(viewModel.HasStatusMessage, Is.True);
+            Assert.That(changed, Does.Contain(nameof(PairingViewModel.HasStatusMessage)));
+        });
+    }
+
+    [Test]
+    public async Task ASuccessfulPairingIsAnnounced()
+    {
+        using PairingViewModel viewModel = await SearchingViewModelWith(Speaker);
+        int announcements = 0;
+        viewModel.Paired += (_, _) => announcements++;
+
+        await Finished(Pair(viewModel, Speaker));
+
+        Assert.That(announcements, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task AFailedPairingIsNotAnnounced()
+    {
+        _pairingService.PairingResultToReturn = new PairingResult(PairingOutcome.AuthenticationFailed, "AuthenticationFailure");
+        using PairingViewModel viewModel = await SearchingViewModelWith(Speaker);
+        int announcements = 0;
+        viewModel.Paired += (_, _) => announcements++;
+
+        await Finished(Pair(viewModel, Speaker));
+
+        Assert.That(announcements, Is.Zero);
     }
 
     [Test]

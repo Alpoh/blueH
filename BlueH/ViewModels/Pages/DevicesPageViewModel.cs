@@ -5,16 +5,15 @@ namespace BlueH.ViewModels.Pages;
 
 public sealed class DevicesPageViewModel : PageViewModel
 {
-    public DevicesPageViewModel(DevicesViewModel devices, PairingViewModel pairing)
+    public DevicesPageViewModel(DevicesViewModel devices)
     {
         Devices = devices;
-        Pairing = pairing;
-        AddDeviceCommand = new RelayCommand(_ => Pairing.Open());
+        AddDeviceCommand = new RelayCommand(_ => AddDeviceRequested?.Invoke(this, EventArgs.Empty));
     }
 
-    public DevicesViewModel Devices { get; }
+    public event EventHandler? AddDeviceRequested;
 
-    public PairingViewModel Pairing { get; }
+    public DevicesViewModel Devices { get; }
 
     public ICommand AddDeviceCommand { get; }
 

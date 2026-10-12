@@ -63,7 +63,12 @@ public partial class App
         _mainViewModel = new MainViewModel(
             devices,
             selectedDevice,
-            new SettingsViewModel(settingsStore, diagnosticsLog, activeLanguageTag),
+            new SettingsViewModel(
+                settingsStore,
+                diagnosticsLog,
+                new AssemblyApplicationInfo(typeof(App).Assembly),
+                new ShellExternalLinkOpener(),
+                activeLanguageTag),
             pairing,
             allOutputs,
             deviceOutputs,

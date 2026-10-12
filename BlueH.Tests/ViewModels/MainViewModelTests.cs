@@ -20,6 +20,7 @@ public class MainViewModelTests
     private FakeAudioEndpointService _endpointService = null!;
     private FakeMediaTransportService _mediaService = null!;
     private FakeBluetoothConnectionService _connectionService = null!;
+    private FakeBluetoothPairingService _pairingService = null!;
     private FakeBatteryService _batteryService = null!;
     private FakeSettingsStore _settingsStore = null!;
     private RecordingUiScheduler _uiScheduler = null!;
@@ -33,6 +34,7 @@ public class MainViewModelTests
         _endpointService = new FakeAudioEndpointService();
         _mediaService = new FakeMediaTransportService();
         _connectionService = new FakeBluetoothConnectionService();
+        _pairingService = new FakeBluetoothPairingService();
         _batteryService = new FakeBatteryService();
         _settingsStore = new FakeSettingsStore();
         _uiScheduler = new RecordingUiScheduler();
@@ -171,6 +173,128 @@ public class MainViewModelTests
         {
             Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicePage));
             Assert.That(_connectionService.ConnectCalls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void AddingADeviceOpensItsPageAndStartsSearching()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+
+        viewModel.DevicesPage.AddDeviceCommand.Execute(null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.AddDevicePage));
+            Assert.That(viewModel.Navigator.CanGoBack, Is.True);
+            Assert.That(viewModel.Pairing.IsSearching, Is.True);
+        });
+    }
+
+    [Test]
+    public void GoingBackFromAddingADeviceStopsTheSearch()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+        viewModel.DevicesPage.AddDeviceCommand.Execute(null);
+        FakeDiscoveryWatcher watcher = _pairingService.Watcher;
+
+        viewModel.Navigator.GoBack();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Pairing.IsSearching, Is.False);
+            Assert.That(watcher.IsStopped, Is.True);
+        });
+    }
+
+    [Test]
+    public void ChoosingAnotherSectionFromAddingADeviceStopsTheSearch()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+        viewModel.DevicesPage.AddDeviceCommand.Execute(null);
+
+        viewModel.SelectedMenuItem = viewModel.MenuItems.Single(item => item.Page == viewModel.SettingsPage);
+
+        Assert.That(viewModel.Pairing.IsSearching, Is.False);
+    }
+
+    [Test]
+    public void OpeningADeviceLeavesAnUnrelatedSearchAlone()
+    {
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        viewModel.Pairing.SearchCommand.Execute(null);
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.That(viewModel.Pairing.IsSearching, Is.True);
+    }
+
+    [Test]
+    public async Task ASuccessfulPairingReturnsToTheDeviceList()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+        viewModel.DevicesPage.AddDeviceCommand.Execute(null);
+        DiscoveredDevice speaker = new("Bluetooth#Bluetoothac:f2:3c:e1:15:94-78:5e:a2:fa:71:91", "SRS-XE300");
+        _pairingService.Watcher.RaiseFound(speaker);
+        _uiScheduler.RunPendingWork();
+
+        await ((AsyncRelayCommand)viewModel.Pairing.PairCommand).ExecuteAsync(speaker).WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicesPage));
+            Assert.That(viewModel.Pairing.IsSearching, Is.False);
+        });
+    }
+
+    [Test]
+    public void DiagnosticsAreHiddenOutsideDeveloperMode()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+
+        Assert.That(viewModel.MenuItems.Select(item => item.Page), Does.Not.Contain(viewModel.DiagnosticsPage));
+    }
+
+    [Test]
+    public void DiagnosticsAppearWhenDeveloperModeIsStored()
+    {
+        _settingsStore.Settings = new AppSettings(IsDeveloperModeEnabled: true);
+
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+
+        Assert.That(viewModel.MenuItems.Select(item => item.Page), Does.Contain(viewModel.DiagnosticsPage));
+    }
+
+    [Test]
+    public void SwitchingDeveloperModeOnAndOffShowsAndHidesDiagnostics()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+
+        viewModel.Settings.IsDeveloperModeEnabled = true;
+        bool shownWhenOn = viewModel.MenuItems.Any(item => item.Page == viewModel.DiagnosticsPage);
+        viewModel.Settings.IsDeveloperModeEnabled = false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shownWhenOn, Is.True);
+            Assert.That(viewModel.MenuItems.Select(item => item.Page), Does.Not.Contain(viewModel.DiagnosticsPage));
+        });
+    }
+
+    [Test]
+    public void SwitchingDeveloperModeOffOnTheDiagnosticsPageMovesToSettings()
+    {
+        _settingsStore.Settings = new AppSettings(IsDeveloperModeEnabled: true);
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+        viewModel.SelectedMenuItem = viewModel.MenuItems.Single(item => item.Page == viewModel.DiagnosticsPage);
+
+        viewModel.Settings.IsDeveloperModeEnabled = false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.SettingsPage));
+            Assert.That(viewModel.SelectedMenuItem?.Page, Is.SameAs(viewModel.SettingsPage));
         });
     }
 
@@ -317,8 +441,13 @@ public class MainViewModelTests
                 new FakeBluetoothPairingService(),
                 _diagnosticsLog,
                 _timeProvider),
-            new SettingsViewModel(_settingsStore, _diagnosticsLog, activeLanguageTag: null),
-            new PairingViewModel(new FakeBluetoothPairingService(), _uiScheduler, _diagnosticsLog, _timeProvider),
+            new SettingsViewModel(
+                _settingsStore,
+                _diagnosticsLog,
+                new FakeApplicationInfo(),
+                new FakeExternalLinkOpener(),
+                activeLanguageTag: null),
+            new PairingViewModel(_pairingService, _uiScheduler, _diagnosticsLog, _timeProvider),
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new MediaTransportViewModel(_mediaService, _uiScheduler, _diagnosticsLog),

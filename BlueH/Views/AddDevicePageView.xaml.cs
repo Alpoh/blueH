@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace BlueH.Views;
 
-public partial class PairingView : UserControl
+public partial class AddDevicePageView : UserControl
 {
-    public PairingView()
+    public AddDevicePageView()
     {
         InitializeComponent();
     }

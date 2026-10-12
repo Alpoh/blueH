@@ -1,16 +1,35 @@
 <UserControl x:Class="BlueH.Views.MediaTransportView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:themes="clr-namespace:BlueH.Themes">
+             xmlns:themes="clr-namespace:BlueH.Themes"
+             xmlns:converters="clr-namespace:BlueH.Converters">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
+        <converters:ImageBytesToImageSourceConverter x:Key="ImageBytesToImageSource" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="{StaticResource ColumnGapMargin}">
+        <Border Grid.Column="0"
+                Style="{StaticResource ArtworkFrameStyle}"
+                Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}">
+            <Grid>
+                <TextBlock Text="{Binding ArtworkPlaceholderGlyph}"
+                           Style="{StaticResource ArtworkPlaceholderStyle}"
+                           Visibility="{Binding HasArtwork, Converter={StaticResource InverseBooleanToVisibility}}" />
+                <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Visibility="{Binding HasArtwork, Converter={StaticResource BooleanToVisibility}}">
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding Artwork, Converter={StaticResource ImageBytesToImageSource}}" Stretch="UniformToFill" />
+                    </Border.Background>
+                </Border>
+            </Grid>
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="{StaticResource ColumnGapMargin}">
             <TextBlock Text="{Binding NoSessionMessage}"
                        Visibility="{Binding HasNoSession, Converter={StaticResource BooleanToVisibility}}"
                        Style="{StaticResource SecondaryTextStyle}" />
@@ -23,7 +42,7 @@
                 <TextBlock Text="{Binding ArtistText}" Style="{StaticResource SecondaryCaptionTextStyle}" TextTrimming="CharacterEllipsis" />
             </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Column="1"
+        <StackPanel Grid.Column="2"
                     Orientation="Horizontal"
                     VerticalAlignment="Center"
                     Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}">

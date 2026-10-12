@@ -66,6 +66,14 @@ D2 completed later the same day: the empty state carries an "Add a device" accen
 - Wording: "This device does not report its battery level" was wrong for earbuds that are merely disconnected; it now reads "Battery level not available".
 - The noise-control selector belongs in this page and lands with phase 7.3.
 
+## 7. Mini-player artwork (D4), 2026-10-12
+
+- Spike: the thumbnail Windows exposes for a media session is a PNG, 120 × 120 px, about 22 KB, read in about 12 ms. No caching or deferred loading is warranted.
+- Artwork is read once per track, a track being the source app, title and artist. Play and pause change nothing, so they read nothing — `PlaybackInfoChanged` fires twice for every pause.
+- The old artwork clears the moment the track changes, and a read that completes after a newer track started is discarded, so a slow read cannot paint the wrong cover.
+- A failed or oversized read (above 4 MB) falls back to the music-note placeholder and is logged; it is cosmetic, so it never raises the panel's error state.
+- The cover is drawn as the `ImageBrush` background of a rounded `Border`, because a `Border` clips its own background but not its children.
+
 ## 7. Increments
 
 | # | Increment | Deliverable | Verification |

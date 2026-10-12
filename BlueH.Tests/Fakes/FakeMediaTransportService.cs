@@ -19,6 +19,16 @@ public sealed class FakeMediaTransportService : IMediaTransportService
 
     public List<MediaTransportAction> SentActions { get; } = [];
 
+    public byte[]? Artwork { get; set; }
+
+    public Exception? ArtworkFailureToThrow { get; set; }
+
+    public bool HoldsArtworkReads { get; set; }
+
+    public Queue<TaskCompletionSource<byte[]?>> PendingArtworkReads { get; } = new();
+
+    public int ArtworkReads { get; private set; }
+
     public bool IsStarted { get; private set; }
 
     public bool IsDisposed { get; private set; }
@@ -61,6 +71,26 @@ public sealed class FakeMediaTransportService : IMediaTransportService
         }
 
         return AcceptsCommands;
+    }
+
+    public Task<byte[]?> ReadArtworkAsync(CancellationToken cancellationToken)
+    {
+        ArtworkReads++;
+
+        if (ArtworkFailureToThrow is not null)
+        {
+            return Task.FromException<byte[]?>(ArtworkFailureToThrow);
+        }
+
+        if (!HoldsArtworkReads)
+        {
+            return Task.FromResult(Artwork);
+        }
+
+        TaskCompletionSource<byte[]?> pending = new();
+        PendingArtworkReads.Enqueue(pending);
+
+        return pending.Task;
     }
 
     public void BlockUntilReleased()

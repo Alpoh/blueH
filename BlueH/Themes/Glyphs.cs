@@ -13,6 +13,7 @@ public static class Glyphs
     public const string Add = "\uE710";
     public const string Headphones = "\uE7F6";
     public const string Loudspeaker = "\uE7F5";
+    public const string Music = "\uE8D6";
     public const string Play = "\uE768";
     public const string Pause = "\uE769";
     public const string Next = "\uE893";

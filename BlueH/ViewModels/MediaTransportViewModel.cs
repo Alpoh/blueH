@@ -11,6 +11,7 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
 {
     private const string ReadSessionOperation = "Read media session";
     private const string SendCommandOperation = "Send media command";
+    private const string ReadArtworkOperation = "Read media artwork";
 
     private readonly IMediaTransportService _mediaTransportService;
     private readonly IUiScheduler _uiScheduler;
@@ -20,6 +21,8 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
     private readonly AsyncRelayCommand _skipPreviousCommand;
 
     private MediaSession? _session;
+    private MediaTrack? _artworkTrack;
+    private byte[]? _artwork;
     private string? _errorDetail;
 
     public MediaTransportViewModel(
@@ -70,6 +73,22 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
     public string PlayPauseLabel => IsPlaying ? PauseLabel : PlayLabel;
 
     public string PlayPauseGlyph => IsPlaying ? Glyphs.Pause : Glyphs.Play;
+
+    public byte[]? Artwork
+    {
+        get => _artwork;
+        private set
+        {
+            if (SetField(ref _artwork, value))
+            {
+                OnPropertyChanged(nameof(HasArtwork));
+            }
+        }
+    }
+
+    public bool HasArtwork => _artwork is not null;
+
+    public string ArtworkPlaceholderGlyph => Glyphs.Music;
 
     public ICommand SkipNextCommand => _skipNextCommand;
 
@@ -144,6 +163,7 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
         }
 
         _session = session;
+        FollowArtwork(session);
         OnPropertyChanged(nameof(HasSession));
         OnPropertyChanged(nameof(HasNoSession));
         OnPropertyChanged(nameof(SourceAppId));
@@ -154,6 +174,47 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
         _playPauseCommand.RaiseCanExecuteChanged();
         _skipNextCommand.RaiseCanExecuteChanged();
         _skipPreviousCommand.RaiseCanExecuteChanged();
+    }
+
+    private void FollowArtwork(MediaSession? session)
+    {
+        MediaTrack? track = session is null ? null : new MediaTrack(session.SourceAppId, session.Title, session.Artist);
+
+        if (track == _artworkTrack)
+        {
+            return;
+        }
+
+        _artworkTrack = track;
+        Artwork = null;
+
+        if (track is { } current)
+        {
+            _ = LoadArtworkAsync(current);
+        }
+    }
+
+    private async Task LoadArtworkAsync(MediaTrack track)
+    {
+        byte[]? artwork;
+
+        try
+        {
+            artwork = await _mediaTransportService.ReadArtworkAsync(CancellationToken.None);
+        }
+        catch (Exception failure)
+        {
+            artwork = null;
+            _diagnosticsLog.Record(DiagnosticOutcome.Failure, ReadArtworkOperation, failure.Message);
+        }
+
+        _uiScheduler.Post(() =>
+        {
+            if (_artworkTrack == track)
+            {
+                Artwork = artwork;
+            }
+        });
     }
 
     private bool CanPlayOrPause()

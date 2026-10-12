@@ -1,7 +1,9 @@
+using System.Globalization;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using Windows.Foundation;
 using Windows.Media.Control;
+using Windows.Storage.Streams;
 
 namespace BlueH.Services;
 
@@ -11,6 +13,8 @@ public sealed class WindowsMediaTransportService : IMediaTransportService
     private const string ReadSessionOperation = "Read media session";
     private const string SendCommandOperation = "Send media command";
     private const string NoSessionDetail = "no current session";
+    private const string ReadArtworkOperation = "Read media artwork";
+    private const ulong MaximumArtworkBytes = 4 * 1024 * 1024;
 
     private readonly IDiagnosticsLog _diagnosticsLog;
     private readonly Lock _gate = new();
@@ -95,6 +99,49 @@ public sealed class WindowsMediaTransportService : IMediaTransportService
             $"{action} {session.SourceAppUserModelId} accepted={accepted}");
 
         return accepted;
+    }
+
+    public async Task<byte[]?> ReadArtworkAsync(CancellationToken cancellationToken)
+    {
+        GlobalSystemMediaTransportControlsSession? session = CurrentSession();
+
+        if (session is null)
+        {
+            return null;
+        }
+
+        GlobalSystemMediaTransportControlsSessionMediaProperties properties =
+            await session.TryGetMediaPropertiesAsync().AsTask(cancellationToken);
+
+        if (properties.Thumbnail is null)
+        {
+            return null;
+        }
+
+        using IRandomAccessStreamWithContentType stream =
+            await properties.Thumbnail.OpenReadAsync().AsTask(cancellationToken);
+
+        if (stream.Size is 0 or > MaximumArtworkBytes)
+        {
+            _diagnosticsLog.Record(
+                DiagnosticOutcome.Failure,
+                ReadArtworkOperation,
+                string.Create(CultureInfo.InvariantCulture, $"{stream.ContentType} size={stream.Size}"));
+
+            return null;
+        }
+
+        using DataReader reader = new(stream);
+        uint loaded = await reader.LoadAsync((uint)stream.Size).AsTask(cancellationToken);
+        byte[] artwork = new byte[loaded];
+        reader.ReadBytes(artwork);
+
+        _diagnosticsLog.Record(
+            DiagnosticOutcome.Success,
+            ReadArtworkOperation,
+            string.Create(CultureInfo.InvariantCulture, $"{stream.ContentType} {artwork.Length} bytes"));
+
+        return artwork;
     }
 
     public void Dispose()

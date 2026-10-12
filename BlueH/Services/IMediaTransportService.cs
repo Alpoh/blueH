@@ -11,4 +11,6 @@ public interface IMediaTransportService : IDisposable
     Task<MediaSession?> ReadCurrentSessionAsync(CancellationToken cancellationToken);
 
     Task<bool> TrySendAsync(MediaTransportAction action, CancellationToken cancellationToken);
+
+    Task<byte[]?> ReadArtworkAsync(CancellationToken cancellationToken);
 }

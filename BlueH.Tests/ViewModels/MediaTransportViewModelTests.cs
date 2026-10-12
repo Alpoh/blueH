@@ -17,6 +17,9 @@ public class MediaTransportViewModelTests
     private const string ReadFailure = "session manager unavailable";
     private const string CommandFailure = "session closed mid-command";
 
+    private static readonly byte[] FirstArtwork = [0x89, 0x50, 0x4E, 0x47, 0x01];
+    private static readonly byte[] SecondArtwork = [0x89, 0x50, 0x4E, 0x47, 0x02];
+
     private static readonly MediaTransportControls PlayingControls = new(
         CanPlay: false,
         CanPause: true,
@@ -204,6 +207,139 @@ public class MediaTransportViewModelTests
         viewModel.Dispose();
 
         Assert.That(_mediaService.HasSubscribers, Is.False);
+    }
+
+    [Test]
+    public async Task TheCurrentTracksArtworkIsShown()
+    {
+        _mediaService.Session = Session(EdgeAppId, Title, Artist);
+        _mediaService.Artwork = FirstArtwork;
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+        List<string?> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Artwork, Is.SameAs(FirstArtwork));
+            Assert.That(viewModel.HasArtwork, Is.True);
+            Assert.That(changed, Does.Contain(nameof(MediaTransportViewModel.Artwork)));
+            Assert.That(changed, Does.Contain(nameof(MediaTransportViewModel.HasArtwork)));
+        });
+    }
+
+    [Test]
+    public async Task ATrackWithoutArtworkShowsThePlaceholder()
+    {
+        _mediaService.Session = Session(EdgeAppId, Title, Artist);
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Artwork, Is.Null);
+            Assert.That(viewModel.HasArtwork, Is.False);
+            Assert.That(viewModel.ArtworkPlaceholderGlyph, Is.Not.Empty);
+        });
+    }
+
+    [Test]
+    public async Task PausingDoesNotReadTheArtworkAgain()
+    {
+        _mediaService.Session = Playing(PlayingControls);
+        _mediaService.Artwork = FirstArtwork;
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+        _uiScheduler.RunPendingWork();
+        int readsBefore = _mediaService.ArtworkReads;
+
+        _mediaService.Session = Paused(PausedControls);
+        _mediaService.RaiseSessionChanged();
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_mediaService.ArtworkReads, Is.EqualTo(readsBefore));
+            Assert.That(viewModel.Artwork, Is.SameAs(FirstArtwork));
+        });
+    }
+
+    [Test]
+    public async Task ANewTrackReplacesTheArtworkAndClearsTheOldOneMeanwhile()
+    {
+        _mediaService.Session = Session(EdgeAppId, Title, Artist);
+        _mediaService.Artwork = FirstArtwork;
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+        _uiScheduler.RunPendingWork();
+        _mediaService.HoldsArtworkReads = true;
+
+        _mediaService.Session = Session(EdgeAppId, OtherTitle, Artist);
+        _mediaService.RaiseSessionChanged();
+        _uiScheduler.RunPendingWork();
+        byte[]? artworkWhileLoading = viewModel.Artwork;
+        _mediaService.PendingArtworkReads.Dequeue().SetResult(SecondArtwork);
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(artworkWhileLoading, Is.Null);
+            Assert.That(viewModel.Artwork, Is.SameAs(SecondArtwork));
+        });
+    }
+
+    [Test]
+    public async Task ArtworkThatArrivesForAnEarlierTrackIsDiscarded()
+    {
+        _mediaService.HoldsArtworkReads = true;
+        _mediaService.Session = Session(EdgeAppId, Title, Artist);
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+        _mediaService.Session = Session(EdgeAppId, OtherTitle, Artist);
+        _mediaService.RaiseSessionChanged();
+        _uiScheduler.RunPendingWork();
+        TaskCompletionSource<byte[]?> earlier = _mediaService.PendingArtworkReads.Dequeue();
+        TaskCompletionSource<byte[]?> current = _mediaService.PendingArtworkReads.Dequeue();
+
+        current.SetResult(SecondArtwork);
+        _uiScheduler.RunPendingWork();
+        earlier.SetResult(FirstArtwork);
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Artwork, Is.SameAs(SecondArtwork));
+    }
+
+    [Test]
+    public async Task TheSessionEndingClearsTheArtwork()
+    {
+        _mediaService.Session = Session(EdgeAppId, Title, Artist);
+        _mediaService.Artwork = FirstArtwork;
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+        _uiScheduler.RunPendingWork();
+
+        _mediaService.Session = null;
+        _mediaService.RaiseSessionChanged();
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.HasArtwork, Is.False);
+    }
+
+    [Test]
+    public async Task AFailedArtworkReadFallsBackToThePlaceholderWithoutAnError()
+    {
+        _mediaService.Session = Session(EdgeAppId, Title, Artist);
+        _mediaService.ArtworkFailureToThrow = new InvalidOperationException("thumbnail stream closed");
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.HasArtwork, Is.False);
+            Assert.That(viewModel.HasError, Is.False);
+            Assert.That(
+                _diagnosticsLog.Entries.Any(entry => entry.Detail == "thumbnail stream closed"),
+                Is.True);
+        });
     }
 
     [Test]

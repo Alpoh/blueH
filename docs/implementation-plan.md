@@ -22,7 +22,7 @@ because Windows exposes almost none of this where a user can act on it.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
 - A "Now playing" panel shows the current media session's title, artist and source app, with previous, play/pause and next buttons enabled from what the session itself allows.
 - Phase 4 verified by hand on 2026-10-11: track display, play/pause from the app and from the earbuds, skipping, and the session ending all behave.
-- Next: app navigation (a menu and a device detail page with Back), then phase 5, pairing management.
+- Next: finish phase 7 (vendor ANC). Interface and visual design work is tracked separately in `docs/gui-redesign-plan.md`.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored

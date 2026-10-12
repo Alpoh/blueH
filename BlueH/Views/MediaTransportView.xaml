@@ -6,20 +6,19 @@
     </UserControl.Resources>
     <StackPanel Margin="12">
         <TextBlock Text="{Binding Header}"
-                   FontSize="18"
-                   FontWeight="SemiBold"
+                   Style="{StaticResource SubtitleTextBlockStyle}"
                    Margin="0,0,0,8" />
         <TextBlock Text="{Binding NoSessionMessage}"
                    Visibility="{Binding HasNoSession, Converter={StaticResource BooleanToVisibility}}"
                    TextWrapping="Wrap" />
         <StackPanel Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
         </StackPanel>
         <StackPanel Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding TitleText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding TitleText}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ArtistText}" TextWrapping="Wrap" Margin="0,2,0,0" />
-            <TextBlock Text="{Binding SourceAppId}" Opacity="0.7" Margin="0,2,0,0" />
+            <TextBlock Text="{Binding SourceAppId}" Style="{StaticResource SecondaryTextStyle}" Margin="0,2,0,0" />
             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                 <Button Content="{Binding PreviousLabel}" Command="{Binding SkipPreviousCommand}" />
                 <Button Content="{Binding PlayPauseLabel}" Command="{Binding PlayPauseCommand}" Margin="8,0,0,0" />

@@ -18,6 +18,15 @@ public class XamlLiteralTextTests
         "PlaceholderText"
     };
 
+    private static readonly HashSet<string> LayoutValueElements = new(StringComparer.Ordinal)
+    {
+        "Double",
+        "Int32",
+        "Thickness",
+        "CornerRadius",
+        "GridLength"
+    };
+
     private static readonly string[] IgnoredDirectories = ["bin", "obj"];
 
     [TestCaseSource(nameof(XamlFiles))]
@@ -31,6 +40,15 @@ public class XamlLiteralTextTests
         ];
 
         Assert.That(literals, Is.Empty);
+    }
+
+    [Test]
+    public void ALiteralStringResourceIsStillCaught()
+    {
+        XElement literal = XElement.Parse(
+            "<String xmlns=\"clr-namespace:System;assembly=System.Runtime\">Connected</String>");
+
+        Assert.That(LiteralsIn(literal), Is.Not.Empty);
     }
 
     [Test]
@@ -49,6 +67,11 @@ public class XamlLiteralTextTests
             {
                 yield return $"{element.Name.LocalName}.{attribute.Name.LocalName}=\"{attribute.Value}\"";
             }
+        }
+
+        if (LayoutValueElements.Contains(element.Name.LocalName))
+        {
+            yield break;
         }
 
         foreach (XText text in element.Nodes().OfType<XText>())

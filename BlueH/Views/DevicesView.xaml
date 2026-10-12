@@ -11,8 +11,7 @@
     <DockPanel Grid.IsSharedSizeScope="True" Margin="12">
         <TextBlock DockPanel.Dock="Top"
                    Text="{Binding Header}"
-                   FontSize="18"
-                   FontWeight="SemiBold"
+                   Style="{StaticResource SubtitleTextBlockStyle}"
                    Margin="0,0,0,8" />
         <TextBlock DockPanel.Dock="Top"
                    Text="{Binding EmptyMessage}"
@@ -22,7 +21,7 @@
         <StackPanel DockPanel.Dock="Top"
                     Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"
                     Margin="0,4,0,0">
-            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
         </StackPanel>
         <Grid DockPanel.Dock="Top" Margin="0,8,0,4">
@@ -32,10 +31,10 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
                 <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceBattery" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding NameHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="1" Text="{Binding KindHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="2" Text="{Binding ConnectionHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="3" Text="{Binding BatteryHeader}" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="0" Text="{Binding NameHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="1" Text="{Binding KindHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="2" Text="{Binding ConnectionHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="3" Text="{Binding BatteryHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" />
         </Grid>
         <ListBox ItemsSource="{Binding Devices}"
                  SelectedValue="{Binding SelectedContainerId, Mode=TwoWay}"

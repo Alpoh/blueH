@@ -16,12 +16,10 @@
             </WrapPanel>
             <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Margin="0,4,0,0" />
             <Border Visibility="{Binding HasChallenge, Converter={StaticResource BooleanToVisibility}}"
-                    BorderThickness="1"
-                    BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"
-                    Padding="8"
+                    Style="{StaticResource CardBorderStyle}"
                     Margin="0,8,0,0">
                 <StackPanel>
-                    <TextBlock Text="{Binding ChallengeText}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ChallengeText}" TextWrapping="Wrap" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <StackPanel Orientation="Horizontal"
                                 Visibility="{Binding NeedsPinInput, Converter={StaticResource BooleanToVisibility}}"
                                 Margin="0,6,0,0">

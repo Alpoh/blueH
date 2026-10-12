@@ -9,10 +9,10 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="DiagnosticsOperation" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding TimeHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="1" Text="{Binding OutcomeHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="2" Text="{Binding OperationHeader}" FontWeight="SemiBold" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="3" Text="{Binding DetailHeader}" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="0" Text="{Binding TimeHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="1" Text="{Binding OutcomeHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="2" Text="{Binding OperationHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
+            <TextBlock Grid.Column="3" Text="{Binding DetailHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" />
         </Grid>
         <ListBox ItemsSource="{Binding Entries}"
                  HorizontalContentAlignment="Stretch"

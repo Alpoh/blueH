@@ -10,8 +10,7 @@
     <DockPanel Margin="12">
         <TextBlock DockPanel.Dock="Top"
                    Text="{Binding Header}"
-                   FontSize="18"
-                   FontWeight="SemiBold"
+                   Style="{StaticResource SubtitleTextBlockStyle}"
                    Margin="0,0,0,8" />
         <TextBlock DockPanel.Dock="Top"
                    Text="{Binding EmptyMessage}"
@@ -19,7 +18,7 @@
                    TextWrapping="Wrap" />
         <StackPanel DockPanel.Dock="Top"
                     Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
         </StackPanel>
         <ItemsControl ItemsSource="{Binding Endpoints}" HorizontalContentAlignment="Stretch">
@@ -28,14 +27,14 @@
                     <Border BorderThickness="0,0,0,1" Padding="0,8" Margin="0,0,0,4">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="{Binding DataContext.DefaultForPlaybackLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                            Visibility="{Binding IsDefaultForPlayback, Converter={StaticResource BooleanToVisibility}}"
-                                           Opacity="0.7"
+                                           Style="{StaticResource SecondaryTextStyle}"
                                            Margin="12,0,0,0" />
                                 <TextBlock Text="{Binding DataContext.DefaultForCommunicationsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                            Visibility="{Binding IsDefaultForCommunications, Converter={StaticResource BooleanToVisibility}}"
-                                           Opacity="0.7"
+                                           Style="{StaticResource SecondaryTextStyle}"
                                            Margin="8,0,0,0" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">

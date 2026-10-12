@@ -7,10 +7,10 @@
     <StackPanel Margin="12,0,12,8">
         <TextBlock Text="{Binding NoDeviceMessage}"
                    Visibility="{Binding HasNoDevice, Converter={StaticResource BooleanToVisibility}}"
-                   Opacity="0.7"
+                   Style="{StaticResource SecondaryTextStyle}"
                    TextWrapping="Wrap" />
         <StackPanel Visibility="{Binding HasDevice, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding Device.Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding Device.Name}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
             <WrapPanel Margin="0,6,0,0">
                 <Button Content="{Binding ConnectLabel}" Command="{Binding ConnectCommand}" Margin="0,0,8,4" />
                 <Button Content="{Binding DisconnectLabel}" Command="{Binding DisconnectCommand}" Margin="0,0,8,4" />
@@ -22,7 +22,7 @@
             </WrapPanel>
             <StackPanel Visibility="{Binding IsConfirmingUnpair, Converter={StaticResource BooleanToVisibility}}"
                         Margin="0,4,0,0">
-                <TextBlock Text="{Binding UnpairConfirmationText}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding UnpairConfirmationText}" TextWrapping="Wrap" Style="{StaticResource BodyStrongTextBlockStyle}" />
                 <WrapPanel Margin="0,4,0,0">
                     <Button Content="{Binding ConfirmUnpairLabel}" Command="{Binding ConfirmUnpairCommand}" Margin="0,0,8,0" />
                     <Button Content="{Binding CancelLabel}" Command="{Binding CancelUnpairCommand}" />

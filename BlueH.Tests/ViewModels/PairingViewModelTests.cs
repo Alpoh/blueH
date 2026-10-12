@@ -49,6 +49,39 @@ public class PairingViewModelTests
     }
 
     [Test]
+    public void OpeningShowsThePanelAndStartsSearching()
+    {
+        using PairingViewModel viewModel = CreateViewModel();
+
+        viewModel.Open();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.IsOpen, Is.True);
+            Assert.That(viewModel.IsSearching, Is.True);
+            Assert.That(_pairingService.Watcher.IsStarted, Is.True);
+        });
+    }
+
+    [Test]
+    public void OpeningWhileSearchingKeepsTheSearchAndWhatItFound()
+    {
+        using PairingViewModel viewModel = CreateViewModel();
+        viewModel.SearchCommand.Execute(null);
+        FakeDiscoveryWatcher watcher = _pairingService.Watcher;
+        watcher.RaiseFound(Speaker);
+        _uiScheduler.RunPendingWork();
+
+        viewModel.Open();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_pairingService.Watcher, Is.SameAs(watcher));
+            Assert.That(viewModel.FoundDevices, Is.EqualTo(new[] { Speaker }));
+        });
+    }
+
+    [Test]
     public void ADeviceFoundTwiceIsListedOnce()
     {
         using PairingViewModel viewModel = CreateViewModel();

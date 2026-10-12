@@ -19,6 +19,7 @@ public class MainViewModelTests
     private FakeBluetoothDeviceService _deviceService = null!;
     private FakeAudioEndpointService _endpointService = null!;
     private FakeMediaTransportService _mediaService = null!;
+    private FakeBluetoothConnectionService _connectionService = null!;
     private FakeBatteryService _batteryService = null!;
     private FakeSettingsStore _settingsStore = null!;
     private RecordingUiScheduler _uiScheduler = null!;
@@ -31,6 +32,7 @@ public class MainViewModelTests
         _deviceService = new FakeBluetoothDeviceService();
         _endpointService = new FakeAudioEndpointService();
         _mediaService = new FakeMediaTransportService();
+        _connectionService = new FakeBluetoothConnectionService();
         _batteryService = new FakeBatteryService();
         _settingsStore = new FakeSettingsStore();
         _uiScheduler = new RecordingUiScheduler();
@@ -135,6 +137,41 @@ public class MainViewModelTests
         _uiScheduler.RunPendingWork();
 
         Assert.That(viewModel.SelectedDevice.Device?.IsConnected, Is.True);
+    }
+
+    [Test]
+    public async Task ConnectingFromACardOpensTheDeviceAndStartsConnecting()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: false));
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+
+        devices.ConnectDeviceCommand.Execute(EarbudsContainer);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicePage));
+            Assert.That(_connectionService.ConnectCalls, Is.EqualTo(new[] { EarbudsContainer }));
+            Assert.That(viewModel.SelectedDevice.IsBusy, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task ConnectingFromACardOfAConnectedDeviceOnlyOpensIt()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+
+        devices.ConnectDeviceCommand.Execute(EarbudsContainer);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicePage));
+            Assert.That(_connectionService.ConnectCalls, Is.Empty);
+        });
     }
 
     [Test]
@@ -276,7 +313,7 @@ public class MainViewModelTests
         return new MainViewModel(
             devices,
             new SelectedDeviceViewModel(
-                new FakeBluetoothConnectionService(),
+                _connectionService,
                 new FakeBluetoothPairingService(),
                 _diagnosticsLog,
                 _timeProvider),

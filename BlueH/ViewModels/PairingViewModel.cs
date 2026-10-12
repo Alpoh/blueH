@@ -34,6 +34,7 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
     private string _pinInput = string.Empty;
     private string? _statusMessage;
     private bool _cancelledByUser;
+    private bool _isOpen;
 
     public PairingViewModel(
         IBluetoothPairingService pairingService,
@@ -56,6 +57,12 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
     }
 
     public ObservableCollection<DiscoveredDevice> FoundDevices { get; } = [];
+
+    public bool IsOpen
+    {
+        get => _isOpen;
+        set => SetField(ref _isOpen, value);
+    }
 
     public bool IsSearching => _watcher is not null;
 
@@ -118,6 +125,16 @@ public sealed class PairingViewModel : ViewModelBase, IDisposable
     public string CancelledMessage => AppResources.PairingCancelledMessage;
 
     public string TimedOutMessage => AppResources.PairingTimedOutMessage;
+
+    public void Open()
+    {
+        IsOpen = true;
+
+        if (_watcher is null)
+        {
+            _ = StartSearch();
+        }
+    }
 
     public void Dispose()
     {

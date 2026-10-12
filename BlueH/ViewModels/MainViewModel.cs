@@ -44,6 +44,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         _selectedMenuItem = MenuItems[0];
 
         Devices.PropertyChanged += OnDevicesPropertyChanged;
+        Devices.ConnectRequested += OnConnectRequested;
         Navigator.PropertyChanged += OnNavigatorPropertyChanged;
     }
 
@@ -92,6 +93,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         Devices.PropertyChanged -= OnDevicesPropertyChanged;
+        Devices.ConnectRequested -= OnConnectRequested;
         Navigator.PropertyChanged -= OnNavigatorPropertyChanged;
         DevicePage.Dispose();
         Devices.Dispose();
@@ -114,6 +116,16 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
                 _ = AllOutputs.RefreshAsync(CancellationToken.None);
                 _ = DeviceOutputs.RefreshAsync(CancellationToken.None);
                 break;
+        }
+    }
+
+    private void OnConnectRequested(object? sender, Guid containerId)
+    {
+        Devices.SelectedContainerId = containerId;
+
+        if (SelectedDevice.ConnectCommand.CanExecute(null))
+        {
+            SelectedDevice.ConnectCommand.Execute(null);
         }
     }
 

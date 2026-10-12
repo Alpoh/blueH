@@ -31,6 +31,7 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
     private string? _errorDetail;
     private bool _batteryRefreshInFlight;
     private readonly RelayCommand _openDeviceCommand;
+    private readonly RelayCommand _connectDeviceCommand;
 
     public DevicesViewModel(
         IBluetoothDeviceService deviceService,
@@ -47,7 +48,12 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
         _openDeviceCommand = new RelayCommand(
             parameter => SelectedContainerId = (Guid)parameter!,
             parameter => parameter is Guid);
+        _connectDeviceCommand = new RelayCommand(
+            parameter => ConnectRequested?.Invoke(this, (Guid)parameter!),
+            parameter => parameter is Guid);
     }
+
+    public event EventHandler<Guid>? ConnectRequested;
 
     public ObservableCollection<BluetoothAudioDevice> Devices { get; } = [];
 
@@ -64,6 +70,10 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
     }
 
     public ICommand OpenDeviceCommand => _openDeviceCommand;
+
+    public ICommand ConnectDeviceCommand => _connectDeviceCommand;
+
+    public string ConnectLabel => AppResources.DeviceConnectLabel;
 
     public BluetoothAudioDevice? SelectedDevice =>
         Devices.FirstOrDefault(device => device.ContainerId == _selectedContainerId);

@@ -55,7 +55,7 @@ At the user's request the landing page came first: what the app shows when it op
 - **Mini-player** reduced to title, artist and icon buttons; the play/pause glyph follows the playback state.
 - **Verification**: screenshots taken by launching the build and, for the device page, invoking the card through UI Automation by its accessible name.
 
-Not yet done from D2: an empty state with an "Add a device" action, and the quick Connect button on the card. The selected menu item still uses the theme's solid accent block rather than Windows Settings' subtle pill (D8).
+D2 completed later the same day: the empty state carries an "Add a device" accent button that opens the pairing panel and starts searching, and every card of a device that is not connected carries a Connect button. Connecting from a card opens the device page and starts the attempt there, so the waiting, timeout, cancellation and error reporting already built for that page are reused rather than duplicated. The empty state is covered by tests but has not been seen on screen, since three devices are paired. The selected menu item still uses the theme's solid accent block rather than Windows Settings' subtle pill (D8).
 
 ## 6. Device page (D3), 2026-10-12
 

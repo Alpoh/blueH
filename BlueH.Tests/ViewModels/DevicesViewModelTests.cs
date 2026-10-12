@@ -331,6 +331,22 @@ public class DevicesViewModelTests
     }
 
     [Test]
+    public void ConnectingFromACardAsksForTheConnectionWithoutSelecting()
+    {
+        using DevicesViewModel viewModel = CreateViewModel();
+        List<Guid> requested = [];
+        viewModel.ConnectRequested += (_, containerId) => requested.Add(containerId);
+
+        viewModel.ConnectDeviceCommand.Execute(EarbudsContainer);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(requested, Is.EqualTo(new[] { EarbudsContainer }));
+            Assert.That(viewModel.ConnectDeviceCommand.CanExecute(null), Is.False);
+        });
+    }
+
+    [Test]
     public void TheAppStartsWithNoDeviceSelected()
     {
         using DevicesViewModel viewModel = CreateViewModel();

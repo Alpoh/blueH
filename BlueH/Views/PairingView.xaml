@@ -4,7 +4,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
-    <Expander Header="{Binding Header}">
+    <Expander Header="{Binding Header}" IsExpanded="{Binding IsOpen, Mode=TwoWay}">
         <StackPanel Margin="0,8,0,0">
             <WrapPanel>
                 <Button Content="{Binding SearchLabel}" Command="{Binding SearchCommand}" Margin="0,0,8,4" />

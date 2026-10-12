@@ -31,6 +31,7 @@
     <Thickness x:Key="NavigationItemPadding">4,6,4,6</Thickness>
     <Thickness x:Key="DeviceIconMargin">4,0,16,0</Thickness>
     <Thickness x:Key="StatusDotMargin">0,0,6,0</Thickness>
+    <Thickness x:Key="CardActionMargin">16,0,0,0</Thickness>
     <Thickness x:Key="ShellRailMargin">8,8,0,8</Thickness>
     <Thickness x:Key="MiniPlayerMargin">12,0,12,12</Thickness>
     <Thickness x:Key="EmptyStateMargin">0,32,0,32</Thickness>

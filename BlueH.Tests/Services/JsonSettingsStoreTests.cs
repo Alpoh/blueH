@@ -7,7 +7,8 @@ namespace BlueH.Tests.Services;
 [TestFixture]
 public class JsonSettingsStoreTests
 {
-    private const string AnyDeviceId = "BTHENUM\\{0000110b-0000-1000-8000-00805f9b34fb}_LOCALMFG&000f";
+    private const string AnyLanguageTag = "es-ES";
+    private const string OtherLanguageTag = "en-US";
 
     private string _temporaryDirectory = null!;
     private string _filePath = null!;
@@ -33,25 +34,25 @@ public class JsonSettingsStoreTests
     public void SaveThenLoadRoundTripsTheSelectedDevice()
     {
         JsonSettingsStore store = new(_filePath);
-        store.Save(new AppSettings(AnyDeviceId));
+        store.Save(new AppSettings(AnyLanguageTag));
 
-        Assert.That(store.Load().Settings.SelectedDeviceId, Is.EqualTo(AnyDeviceId));
+        Assert.That(store.Load().Settings.LanguageTag, Is.EqualTo(AnyLanguageTag));
     }
 
     [Test]
     public void SaveThenLoadRoundTripsAnAbsentSelectedDevice()
     {
         JsonSettingsStore store = new(_filePath);
-        store.Save(new AppSettings(SelectedDeviceId: null));
+        store.Save(new AppSettings(LanguageTag: null));
 
-        Assert.That(store.Load().Settings.SelectedDeviceId, Is.Null);
+        Assert.That(store.Load().Settings.LanguageTag, Is.Null);
     }
 
     [Test]
     public void LoadReportsTheFileAsTheSourceWhenItWasRead()
     {
         JsonSettingsStore store = new(_filePath);
-        store.Save(new AppSettings(AnyDeviceId));
+        store.Save(new AppSettings(AnyLanguageTag));
 
         Assert.That(store.Load().Source, Is.EqualTo(SettingsSource.File));
     }
@@ -134,34 +135,48 @@ public class JsonSettingsStoreTests
     {
         string nestedPath = Path.Combine(_temporaryDirectory, "nested", "deeper", "settings.json");
 
-        new JsonSettingsStore(nestedPath).Save(new AppSettings(AnyDeviceId));
+        new JsonSettingsStore(nestedPath).Save(new AppSettings(AnyLanguageTag));
 
         Assert.That(File.Exists(nestedPath), Is.True);
+    }
+
+    [Test]
+    public void AFileFromAnOlderVersionStillLoads()
+    {
+        File.WriteAllText(_filePath, "{ \"selectedDeviceId\": \"0ac66fc7-8a44-50f8-ae2b-25ffdd18b301\" }");
+
+        SettingsLoad load = new JsonSettingsStore(_filePath).Load();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(load.Source, Is.EqualTo(SettingsSource.File));
+            Assert.That(load.Settings.LanguageTag, Is.Null);
+        });
     }
 
     [Test]
     public void SaveOverwritesAPreviousValue()
     {
         JsonSettingsStore store = new(_filePath);
-        store.Save(new AppSettings(AnyDeviceId));
+        store.Save(new AppSettings(AnyLanguageTag));
 
-        store.Save(new AppSettings("a-different-device"));
+        store.Save(new AppSettings(OtherLanguageTag));
 
-        Assert.That(store.Load().Settings.SelectedDeviceId, Is.EqualTo("a-different-device"));
+        Assert.That(store.Load().Settings.LanguageTag, Is.EqualTo(OtherLanguageTag));
     }
 
     [Test]
     public void SaveWritesCamelCasedKeysSoTheFileStaysAStableContract()
     {
-        new JsonSettingsStore(_filePath).Save(new AppSettings(AnyDeviceId));
+        new JsonSettingsStore(_filePath).Save(new AppSettings(AnyLanguageTag));
 
-        Assert.That(File.ReadAllText(_filePath), Does.Contain("\"selectedDeviceId\""));
+        Assert.That(File.ReadAllText(_filePath), Does.Contain("\"languageTag\""));
     }
 
     [Test]
     public void SaveWritesIndentedJsonSoTheFileCanBeReadByHand()
     {
-        new JsonSettingsStore(_filePath).Save(new AppSettings(AnyDeviceId));
+        new JsonSettingsStore(_filePath).Save(new AppSettings(AnyLanguageTag));
 
         Assert.That(File.ReadAllText(_filePath), Does.Contain(Environment.NewLine));
     }
@@ -173,6 +188,6 @@ public class JsonSettingsStoreTests
         File.WriteAllText(blocker, string.Empty);
         JsonSettingsStore store = new(Path.Combine(blocker, "settings.json"));
 
-        Assert.That(() => store.Save(new AppSettings(AnyDeviceId)), Throws.InstanceOf<IOException>());
+        Assert.That(() => store.Save(new AppSettings(AnyLanguageTag)), Throws.InstanceOf<IOException>());
     }
 }

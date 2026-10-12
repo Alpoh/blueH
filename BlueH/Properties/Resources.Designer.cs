@@ -821,5 +821,41 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("SettingsSaveFailedFormat", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to —.
+        /// </summary>
+        internal static string DeviceBatteryUnknownShortLabel {
+            get {
+                return ResourceManager.GetString("DeviceBatteryUnknownShortLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This device does not report its battery level..
+        /// </summary>
+        internal static string DeviceBatteryUnknownTooltip {
+            get {
+                return ResourceManager.GetString("DeviceBatteryUnknownTooltip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Diagnostics.
+        /// </summary>
+        internal static string DiagnosticsHeader {
+            get {
+                return ResourceManager.GetString("DiagnosticsHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Back.
+        /// </summary>
+        internal static string NavigationBackLabel {
+            get {
+                return ResourceManager.GetString("NavigationBackLabel", resourceCulture);
+            }
+        }
     }
 }

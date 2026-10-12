@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
+using System.Windows.Input;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Services;
@@ -14,14 +14,12 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
 
     private const string FindDevicesOperation = "Find paired audio devices";
     private const string WatchDevicesOperation = "Watch audio devices";
-    private const string SaveSelectionOperation = "Save selected device";
     private const string RefreshBatteriesOperation = "Refresh batteries";
 
     private readonly IBluetoothDeviceService _deviceService;
     private readonly IBatteryService _batteryService;
     private readonly IUiScheduler _uiScheduler;
     private readonly IDiagnosticsLog _diagnosticsLog;
-    private readonly ISettingsStore _settingsStore;
     private readonly TimeProvider _timeProvider;
     private readonly Dictionary<string, BluetoothAudioEndpoint> _endpoints = [];
     private readonly Dictionary<Guid, BatteryCharge> _batteries = [];
@@ -32,22 +30,23 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
     private Guid? _selectedContainerId;
     private string? _errorDetail;
     private bool _batteryRefreshInFlight;
+    private readonly RelayCommand _openDeviceCommand;
 
     public DevicesViewModel(
         IBluetoothDeviceService deviceService,
         IBatteryService batteryService,
         IUiScheduler uiScheduler,
         IDiagnosticsLog diagnosticsLog,
-        ISettingsStore settingsStore,
         TimeProvider timeProvider)
     {
         _deviceService = deviceService;
         _batteryService = batteryService;
         _uiScheduler = uiScheduler;
         _diagnosticsLog = diagnosticsLog;
-        _settingsStore = settingsStore;
         _timeProvider = timeProvider;
-        _selectedContainerId = ReadPersistedSelection();
+        _openDeviceCommand = new RelayCommand(
+            parameter => SelectedContainerId = (Guid)parameter!,
+            parameter => parameter is Guid);
     }
 
     public ObservableCollection<BluetoothAudioDevice> Devices { get; } = [];
@@ -59,11 +58,12 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
         {
             if (SetField(ref _selectedContainerId, value))
             {
-                PersistSelection(value);
                 OnPropertyChanged(nameof(SelectedDevice));
             }
         }
     }
+
+    public ICommand OpenDeviceCommand => _openDeviceCommand;
 
     public BluetoothAudioDevice? SelectedDevice =>
         Devices.FirstOrDefault(device => device.ContainerId == _selectedContainerId);
@@ -100,6 +100,12 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
     public string ConnectionHeader => AppResources.DeviceConnectionHeader;
 
     public string BatteryHeader => AppResources.DeviceBatteryHeader;
+
+    public string BatteryUnknownShortLabel => AppResources.DeviceBatteryUnknownShortLabel;
+
+    public string BatteryUnknownTooltip => AppResources.DeviceBatteryUnknownTooltip;
+
+    public string AddDeviceLabel => AppResources.PairingHeader;
 
     public async Task RefreshAsync(CancellationToken cancellationToken)
     {
@@ -336,25 +342,5 @@ public sealed class DevicesViewModel : ViewModelBase, IDisposable
         }
 
         return -1;
-    }
-
-    private Guid? ReadPersistedSelection()
-    {
-        string? persisted = _settingsStore.Load().Settings.SelectedDeviceId;
-
-        return Guid.TryParse(persisted, out Guid containerId) ? containerId : null;
-    }
-
-    private void PersistSelection(Guid? containerId)
-    {
-        try
-        {
-            AppSettings current = _settingsStore.Load().Settings;
-            _settingsStore.Save(current with { SelectedDeviceId = containerId?.ToString() });
-        }
-        catch (Exception failure) when (failure is IOException or UnauthorizedAccessException)
-        {
-            _diagnosticsLog.Record(DiagnosticOutcome.Failure, SaveSelectionOperation, failure.Message);
-        }
     }
 }

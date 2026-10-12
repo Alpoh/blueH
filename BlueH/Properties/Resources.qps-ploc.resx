@@ -369,4 +369,16 @@
   <data name="SettingsSaveFailedFormat" xml:space="preserve">
     <value>[Çöüld ñöt sávé thé séttíñgs: {0}·············]</value>
   </data>
+  <data name="DeviceBatteryUnknownShortLabel" xml:space="preserve">
+    <value>[—·]</value>
+  </data>
+  <data name="DeviceBatteryUnknownTooltip" xml:space="preserve">
+    <value>[Thís dévíçé döés ñöt répört íts báttérý lévél.···················]</value>
+  </data>
+  <data name="DiagnosticsHeader" xml:space="preserve">
+    <value>[Díágñöstíçs·····]</value>
+  </data>
+  <data name="NavigationBackLabel" xml:space="preserve">
+    <value>[Báçk··]</value>
+  </data>
 </root>

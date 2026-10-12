@@ -1,0 +1,21 @@
+namespace BlueH.Themes;
+
+public static class Glyphs
+{
+    public const string Back = "\uE72B";
+    public const string Bluetooth = "\uE702";
+    public const string Devices = "\uE772";
+    public const string Volume = "\uE767";
+    public const string Settings = "\uE713";
+    public const string Diagnostics = "\uE9D9";
+    public const string Add = "\uE710";
+    public const string Headphones = "\uE7F6";
+    public const string Loudspeaker = "\uE7F5";
+    public const string Play = "\uE768";
+    public const string Pause = "\uE769";
+    public const string Next = "\uE893";
+    public const string Previous = "\uE892";
+
+    public const char EmptyBatteryCodePoint = '\uEBA0';
+    public const int BatteryGlyphSteps = 10;
+}

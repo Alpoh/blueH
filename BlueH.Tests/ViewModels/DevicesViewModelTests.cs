@@ -1,4 +1,3 @@
-using System.IO;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Tests.Fakes;
@@ -23,7 +22,6 @@ public class DevicesViewModelTests
     private FakeBluetoothDeviceService _deviceService = null!;
     private RecordingUiScheduler _uiScheduler = null!;
     private InMemoryDiagnosticsLog _diagnosticsLog = null!;
-    private FakeSettingsStore _settingsStore = null!;
     private FakeBatteryService _batteryService = null!;
     private FakeTimeProvider _timeProvider = null!;
 
@@ -34,7 +32,6 @@ public class DevicesViewModelTests
         _uiScheduler = new RecordingUiScheduler();
         _timeProvider = new FakeTimeProvider();
         _diagnosticsLog = new InMemoryDiagnosticsLog(_timeProvider);
-        _settingsStore = new FakeSettingsStore();
         _batteryService = new FakeBatteryService();
     }
 
@@ -312,66 +309,37 @@ public class DevicesViewModelTests
     }
 
     [Test]
-    public void TheSelectedDeviceIsReadFromSettingsOnCreation()
+    public void OpeningADeviceFromItsCardSelectsIt()
     {
-        _settingsStore.Settings = new AppSettings(EarbudsContainer.ToString());
-
         using DevicesViewModel viewModel = CreateViewModel();
+
+        viewModel.OpenDeviceCommand.Execute(EarbudsContainer);
 
         Assert.That(viewModel.SelectedContainerId, Is.EqualTo(EarbudsContainer));
     }
 
     [Test]
-    public void AMeaninglessPersistedSelectionIsIgnored()
+    public void OpeningNeedsADeviceIdentity()
     {
-        _settingsStore.Settings = new AppSettings("not a guid");
-
         using DevicesViewModel viewModel = CreateViewModel();
 
-        Assert.That(viewModel.SelectedContainerId, Is.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.OpenDeviceCommand.CanExecute(null), Is.False);
+            Assert.That(viewModel.OpenDeviceCommand.CanExecute(EarbudsContainer), Is.True);
+        });
     }
 
     [Test]
-    public void SelectingADeviceSavesIt()
+    public void TheAppStartsWithNoDeviceSelected()
     {
         using DevicesViewModel viewModel = CreateViewModel();
 
-        viewModel.SelectedContainerId = EarbudsContainer;
-
-        Assert.That(_settingsStore.Settings.SelectedDeviceId, Is.EqualTo(EarbudsContainer.ToString()));
-    }
-
-    [Test]
-    public void SelectingADeviceKeepsTheOtherSettings()
-    {
-        _settingsStore.Settings = new AppSettings(SelectedDeviceId: null, LanguageTag: "es-ES");
-        using DevicesViewModel viewModel = CreateViewModel();
-
-        viewModel.SelectedContainerId = EarbudsContainer;
-
-        Assert.That(_settingsStore.Settings.LanguageTag, Is.EqualTo("es-ES"));
-    }
-
-    [Test]
-    public void SelectingTheSameDeviceTwiceSavesOnce()
-    {
-        using DevicesViewModel viewModel = CreateViewModel();
-
-        viewModel.SelectedContainerId = EarbudsContainer;
-        viewModel.SelectedContainerId = EarbudsContainer;
-
-        Assert.That(_settingsStore.SaveCount, Is.EqualTo(1));
-    }
-
-    [Test]
-    public void AFailureToSaveTheSelectionIsLoggedRatherThanThrown()
-    {
-        _settingsStore.SaveFailureToThrow = new IOException("the disk is full");
-        using DevicesViewModel viewModel = CreateViewModel();
-
-        viewModel.SelectedContainerId = EarbudsContainer;
-
-        Assert.That(_diagnosticsLog.Entries[0].Outcome, Is.EqualTo(DiagnosticOutcome.Failure));
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.SelectedContainerId, Is.Null);
+            Assert.That(viewModel.SelectedDevice, Is.Null);
+        });
     }
 
     [Test]
@@ -390,25 +358,17 @@ public class DevicesViewModelTests
     [Test]
     public async Task ASelectionPointingAtADeviceThatIsGoneResolvesToNothing()
     {
-        _settingsStore.Settings = new AppSettings(SpeakerContainer.ToString());
         _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
         using DevicesViewModel viewModel = CreateViewModel();
+        viewModel.SelectedContainerId = SpeakerContainer;
 
         await viewModel.RefreshAsync(CancellationToken.None);
 
-        Assert.That(viewModel.SelectedDevice, Is.Null);
-    }
-
-    [Test]
-    public async Task ASelectionPointingAtADeviceThatIsGoneIsNotErased()
-    {
-        _settingsStore.Settings = new AppSettings(SpeakerContainer.ToString());
-        _deviceService.Endpoints.Add(Classic(EarbudsContainer, EarbudsName, WearableHeadsetMinorClass));
-        using DevicesViewModel viewModel = CreateViewModel();
-
-        await viewModel.RefreshAsync(CancellationToken.None);
-
-        Assert.That(viewModel.SelectedContainerId, Is.EqualTo(SpeakerContainer));
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.SelectedDevice, Is.Null);
+            Assert.That(viewModel.SelectedContainerId, Is.EqualTo(SpeakerContainer));
+        });
     }
 
     [Test]
@@ -647,7 +607,6 @@ public class DevicesViewModelTests
             _batteryService,
             _uiScheduler,
             _diagnosticsLog,
-            _settingsStore,
             _timeProvider);
     }
 

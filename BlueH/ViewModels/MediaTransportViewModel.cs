@@ -2,6 +2,7 @@ using System.Windows.Input;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Services;
+using BlueH.Themes;
 using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels;
@@ -67,6 +68,8 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
     public ICommand PlayPauseCommand => _playPauseCommand;
 
     public string PlayPauseLabel => IsPlaying ? PauseLabel : PlayLabel;
+
+    public string PlayPauseGlyph => IsPlaying ? Glyphs.Pause : Glyphs.Play;
 
     public ICommand SkipNextCommand => _skipNextCommand;
 
@@ -147,6 +150,7 @@ public sealed class MediaTransportViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(TitleText));
         OnPropertyChanged(nameof(ArtistText));
         OnPropertyChanged(nameof(PlayPauseLabel));
+        OnPropertyChanged(nameof(PlayPauseGlyph));
         _playPauseCommand.RaiseCanExecuteChanged();
         _skipNextCommand.RaiseCanExecuteChanged();
         _skipPreviousCommand.RaiseCanExecuteChanged();

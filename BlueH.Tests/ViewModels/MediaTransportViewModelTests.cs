@@ -207,6 +207,27 @@ public class MediaTransportViewModelTests
     }
 
     [Test]
+    public async Task ThePlayPauseGlyphFollowsThePlaybackState()
+    {
+        _mediaService.Session = Playing(PlayingControls);
+        using MediaTransportViewModel viewModel = await StartedViewModelAsync();
+        string glyphWhilePlaying = viewModel.PlayPauseGlyph;
+        List<string?> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+        _mediaService.Session = Paused(PausedControls);
+        _mediaService.RaiseSessionChanged();
+        _uiScheduler.RunPendingWork();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(glyphWhilePlaying, Is.EqualTo(BlueH.Themes.Glyphs.Pause));
+            Assert.That(viewModel.PlayPauseGlyph, Is.EqualTo(BlueH.Themes.Glyphs.Play));
+            Assert.That(changed, Does.Contain(nameof(MediaTransportViewModel.PlayPauseGlyph)));
+        });
+    }
+
+    [Test]
     public async Task WhilePlayingTheButtonOffersPause()
     {
         _mediaService.Session = Playing(PlayingControls);

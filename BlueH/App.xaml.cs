@@ -45,10 +45,10 @@ public partial class App
             batteryService,
             uiScheduler,
             diagnosticsLog,
-            settingsStore,
             TimeProvider.System);
         CoreAudioEndpointService endpointService = new(diagnosticsLog);
-        EndpointsViewModel endpoints = new(endpointService, uiScheduler, diagnosticsLog);
+        EndpointsViewModel allOutputs = new(endpointService, uiScheduler, diagnosticsLog);
+        EndpointsViewModel deviceOutputs = new(endpointService, uiScheduler, diagnosticsLog);
         _mediaTransportService = new WindowsMediaTransportService(diagnosticsLog);
         MediaTransportViewModel mediaTransport = new(_mediaTransportService, uiScheduler, diagnosticsLog);
 
@@ -65,7 +65,8 @@ public partial class App
             selectedDevice,
             new SettingsViewModel(settingsStore, diagnosticsLog, activeLanguageTag),
             pairing,
-            endpoints,
+            allOutputs,
+            deviceOutputs,
             mediaTransport,
             new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
 
@@ -77,7 +78,7 @@ public partial class App
 
         window.Show();
 
-        _ = InitializeAsync(devices, endpoints, diagnosticsLog);
+        _ = InitializeAsync(devices, allOutputs, diagnosticsLog);
         _ = InitializeMediaTransportAsync(mediaTransport, diagnosticsLog);
     }
 

@@ -1,29 +1,49 @@
 <UserControl x:Class="BlueH.Views.MediaTransportView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:themes="clr-namespace:BlueH.Themes">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
-    <StackPanel Margin="12">
-        <TextBlock Text="{Binding Header}"
-                   Style="{StaticResource SubtitleTextBlockStyle}"
-                   Margin="0,0,0,8" />
-        <TextBlock Text="{Binding NoSessionMessage}"
-                   Visibility="{Binding HasNoSession, Converter={StaticResource BooleanToVisibility}}"
-                   TextWrapping="Wrap" />
-        <StackPanel Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-            <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
-        </StackPanel>
-        <StackPanel Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Text="{Binding TitleText}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-            <TextBlock Text="{Binding ArtistText}" TextWrapping="Wrap" Margin="0,2,0,0" />
-            <TextBlock Text="{Binding SourceAppId}" Style="{StaticResource SecondaryTextStyle}" Margin="0,2,0,0" />
-            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                <Button Content="{Binding PreviousLabel}" Command="{Binding SkipPreviousCommand}" />
-                <Button Content="{Binding PlayPauseLabel}" Command="{Binding PlayPauseCommand}" Margin="8,0,0,0" />
-                <Button Content="{Binding NextLabel}" Command="{Binding SkipNextCommand}" Margin="8,0,0,0" />
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="{StaticResource ColumnGapMargin}">
+            <TextBlock Text="{Binding NoSessionMessage}"
+                       Visibility="{Binding HasNoSession, Converter={StaticResource BooleanToVisibility}}"
+                       Style="{StaticResource SecondaryTextStyle}" />
+            <StackPanel Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding ErrorDetail}" Style="{StaticResource SecondaryCaptionTextStyle}" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <StackPanel Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock Text="{Binding TitleText}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding ArtistText}" Style="{StaticResource SecondaryCaptionTextStyle}" TextTrimming="CharacterEllipsis" />
             </StackPanel>
         </StackPanel>
-    </StackPanel>
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}">
+            <Button Content="{x:Static themes:Glyphs.Previous}"
+                    Command="{Binding SkipPreviousCommand}"
+                    ToolTip="{Binding PreviousLabel}"
+                    AutomationProperties.Name="{Binding PreviousLabel}"
+                    Style="{StaticResource IconButtonStyle}"
+                    Margin="{StaticResource InlineItemMargin}" />
+            <Button Content="{Binding PlayPauseGlyph}"
+                    Command="{Binding PlayPauseCommand}"
+                    ToolTip="{Binding PlayPauseLabel}"
+                    AutomationProperties.Name="{Binding PlayPauseLabel}"
+                    Style="{StaticResource IconButtonStyle}"
+                    Margin="{StaticResource InlineItemMargin}" />
+            <Button Content="{x:Static themes:Glyphs.Next}"
+                    Command="{Binding SkipNextCommand}"
+                    ToolTip="{Binding NextLabel}"
+                    AutomationProperties.Name="{Binding NextLabel}"
+                    Style="{StaticResource IconButtonStyle}" />
+        </StackPanel>
+    </Grid>
 </UserControl>

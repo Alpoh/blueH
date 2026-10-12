@@ -1,67 +1,88 @@
 <UserControl x:Class="BlueH.Views.DevicesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:converters="clr-namespace:BlueH.Converters">
+             xmlns:converters="clr-namespace:BlueH.Converters"
+             xmlns:themes="clr-namespace:BlueH.Themes">
     <UserControl.Resources>
-        <converters:DeviceKindToTextConverter x:Key="DeviceKindToText" />
+        <converters:DeviceKindToGlyphConverter x:Key="DeviceKindToGlyph" />
         <converters:ConnectionStateToTextConverter x:Key="ConnectionStateToText" />
         <converters:BatteryChargeToTextConverter x:Key="BatteryChargeToText" />
+        <converters:BatteryChargeToGlyphConverter x:Key="BatteryChargeToGlyph" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
-    <DockPanel Grid.IsSharedSizeScope="True" Margin="12">
-        <TextBlock DockPanel.Dock="Top"
-                   Text="{Binding Header}"
-                   Style="{StaticResource SubtitleTextBlockStyle}"
-                   Margin="0,0,0,8" />
-        <TextBlock DockPanel.Dock="Top"
-                   Text="{Binding EmptyMessage}"
-                   Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibility}}"
-                   TextWrapping="Wrap"
-                   Margin="0,4,0,0" />
-        <StackPanel DockPanel.Dock="Top"
-                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"
-                    Margin="0,4,0,0">
-            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-            <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,2,0,0" />
+    <StackPanel>
+        <StackPanel Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibility}}"
+                    Margin="{StaticResource EmptyStateMargin}">
+            <TextBlock Text="{x:Static themes:Glyphs.Bluetooth}" Style="{StaticResource EmptyStateIconStyle}" />
+            <TextBlock Text="{Binding EmptyMessage}"
+                       Style="{StaticResource SecondaryTextStyle}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="{StaticResource SectionHeaderMargin}" />
         </StackPanel>
-        <Grid DockPanel.Dock="Top" Margin="0,8,0,4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" SharedSizeGroup="DeviceName" />
-                <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceKind" />
-                <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
-                <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceBattery" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding NameHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="1" Text="{Binding KindHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="2" Text="{Binding ConnectionHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,16,0" />
-            <TextBlock Grid.Column="3" Text="{Binding BatteryHeader}" Style="{StaticResource BodyStrongTextBlockStyle}" />
-        </Grid>
-        <ListBox ItemsSource="{Binding Devices}"
-                 SelectedValue="{Binding SelectedContainerId, Mode=TwoWay}"
-                 SelectedValuePath="ContainerId"
-                 HorizontalContentAlignment="Stretch"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListBox.ItemTemplate>
+        <Border Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"
+                Style="{StaticResource CardBorderStyle}"
+                Margin="{StaticResource StackedItemMargin}">
+            <StackPanel>
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ErrorDetail}"
+                           Style="{StaticResource SecondaryTextStyle}"
+                           TextWrapping="Wrap"
+                           Margin="{StaticResource TightStackedItemMargin}" />
+            </StackPanel>
+        </Border>
+        <ItemsControl ItemsSource="{Binding Devices}">
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" SharedSizeGroup="DeviceName" />
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceKind" />
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceConnection" />
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="DeviceBattery" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding Name}" TextTrimming="CharacterEllipsis" Margin="0,0,16,0" />
-                        <TextBlock Grid.Column="1"
-                                   Text="{Binding Kind, Converter={StaticResource DeviceKindToText}}"
-                                   Margin="0,0,16,0" />
-                        <TextBlock Grid.Column="2"
-                                   Text="{Binding IsConnected, Converter={StaticResource ConnectionStateToText}}"
-                                   Margin="0,0,16,0" />
-                        <TextBlock Grid.Column="3"
-                                   Text="{Binding Battery, Converter={StaticResource BatteryChargeToText}}" />
-                    </Grid>
+                    <Button Command="{Binding DataContext.OpenDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding ContainerId}"
+                            AutomationProperties.Name="{Binding Name}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Padding="{StaticResource CardPadding}"
+                            Margin="{StaticResource StackedItemMargin}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding Kind, Converter={StaticResource DeviceKindToGlyph}}"
+                                       Style="{StaticResource DeviceIconStyle}"
+                                       Margin="{StaticResource DeviceIconMargin}" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <StackPanel Orientation="Horizontal" Margin="{StaticResource TightStackedItemMargin}">
+                                    <Ellipse Style="{StaticResource ConnectionDotStyle}" Margin="{StaticResource StatusDotMargin}" />
+                                    <TextBlock Text="{Binding IsConnected, Converter={StaticResource ConnectionStateToText}}"
+                                               Style="{StaticResource SecondaryCaptionTextStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding Battery.IsKnown, Converter={StaticResource BooleanToVisibility}}">
+                                <TextBlock Text="{Binding Battery, Converter={StaticResource BatteryChargeToGlyph}}"
+                                           Style="{StaticResource IconTextStyle}"
+                                           Margin="{StaticResource StatusDotMargin}" />
+                                <TextBlock Text="{Binding Battery, Converter={StaticResource BatteryChargeToText}}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding DataContext.BatteryUnknownShortLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       ToolTip="{Binding DataContext.BatteryUnknownTooltip, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       Visibility="{Binding Battery.IsKnown, Converter={StaticResource InverseBooleanToVisibility}}"
+                                       Style="{StaticResource SecondaryTextStyle}"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Button>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-    </DockPanel>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
 </UserControl>

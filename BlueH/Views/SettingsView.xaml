@@ -4,8 +4,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
-    <Expander Header="{Binding Header}" Margin="12,0,12,8">
-        <StackPanel Margin="0,8,0,0">
+    <StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding LanguageLabel}" VerticalAlignment="Center" Margin="0,0,8,0" />
                 <ComboBox ItemsSource="{Binding Languages}"
@@ -19,5 +18,4 @@
                        Margin="0,6,0,0" />
             <TextBlock Text="{Binding ErrorDetail}" TextWrapping="Wrap" Margin="0,4,0,0" />
         </StackPanel>
-    </Expander>
 </UserControl>

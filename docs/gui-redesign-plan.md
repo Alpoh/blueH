@@ -44,7 +44,20 @@ What D0 added: `Themes/Layout.xaml` with the spacing scale, named margins, `Card
 
 D0 is nearly invisible on screen by design: headers moved from a hand-set 18 to the theme's 20, and secondary text uses the theme's brush instead of opacity.
 
-## 5. Increments
+## 5. Landing page (D1 with the core of D2), 2026-10-12
+
+At the user's request the landing page came first: what the app shows when it opens.
+
+- **Shell**: navigation rail (Devices, Audio outputs, Settings, Diagnostics), page title with Back, and the mini-player fixed at the bottom. `PageNavigator` holds the history: a menu section starts a fresh history, opening a device pushes onto it. Pages are ViewModels shown through typed `DataTemplate`s.
+- **Devices as cards**: kind glyph, name, status dot (theme success colour when connected), battery glyph and percentage, a dash with a tooltip when the battery is not reported. A card is a Fluent `Button`, so hover and press states come from the theme.
+- **Device page**: opening a card shows the device's actions and its own outputs; the Audio outputs page lists every output. Two `EndpointsViewModel` instances, one filtered and one not.
+- **The app always opens on the list.** The persisted selection was removed: with navigation it would have left a device selected that a click could no longer open. An older `settings.json` carrying `selectedDeviceId` still loads.
+- **Mini-player** reduced to title, artist and icon buttons; the play/pause glyph follows the playback state.
+- **Verification**: screenshots taken by launching the build and, for the device page, invoking the card through UI Automation by its accessible name.
+
+Not yet done from D2: an empty state with an "Add a device" action, and the quick Connect button on the card. The selected menu item still uses the theme's solid accent block rather than Windows Settings' subtle pill (D8).
+
+## 6. Increments
 
 | # | Increment | Deliverable | Verification |
 |---|---|---|---|

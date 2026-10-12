@@ -11,7 +11,6 @@ namespace BlueH.Tests.ViewModels;
 [TestFixture]
 public class SettingsViewModelTests
 {
-    private const string AnyDeviceId = "0ac66fc7-8a44-50f8-ae2b-25ffdd18b301";
 
     private FakeSettingsStore _settingsStore = null!;
     private InMemoryDiagnosticsLog _diagnosticsLog = null!;
@@ -52,7 +51,7 @@ public class SettingsViewModelTests
     [Test]
     public void TheStoredLanguageIsSelected()
     {
-        _settingsStore.Settings = new AppSettings(SelectedDeviceId: null, CultureSelection.SpanishTag);
+        _settingsStore.Settings = new AppSettings(CultureSelection.SpanishTag);
 
         SettingsViewModel viewModel = CreateViewModel(CultureSelection.SpanishTag);
 
@@ -64,7 +63,7 @@ public class SettingsViewModelTests
     [TestCase("")]
     public void AnUnsupportedStoredLanguageSelectsTheSystemDefault(string storedTag)
     {
-        _settingsStore.Settings = new AppSettings(SelectedDeviceId: null, storedTag);
+        _settingsStore.Settings = new AppSettings(storedTag);
 
         SettingsViewModel viewModel = CreateViewModel(activeLanguageTag: null);
 
@@ -72,18 +71,13 @@ public class SettingsViewModelTests
     }
 
     [Test]
-    public void ChoosingALanguageSavesItAndKeepsTheOtherSettings()
+    public void ChoosingALanguageSavesIt()
     {
-        _settingsStore.Settings = new AppSettings(AnyDeviceId);
         SettingsViewModel viewModel = CreateViewModel(activeLanguageTag: null);
 
         viewModel.SelectedLanguage = Option(viewModel, CultureSelection.SpanishTag);
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(_settingsStore.Settings.LanguageTag, Is.EqualTo(CultureSelection.SpanishTag));
-            Assert.That(_settingsStore.Settings.SelectedDeviceId, Is.EqualTo(AnyDeviceId));
-        });
+        Assert.That(_settingsStore.Settings.LanguageTag, Is.EqualTo(CultureSelection.SpanishTag));
     }
 
     [Test]

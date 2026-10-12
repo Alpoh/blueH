@@ -369,4 +369,16 @@
   <data name="SettingsSaveFailedFormat" xml:space="preserve">
     <value>Could not save the settings: {0}</value>
   </data>
+  <data name="DeviceBatteryUnknownShortLabel" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="DeviceBatteryUnknownTooltip" xml:space="preserve">
+    <value>This device does not report its battery level.</value>
+  </data>
+  <data name="DiagnosticsHeader" xml:space="preserve">
+    <value>Diagnostics</value>
+  </data>
+  <data name="NavigationBackLabel" xml:space="preserve">
+    <value>Back</value>
+  </data>
 </root>

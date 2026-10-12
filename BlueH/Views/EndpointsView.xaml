@@ -7,11 +7,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
     </UserControl.Resources>
-    <DockPanel Margin="12">
-        <TextBlock DockPanel.Dock="Top"
-                   Text="{Binding Header}"
-                   Style="{StaticResource SubtitleTextBlockStyle}"
-                   Margin="0,0,0,8" />
+    <DockPanel>
         <TextBlock DockPanel.Dock="Top"
                    Text="{Binding EmptyMessage}"
                    Visibility="{Binding HasNoEndpoints, Converter={StaticResource BooleanToVisibility}}"

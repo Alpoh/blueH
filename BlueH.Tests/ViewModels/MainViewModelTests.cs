@@ -2,6 +2,7 @@ using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Tests.Fakes;
 using BlueH.ViewModels;
+using BlueH.ViewModels.Pages;
 using Microsoft.Extensions.Time.Testing;
 
 namespace BlueH.Tests.ViewModels;
@@ -87,7 +88,7 @@ public class MainViewModelTests
         Assert.Multiple(() =>
         {
             Assert.That(_endpointService.FindCalls, Is.GreaterThan(refreshesBefore));
-            Assert.That(viewModel.Endpoints.ContainerFilter, Is.EqualTo(EarbudsContainer));
+            Assert.That(viewModel.DeviceOutputs.ContainerFilter, Is.EqualTo(EarbudsContainer));
         });
     }
 
@@ -136,6 +137,120 @@ public class MainViewModelTests
         Assert.That(viewModel.SelectedDevice.Device?.IsConnected, Is.True);
     }
 
+    [Test]
+    public void TheAppOpensOnTheDevicesPage()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicesPage));
+            Assert.That(viewModel.SelectedMenuItem?.Page, Is.SameAs(viewModel.DevicesPage));
+            Assert.That(viewModel.Navigator.CanGoBack, Is.False);
+        });
+    }
+
+    [Test]
+    public void SelectingADeviceOpensItsPage()
+    {
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicePage));
+            Assert.That(viewModel.Navigator.CanGoBack, Is.True);
+            Assert.That(viewModel.SelectedMenuItem?.Page, Is.SameAs(viewModel.DevicesPage));
+        });
+    }
+
+    [Test]
+    public void GoingBackReturnsToTheListAndClearsTheSelection()
+    {
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        devices.SelectedContainerId = EarbudsContainer;
+
+        viewModel.Navigator.GoBackCommand.Execute(null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicesPage));
+            Assert.That(devices.SelectedContainerId, Is.Null);
+        });
+    }
+
+    [Test]
+    public void TheSameDeviceCanBeOpenedAgainAfterGoingBack()
+    {
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        devices.SelectedContainerId = EarbudsContainer;
+        viewModel.Navigator.GoBack();
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.DevicePage));
+    }
+
+    [Test]
+    public void ChoosingAMenuSectionShowsItsPageWithNoWayBack()
+    {
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        devices.SelectedContainerId = EarbudsContainer;
+
+        viewModel.SelectedMenuItem = viewModel.MenuItems.Single(item => item.Page == viewModel.AudioPage);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Navigator.CurrentPage, Is.SameAs(viewModel.AudioPage));
+            Assert.That(viewModel.Navigator.CanGoBack, Is.False);
+            Assert.That(devices.SelectedContainerId, Is.Null);
+        });
+    }
+
+    [Test]
+    public void EveryMenuSectionHasALabelAGlyphAndItsOwnPage()
+    {
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.MenuItems.Select(item => item.Label), Is.All.Not.Empty);
+            Assert.That(viewModel.MenuItems.Select(item => item.Glyph), Is.All.Not.Empty);
+            Assert.That(viewModel.MenuItems.Select(item => item.Page), Is.Unique);
+            Assert.That(viewModel.MenuItems.Select(item => item.Page), Does.Not.Contain(viewModel.DevicePage));
+        });
+    }
+
+    [Test]
+    public async Task TheDevicePageIsTitledWithTheDeviceName()
+    {
+        _deviceService.Endpoints.Add(Classic());
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.That(viewModel.Navigator.CurrentPage.Title, Is.EqualTo(EarbudsName));
+    }
+
+    [Test]
+    public async Task TheAudioPageListsEveryOutputWhileADeviceIsOpen()
+    {
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.That(viewModel.AllOutputs.ContainerFilter, Is.Null);
+    }
+
     private static BluetoothAudioEndpoint Classic(bool? isConnected = true, string name = EarbudsName)
     {
         return new BluetoothAudioEndpoint(
@@ -153,7 +268,6 @@ public class MainViewModelTests
             _batteryService,
             _uiScheduler,
             _diagnosticsLog,
-            _settingsStore,
             _timeProvider);
     }
 
@@ -168,6 +282,7 @@ public class MainViewModelTests
                 _timeProvider),
             new SettingsViewModel(_settingsStore, _diagnosticsLog, activeLanguageTag: null),
             new PairingViewModel(new FakeBluetoothPairingService(), _uiScheduler, _diagnosticsLog, _timeProvider),
+            new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new MediaTransportViewModel(_mediaService, _uiScheduler, _diagnosticsLog),
             new DiagnosticsViewModel(_diagnosticsLog, _uiScheduler));

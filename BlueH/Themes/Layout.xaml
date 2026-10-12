@@ -25,7 +25,54 @@
         <Setter Property="Padding" Value="{StaticResource CardPadding}" />
     </Style>
 
+    <Thickness x:Key="NavigationIconMargin">0,0,12,0</Thickness>
+    <Thickness x:Key="NavigationItemPadding">4,6,4,6</Thickness>
+    <Thickness x:Key="DeviceIconMargin">4,0,16,0</Thickness>
+    <Thickness x:Key="StatusDotMargin">0,0,6,0</Thickness>
+    <Thickness x:Key="ShellRailMargin">8,8,0,8</Thickness>
+    <Thickness x:Key="MiniPlayerMargin">12,0,12,12</Thickness>
+    <Thickness x:Key="EmptyStateMargin">0,32,0,32</Thickness>
+
     <Style x:Key="SecondaryTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="SecondaryCaptionTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="IconTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="DeviceIconStyle" TargetType="TextBlock" BasedOn="{StaticResource IconTextStyle}">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="EmptyStateIconStyle" TargetType="TextBlock" BasedOn="{StaticResource IconTextStyle}">
+        <Setter Property="FontSize" Value="48" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+    </Style>
+
+    <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Padding" Value="10,8,10,8" />
+    </Style>
+
+    <Style x:Key="ConnectionDotStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="8" />
+        <Setter Property="Height" Value="8" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Fill" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                <Setter Property="Fill" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

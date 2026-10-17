@@ -18,6 +18,12 @@ public static class Glyphs
     public const string Pause = "\uE769";
     public const string Next = "\uE893";
     public const string Previous = "\uE892";
+    public const string Close = "\uE711";
+    public const string SwitchToWidget = "\uE73F";
+    public const string SwitchToWindow = "\uE740";
+    public const string NoiseControlOff = "\uE8D8";
+    public const string Transparency = "\uF270";
+    public const string NoiseCancelling = "\uEA18";
 
     public const char EmptyBatteryCodePoint = '\uEBA0';
     public const int BatteryGlyphSteps = 10;

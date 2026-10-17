@@ -22,9 +22,11 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         EndpointsViewModel deviceOutputs,
         MediaTransportViewModel mediaTransport,
         NoiseControlViewModel noiseControl,
-        DiagnosticsViewModel diagnostics)
+        DiagnosticsViewModel diagnostics,
+        DisplayModeViewModel displayMode)
     {
         Devices = devices;
+        DisplayMode = displayMode;
         SelectedDevice = selectedDevice;
         Pairing = pairing;
         AllOutputs = allOutputs;
@@ -76,6 +78,8 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public MediaTransportViewModel MediaTransport { get; }
 
     public DiagnosticsViewModel Diagnostics { get; }
+
+    public DisplayModeViewModel DisplayMode { get; }
 
     public DevicesPageViewModel DevicesPage { get; }
 

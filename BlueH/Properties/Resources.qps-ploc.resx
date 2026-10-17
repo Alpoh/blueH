@@ -447,4 +447,22 @@
   <data name="NoiseControlChannelLostMessage" xml:space="preserve">
     <value>[Thé çöññéçtíöñ tö thé ñöísé çöñtröl wás löst.··················]</value>
   </data>
+  <data name="WidgetNoDeviceMessage" xml:space="preserve">
+    <value>[Ñö héádphöñés çöññéçtéd··········]</value>
+  </data>
+  <data name="SettingsWidgetTopmostLabel" xml:space="preserve">
+    <value>[Kéép thé wídgét öñ töp·········]</value>
+  </data>
+  <data name="SettingsWidgetTopmostDescription" xml:space="preserve">
+    <value>[Shöw thé wídgét ábövé öthér wíñdöws.···············]</value>
+  </data>
+  <data name="SwitchToWidgetLabel" xml:space="preserve">
+    <value>[Swítçh tö wídgét·······]</value>
+  </data>
+  <data name="SwitchToWindowLabel" xml:space="preserve">
+    <value>[Öpéñ thé füll wíñdöw········]</value>
+  </data>
+  <data name="ExitLabel" xml:space="preserve">
+    <value>[Çlösé BlüéH·····]</value>
+  </data>
 </root>

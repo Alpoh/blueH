@@ -20,6 +20,7 @@ public sealed class SettingsViewModel : ViewModelBase
 
     private LanguageOption _selectedLanguage;
     private bool _isDeveloperModeEnabled;
+    private bool _isWidgetTopmost;
     private string? _errorDetail;
 
     public SettingsViewModel(
@@ -43,6 +44,8 @@ public sealed class SettingsViewModel : ViewModelBase
         string? storedTag = CultureSelection.NormalizeSupportedTag(stored.LanguageTag);
         _selectedLanguage = Languages.First(option => option.LanguageTag == storedTag);
         _isDeveloperModeEnabled = stored.IsDeveloperModeEnabled;
+        _isWidgetTopmost = stored.IsWidgetTopmost;
+        WidgetPosition = stored.WidgetPosition;
         VersionText = string.Format(CultureInfo.CurrentCulture, AppResources.SettingsVersionFormat, applicationInfo.Version);
         OpenCreditLinkCommand = new RelayCommand(_ => linkOpener.Open(GadgetbridgeAddress));
     }
@@ -75,6 +78,20 @@ public sealed class SettingsViewModel : ViewModelBase
             }
         }
     }
+
+    public bool IsWidgetTopmost
+    {
+        get => _isWidgetTopmost;
+        set
+        {
+            if (SetField(ref _isWidgetTopmost, value))
+            {
+                Save(current => current with { IsWidgetTopmost = value });
+            }
+        }
+    }
+
+    public WidgetPosition? WidgetPosition { get; private set; }
 
     public bool IsRestartRequired => _selectedLanguage.LanguageTag != _activeLanguageTag;
 
@@ -115,6 +132,16 @@ public sealed class SettingsViewModel : ViewModelBase
     public string CreditText => AppResources.SettingsCreditText;
 
     public string CreditLinkLabel => AppResources.SettingsCreditLinkLabel;
+
+    public string WidgetTopmostLabel => AppResources.SettingsWidgetTopmostLabel;
+
+    public string WidgetTopmostDescription => AppResources.SettingsWidgetTopmostDescription;
+
+    public void RememberWidgetPosition(WidgetPosition position)
+    {
+        WidgetPosition = position;
+        Save(current => current with { WidgetPosition = position });
+    }
 
     private void Save(Func<AppSettings, AppSettings> change)
     {

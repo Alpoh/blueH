@@ -10,9 +10,16 @@ public sealed class FakeNoiseControlService : INoiseControlService
 
     public Exception? OpenFailureToThrow { get; set; }
 
+    public TaskCompletionSource<INoiseControlSession?>? PendingOpen { get; set; }
+
     public Task<INoiseControlSession?> OpenAsync(Guid containerId, CancellationToken cancellationToken)
     {
         OpenCalls.Add(containerId);
+
+        if (PendingOpen is not null)
+        {
+            return PendingOpen.Task;
+        }
 
         if (OpenFailureToThrow is not null)
         {

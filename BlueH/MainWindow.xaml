@@ -61,7 +61,14 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <DockPanel Grid.Row="0" Grid.Column="1" Margin="{StaticResource PagePadding}">
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="{StaticResource SectionHeaderMargin}">
+            <DockPanel DockPanel.Dock="Top" Margin="{StaticResource SectionHeaderMargin}">
+                <Button DockPanel.Dock="Right"
+                        Content="{x:Static themes:Glyphs.SwitchToWidget}"
+                        Command="{Binding DisplayMode.SwitchToWidgetCommand}"
+                        ToolTip="{Binding DisplayMode.SwitchToWidgetLabel}"
+                        AutomationProperties.Name="{Binding DisplayMode.SwitchToWidgetLabel}"
+                        Style="{StaticResource IconButtonStyle}"
+                        VerticalAlignment="Center" />
                 <Button Content="{x:Static themes:Glyphs.Back}"
                         Command="{Binding Navigator.GoBackCommand}"
                         Visibility="{Binding Navigator.CanGoBack, Converter={StaticResource BooleanToVisibility}}"
@@ -74,7 +81,7 @@
                            Style="{StaticResource TitleTextBlockStyle}"
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
-            </StackPanel>
+            </DockPanel>
             <ContentControl Content="{Binding Navigator.CurrentPage}" Focusable="False" />
         </DockPanel>
         <Border Grid.Row="1"

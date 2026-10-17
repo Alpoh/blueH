@@ -29,16 +29,16 @@ today each check means opening the full window and the device page. A widget kee
   and the device page must share one noise control session, since the earbuds and the platform
   findings show that every open RFCOMM channel keeps the link up.
 
-## 3. Open questions
+## 3. Questions settled (2026-10-17)
 
-To settle before or during W1:
+The user asked for the whole plan in one go, so the simplest choice was taken for each, and each
+is cheap to change:
 
-1. **Which device the widget follows** when more than one is connected: the first connected
-   one, or one the user pins from its device page.
-2. **App lifetime**: whether closing the main window closes the widget too, or whether the
-   widget keeps BlueH running. The second makes the tray icon (W5) necessary, since there would
-   otherwise be no way back to the main window.
-3. **How it is opened**: a button on the device page, a setting, or both.
+1. **The widget follows the first connected device.** Pinning a device can come later.
+2. **Closing the main window closes everything** (`ShutdownMode="OnMainWindowClose"`). This makes
+   the tray icon unnecessary, so W5 was not built.
+3. **It is opened from Settings** ("Desktop widget", remembered across sessions) and hidden
+   with its own close button, which turns the same setting off.
 
 ## 4. Risks to spike first (W0)
 
@@ -50,6 +50,32 @@ To settle before or during W1:
 - **Rendering cost** of a layered window on this machine, and behaviour at 150 % DPI and across
   two monitors.
 - **`Topmost`** against full-screen applications and the taskbar.
+
+### W0 findings (2026-10-17)
+
+A throwaway WPF window under `ThemeMode="Dark"`, transparent, topmost, at opacity 0.85, captured
+from the screen:
+
+- **The card brush cannot be the widget's background.** `CardBackgroundFillColorDefaultBrush`
+  is `#0DFFFFFF`, 5 % white, so on a transparent window the desktop shows straight through, and
+  `CardStrokeColorDefaultBrush` (`#19000000`) is invisible on a dark background. The widget uses
+  `SolidBackgroundFillColorBaseBrush` (`#FF202020`, opaque) and `SurfaceStrokeColorDefaultBrush`
+  (`#66757575`), and the window's opacity does the translucency.
+- `AcrylicBackgroundFillColorDefaultBrush` does not exist in WPF's Fluent theme.
+- Text, radio buttons and the theme's text styles render correctly in a layered window.
+- Only 100 % scaling could be checked; this machine has a single monitor at 100 %.
+
+### Built (2026-10-17)
+
+- **`SharedNoiseControlService`** wraps the OPPO service and hands out one shared connection per
+  device to every user (the device page and the widget), closing it when the last user leaves.
+  A change made by one user is reported to the others; a lost connection closes every user and
+  is not reused; one user giving up while the connection opens does not drop it for the rest.
+- **`WidgetViewModel`** follows the first connected device, shows its battery, noise control and
+  the current track, and suspends its noise control when the same device is being disconnected
+  or unpaired from its page, since any open channel keeps the link up.
+- **`WidgetPlacement`** keeps at least 48 DIP of the widget on the virtual screen, so a widget
+  remembered on a monitor that is gone comes back within reach.
 
 ## 5. Increments
 

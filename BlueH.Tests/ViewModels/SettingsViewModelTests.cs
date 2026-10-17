@@ -165,6 +165,66 @@ public class SettingsViewModelTests
     }
 
     [Test]
+    public void TheWidgetIsAlwaysOnTopByDefault()
+    {
+        SettingsViewModel viewModel = CreateViewModel(activeLanguageTag: null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.IsWidgetTopmost, Is.True);
+            Assert.That(viewModel.WidgetPosition, Is.Null);
+        });
+    }
+
+    [Test]
+    public void TheWidgetSettingsStartAsStored()
+    {
+        _settingsStore.Settings = AppSettings.Default with
+        {
+            IsWidgetTopmost = false,
+            WidgetPosition = new WidgetPosition(120, 80)
+        };
+
+        SettingsViewModel viewModel = CreateViewModel(activeLanguageTag: null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.IsWidgetTopmost, Is.False);
+            Assert.That(viewModel.WidgetPosition, Is.EqualTo(new WidgetPosition(120, 80)));
+        });
+    }
+
+    [Test]
+    public void TurningOffAlwaysOnTopSavesItAndKeepsTheOtherSettings()
+    {
+        _settingsStore.Settings = new AppSettings(CultureSelection.SpanishTag, IsDeveloperModeEnabled: true);
+        SettingsViewModel viewModel = CreateViewModel(CultureSelection.SpanishTag);
+
+        viewModel.IsWidgetTopmost = false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_settingsStore.Settings.IsWidgetTopmost, Is.False);
+            Assert.That(_settingsStore.Settings.IsDeveloperModeEnabled, Is.True);
+            Assert.That(_settingsStore.Settings.LanguageTag, Is.EqualTo(CultureSelection.SpanishTag));
+        });
+    }
+
+    [Test]
+    public void ARememberedWidgetPositionIsSaved()
+    {
+        SettingsViewModel viewModel = CreateViewModel(activeLanguageTag: null);
+
+        viewModel.RememberWidgetPosition(new WidgetPosition(300, 40));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.WidgetPosition, Is.EqualTo(new WidgetPosition(300, 40)));
+            Assert.That(_settingsStore.Settings.WidgetPosition, Is.EqualTo(new WidgetPosition(300, 40)));
+        });
+    }
+
+    [Test]
     public void TheVersionIsShown()
     {
         _applicationInfo.Version = "1.2.3";

@@ -1,0 +1,172 @@
+<Window x:Class="BlueH.Views.WidgetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:BlueH.Converters"
+        xmlns:themes="clr-namespace:BlueH.Themes"
+        Style="{StaticResource WidgetWindowStyle}"
+        Icon="/Assets/BlueH.ico"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True"
+        SizeToContent="WidthAndHeight"
+        Topmost="{Binding IsTopmost, Mode=OneWay}">
+    <Window.Resources>
+        <converters:DeviceKindToGlyphConverter x:Key="DeviceKindToGlyph" />
+        <converters:BatteryChargeToTextConverter x:Key="BatteryChargeToText" />
+        <converters:BatteryChargeToGlyphConverter x:Key="BatteryChargeToGlyph" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </Window.Resources>
+    <Border Style="{StaticResource WidgetBorderStyle}" MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Device.Kind, Converter={StaticResource DeviceKindToGlyph}, FallbackValue={x:Static themes:Glyphs.Bluetooth}}"
+                           Style="{StaticResource IconTextStyle}"
+                           Margin="{StaticResource InlineItemMargin}" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Device.Name}"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding HasDevice, Converter={StaticResource BooleanToVisibility}}" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding NoDeviceMessage}"
+                           Style="{StaticResource SecondaryTextStyle}"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding HasDevice, Converter={StaticResource InverseBooleanToVisibility}}" />
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="{StaticResource CardActionMargin}"
+                            Visibility="{Binding HasDevice, Converter={StaticResource BooleanToVisibility}}">
+                    <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding Device.Battery.IsKnown, Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}">
+                        <TextBlock Text="{Binding Device.Battery, Converter={StaticResource BatteryChargeToGlyph}}"
+                                   Style="{StaticResource IconTextStyle}"
+                                   Margin="{StaticResource StatusDotMargin}" />
+                        <TextBlock Text="{Binding Device.Battery, Converter={StaticResource BatteryChargeToText}}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding BatteryUnknownShortLabel}"
+                               ToolTip="{Binding BatteryUnknownTooltip}"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding Device.Battery.IsKnown, Converter={StaticResource InverseBooleanToVisibility}, FallbackValue=Collapsed}" />
+                </StackPanel>
+                <Button Grid.Column="3"
+                        Content="{x:Static themes:Glyphs.SwitchToWindow}"
+                        Command="{Binding DisplayMode.SwitchToWindowCommand}"
+                        ToolTip="{Binding DisplayMode.SwitchToWindowLabel}"
+                        AutomationProperties.Name="{Binding DisplayMode.SwitchToWindowLabel}"
+                        Style="{StaticResource WidgetWindowButtonStyle}"
+                        Margin="{StaticResource CardActionMargin}" />
+                <Button Grid.Column="4"
+                        Content="{x:Static themes:Glyphs.Close}"
+                        Command="{Binding DisplayMode.ExitCommand}"
+                        ToolTip="{Binding DisplayMode.ExitLabel}"
+                        AutomationProperties.Name="{Binding DisplayMode.ExitLabel}"
+                        Style="{StaticResource WidgetWindowButtonStyle}" />
+            </Grid>
+
+            <StackPanel DataContext="{Binding NoiseControl}"
+                        Visibility="{Binding IsShown, Converter={StaticResource BooleanToVisibility}}"
+                        Margin="{StaticResource WidgetRowMargin}">
+                <TextBlock Text="{Binding ConnectingMessage}"
+                           Style="{StaticResource SecondaryCaptionTextStyle}"
+                           Visibility="{Binding IsConnecting, Converter={StaticResource BooleanToVisibility}}" />
+                <ItemsControl ItemsSource="{Binding Options}"
+                              Focusable="False"
+                              Visibility="{Binding IsReady, Converter={StaticResource BooleanToVisibility}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Content="{Binding Glyph}"
+                                         GroupName="WidgetNoiseControlMode"
+                                         IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                         Command="{Binding SelectCommand}"
+                                         ToolTip="{Binding Label}"
+                                         AutomationProperties.Name="{Binding Label}"
+                                         Style="{StaticResource WidgetModeButtonStyle}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Style="{StaticResource SecondaryCaptionTextStyle}"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding HasErrorMessage, Converter={StaticResource BooleanToVisibility}}" />
+            </StackPanel>
+
+            <Grid Visibility="{Binding HasVolume, Converter={StaticResource BooleanToVisibility}}"
+                  Margin="{StaticResource WidgetRowMargin}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Content="{Binding Volume.MuteGlyph}"
+                        Command="{Binding Volume.ToggleMuteCommand}"
+                        ToolTip="{Binding MuteLabel}"
+                        AutomationProperties.Name="{Binding MuteLabel}"
+                        Style="{StaticResource WidgetIconButtonStyle}"
+                        Margin="{StaticResource WidgetTightGapMargin}" />
+                <Slider Grid.Column="1"
+                        Value="{Binding Volume.VolumePercent, Mode=TwoWay}"
+                        Minimum="0"
+                        Maximum="100"
+                        AutomationProperties.Name="{Binding VolumeLabel}"
+                        VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Volume.VolumePercent}"
+                           VerticalAlignment="Center"
+                           Margin="{StaticResource CardActionMargin}" />
+            </Grid>
+
+            <Grid DataContext="{Binding Media}"
+                  Visibility="{Binding HasSession, Converter={StaticResource BooleanToVisibility}}"
+                  Margin="{StaticResource WidgetRowMargin}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding TitleText}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding ArtistText}"
+                               Style="{StaticResource SecondaryCaptionTextStyle}"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="{x:Static themes:Glyphs.Previous}"
+                            Command="{Binding SkipPreviousCommand}"
+                            ToolTip="{Binding PreviousLabel}"
+                            AutomationProperties.Name="{Binding PreviousLabel}"
+                            Style="{StaticResource WidgetIconButtonStyle}" />
+                    <Button Content="{Binding PlayPauseGlyph}"
+                            Command="{Binding PlayPauseCommand}"
+                            ToolTip="{Binding PlayPauseLabel}"
+                            AutomationProperties.Name="{Binding PlayPauseLabel}"
+                            Style="{StaticResource WidgetIconButtonStyle}" />
+                    <Button Content="{x:Static themes:Glyphs.Next}"
+                            Command="{Binding SkipNextCommand}"
+                            ToolTip="{Binding NextLabel}"
+                            AutomationProperties.Name="{Binding NextLabel}"
+                            Style="{StaticResource WidgetIconButtonStyle}" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Border>
+</Window>

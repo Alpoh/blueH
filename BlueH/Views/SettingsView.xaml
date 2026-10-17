@@ -57,6 +57,26 @@
                 </Grid>
             </Border>
 
+            <Border Style="{StaticResource CardBorderStyle}" Margin="{StaticResource StackedItemMargin}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="{StaticResource ColumnGapMargin}">
+                        <TextBlock Text="{Binding WidgetTopmostLabel}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="{Binding WidgetTopmostDescription}"
+                                   Style="{StaticResource SecondaryCaptionTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="{StaticResource TightStackedItemMargin}" />
+                    </StackPanel>
+                    <CheckBox Grid.Column="1"
+                              IsChecked="{Binding IsWidgetTopmost, Mode=TwoWay}"
+                              AutomationProperties.Name="{Binding WidgetTopmostLabel}"
+                              VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
             <Border Style="{StaticResource CardBorderStyle}"
                     Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"
                     Margin="{StaticResource StackedItemMargin}">

@@ -12,17 +12,21 @@ public sealed class NoiseControlOptionViewModel : ViewModelBase
     public NoiseControlOptionViewModel(
         NoiseControlMode mode,
         string label,
+        string glyph,
         Func<NoiseControlMode, Task> select,
         Func<bool> canSelect)
     {
         Mode = mode;
         Label = label;
+        Glyph = glyph;
         _selectCommand = new AsyncRelayCommand(_ => select(mode), _ => canSelect());
     }
 
     public NoiseControlMode Mode { get; }
 
     public string Label { get; }
+
+    public string Glyph { get; }
 
     public bool IsSelected => _isSelected;
 

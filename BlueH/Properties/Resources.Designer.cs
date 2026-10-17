@@ -1055,5 +1055,59 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("NoiseControlChannelLostMessage", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No headphones connected.
+        /// </summary>
+        internal static string WidgetNoDeviceMessage {
+            get {
+                return ResourceManager.GetString("WidgetNoDeviceMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the widget on top.
+        /// </summary>
+        internal static string SettingsWidgetTopmostLabel {
+            get {
+                return ResourceManager.GetString("SettingsWidgetTopmostLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the widget above other windows..
+        /// </summary>
+        internal static string SettingsWidgetTopmostDescription {
+            get {
+                return ResourceManager.GetString("SettingsWidgetTopmostDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to widget.
+        /// </summary>
+        internal static string SwitchToWidgetLabel {
+            get {
+                return ResourceManager.GetString("SwitchToWidgetLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open the full window.
+        /// </summary>
+        internal static string SwitchToWindowLabel {
+            get {
+                return ResourceManager.GetString("SwitchToWindowLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close BlueH.
+        /// </summary>
+        internal static string ExitLabel {
+            get {
+                return ResourceManager.GetString("ExitLabel", resourceCulture);
+            }
+        }
     }
 }

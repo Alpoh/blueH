@@ -3,6 +3,7 @@ using System.IO;
 using BlueH.Diagnostics;
 using BlueH.Models;
 using BlueH.Services;
+using BlueH.Themes;
 using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels;
@@ -46,9 +47,9 @@ public sealed class NoiseControlViewModel : ViewModelBase, IDisposable
         _retryCommand = new AsyncRelayCommand(_ => SynchronizeAsync(reopen: true), _ => _status == NoiseControlStatus.Failed);
         Options =
         [
-            CreateOption(NoiseControlMode.Off, AppResources.NoiseControlOffLabel),
-            CreateOption(NoiseControlMode.Transparency, AppResources.NoiseControlTransparencyLabel),
-            CreateOption(NoiseControlMode.NoiseCancelling, AppResources.NoiseControlNoiseCancellingLabel)
+            CreateOption(NoiseControlMode.Off, AppResources.NoiseControlOffLabel, Glyphs.NoiseControlOff),
+            CreateOption(NoiseControlMode.Transparency, AppResources.NoiseControlTransparencyLabel, Glyphs.Transparency),
+            CreateOption(NoiseControlMode.NoiseCancelling, AppResources.NoiseControlNoiseCancellingLabel, Glyphs.NoiseCancelling)
         ];
     }
 
@@ -151,11 +152,12 @@ public sealed class NoiseControlViewModel : ViewModelBase, IDisposable
         _ = CloseSessionAsync();
     }
 
-    private NoiseControlOptionViewModel CreateOption(NoiseControlMode mode, string label)
+    private NoiseControlOptionViewModel CreateOption(NoiseControlMode mode, string label, string glyph)
     {
         return new NoiseControlOptionViewModel(
             mode,
             label,
+            glyph,
             SelectModeAsync,
             () => _status == NoiseControlStatus.Ready && !_isChangingMode);
     }

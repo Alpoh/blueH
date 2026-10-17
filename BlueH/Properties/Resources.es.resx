@@ -447,4 +447,22 @@
   <data name="NoiseControlChannelLostMessage" xml:space="preserve">
     <value>Se perdió la conexión con el control de ruido.</value>
   </data>
+  <data name="WidgetNoDeviceMessage" xml:space="preserve">
+    <value>No hay auriculares conectados</value>
+  </data>
+  <data name="SettingsWidgetTopmostLabel" xml:space="preserve">
+    <value>Mantener el widget encima</value>
+  </data>
+  <data name="SettingsWidgetTopmostDescription" xml:space="preserve">
+    <value>Mostrar el widget por encima de las demás ventanas.</value>
+  </data>
+  <data name="SwitchToWidgetLabel" xml:space="preserve">
+    <value>Cambiar a widget</value>
+  </data>
+  <data name="SwitchToWindowLabel" xml:space="preserve">
+    <value>Abrir la ventana completa</value>
+  </data>
+  <data name="ExitLabel" xml:space="preserve">
+    <value>Cerrar BlueH</value>
+  </data>
 </root>

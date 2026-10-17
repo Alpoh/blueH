@@ -51,6 +51,15 @@ public class MainViewModelTests
     }
 
     [Test]
+    public void TheFullWindowOffersTheSharedDisplayMode()
+    {
+        DisplayModeViewModel displayMode = new();
+        using MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel(), displayMode);
+
+        Assert.That(viewModel.DisplayMode, Is.SameAs(displayMode));
+    }
+
+    [Test]
     public async Task ADeviceBecomingConnectedRefreshesTheAudioOutputs()
     {
         _deviceService.Endpoints.Add(Classic(isConnected: false));
@@ -542,7 +551,7 @@ public class MainViewModelTests
             _timeProvider);
     }
 
-    private MainViewModel CreateViewModel(DevicesViewModel devices)
+    private MainViewModel CreateViewModel(DevicesViewModel devices, DisplayModeViewModel? displayMode = null)
     {
         return new MainViewModel(
             devices,
@@ -562,6 +571,7 @@ public class MainViewModelTests
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new MediaTransportViewModel(_mediaService, _uiScheduler, _diagnosticsLog),
             new NoiseControlViewModel(_noiseControlService, _settingsStore, _uiScheduler, _diagnosticsLog),
-            new DiagnosticsViewModel(_diagnosticsLog, _uiScheduler));
+            new DiagnosticsViewModel(_diagnosticsLog, _uiScheduler),
+            displayMode ?? new DisplayModeViewModel());
     }
 }

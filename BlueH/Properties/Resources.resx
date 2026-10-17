@@ -447,4 +447,22 @@
   <data name="NoiseControlChannelLostMessage" xml:space="preserve">
     <value>The connection to the noise control was lost.</value>
   </data>
+  <data name="WidgetNoDeviceMessage" xml:space="preserve">
+    <value>No headphones connected</value>
+  </data>
+  <data name="SettingsWidgetTopmostLabel" xml:space="preserve">
+    <value>Keep the widget on top</value>
+  </data>
+  <data name="SettingsWidgetTopmostDescription" xml:space="preserve">
+    <value>Show the widget above other windows.</value>
+  </data>
+  <data name="SwitchToWidgetLabel" xml:space="preserve">
+    <value>Switch to widget</value>
+  </data>
+  <data name="SwitchToWindowLabel" xml:space="preserve">
+    <value>Open the full window</value>
+  </data>
+  <data name="ExitLabel" xml:space="preserve">
+    <value>Close BlueH</value>
+  </data>
 </root>

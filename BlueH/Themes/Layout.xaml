@@ -159,4 +159,55 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+    <sys:Double x:Key="WidgetRestingOpacity">0.85</sys:Double>
+    <sys:Double x:Key="WidgetActiveOpacity">1</sys:Double>
+    <sys:Double x:Key="WidgetMinWidth">280</sys:Double>
+    <sys:Double x:Key="WidgetMaxWidth">360</sys:Double>
+    <Thickness x:Key="WidgetPadding">12,8,8,12</Thickness>
+    <Thickness x:Key="WidgetCompactButtonPadding">6,4,6,4</Thickness>
+    <Thickness x:Key="WidgetModeButtonPadding">12,6,12,6</Thickness>
+    <Thickness x:Key="WidgetRowMargin">0,10,0,0</Thickness>
+    <Thickness x:Key="WidgetTightGapMargin">0,0,4,0</Thickness>
+
+    <Style x:Key="WidgetWindowStyle" TargetType="Window">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Setter Property="Opacity" Value="{StaticResource WidgetRestingOpacity}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="{StaticResource WidgetActiveOpacity}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="Opacity" Value="{StaticResource WidgetActiveOpacity}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="WidgetBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SolidBackgroundFillColorBaseBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SurfaceStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+        <Setter Property="Padding" Value="{StaticResource WidgetPadding}" />
+        <Setter Property="MinWidth" Value="{StaticResource WidgetMinWidth}" />
+        <Setter Property="MaxWidth" Value="{StaticResource WidgetMaxWidth}" />
+    </Style>
+
+    <Style x:Key="WidgetIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+        <Setter Property="Padding" Value="{StaticResource WidgetCompactButtonPadding}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style x:Key="WidgetWindowButtonStyle" TargetType="Button" BasedOn="{StaticResource WidgetIconButtonStyle}">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="WidgetModeButtonStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Padding" Value="{StaticResource WidgetModeButtonPadding}" />
+        <Setter Property="Margin" Value="{StaticResource WidgetTightGapMargin}" />
+    </Style>
 </ResourceDictionary>

@@ -52,6 +52,20 @@ public class NoiseControlViewModelTests
         });
     }
 
+    [Test]
+    public void EveryModeHasItsOwnSymbol()
+    {
+        using NoiseControlViewModel viewModel = CreateViewModel();
+
+        string[] glyphs = [.. viewModel.Options.Select(option => option.Glyph)];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(glyphs, Has.All.Not.Empty);
+            Assert.That(glyphs, Is.Unique);
+        });
+    }
+
     [TestCase(false)]
     [TestCase(null)]
     public void ADeviceThatIsNotConnectedOpensNothing(bool? isConnected)

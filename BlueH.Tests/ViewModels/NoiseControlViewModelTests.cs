@@ -356,6 +356,50 @@ public class NoiseControlViewModelTests
     }
 
     [Test]
+    public void SuspendingClosesTheSessionAndHidesTheControl()
+    {
+        using NoiseControlViewModel viewModel = CreateViewModel();
+        viewModel.Device = Earbuds(isConnected: true);
+
+        viewModel.IsSuspended = true;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_earbudsSession.IsDisposed, Is.True);
+            Assert.That(viewModel.IsShown, Is.False);
+        });
+    }
+
+    [Test]
+    public void ASuspendedControlOpensNothingForAConnectedDevice()
+    {
+        using NoiseControlViewModel viewModel = CreateViewModel();
+        viewModel.IsSuspended = true;
+
+        viewModel.Device = Earbuds(isConnected: true);
+
+        Assert.That(_service.OpenCalls, Is.Empty);
+    }
+
+    [Test]
+    public async Task ResumingWhileStillConnectedOpensAFreshSession()
+    {
+        using NoiseControlViewModel viewModel = CreateViewModel();
+        viewModel.Device = Earbuds(isConnected: true);
+        viewModel.IsSuspended = true;
+        await using FakeNoiseControlSession fresh = new() { ModeToReport = NoiseControlMode.Off };
+        _service.Sessions[EarbudsContainer] = fresh;
+
+        viewModel.IsSuspended = false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_service.OpenCalls, Has.Count.EqualTo(2));
+            Assert.That(viewModel.Mode, Is.EqualTo(NoiseControlMode.Off));
+        });
+    }
+
+    [Test]
     public void DisposingClosesTheSession()
     {
         NoiseControlViewModel viewModel = CreateViewModel();

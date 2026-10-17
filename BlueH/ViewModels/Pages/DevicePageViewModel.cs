@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using BlueH.Models;
 using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels.Pages;
@@ -32,10 +33,15 @@ public sealed class DevicePageViewModel : PageViewModel, IDisposable
 
     private void OnDevicePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(SelectedDeviceViewModel.Device))
+        switch (e.PropertyName)
         {
-            NoiseControl.Device = Device.Device;
-            OnPropertyChanged(nameof(Title));
+            case nameof(SelectedDeviceViewModel.Device):
+                NoiseControl.Device = Device.Device;
+                OnPropertyChanged(nameof(Title));
+                break;
+            case nameof(SelectedDeviceViewModel.Activity):
+                NoiseControl.IsSuspended = Device.Activity is ConnectionActivity.Disconnecting or ConnectionActivity.Unpairing;
+                break;
         }
     }
 }

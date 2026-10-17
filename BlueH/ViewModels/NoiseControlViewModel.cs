@@ -27,6 +27,7 @@ public sealed class NoiseControlViewModel : ViewModelBase, IDisposable
     private CancellationTokenSource? _sessionCancellation;
     private int _generation;
     private bool _isSettled;
+    private bool _isSuspended;
     private NoiseControlStatus _status;
     private NoiseControlMode? _mode;
     private bool _isChangingMode;
@@ -57,6 +58,18 @@ public sealed class NoiseControlViewModel : ViewModelBase, IDisposable
         set
         {
             if (SetField(ref _device, value))
+            {
+                _ = SynchronizeAsync(reopen: false);
+            }
+        }
+    }
+
+    public bool IsSuspended
+    {
+        get => _isSuspended;
+        set
+        {
+            if (SetField(ref _isSuspended, value))
             {
                 _ = SynchronizeAsync(reopen: false);
             }
@@ -149,7 +162,7 @@ public sealed class NoiseControlViewModel : ViewModelBase, IDisposable
 
     private async Task SynchronizeAsync(bool reopen)
     {
-        Guid? wanted = _device is { IsConnected: true } device ? device.ContainerId : null;
+        Guid? wanted = !_isSuspended && _device is { IsConnected: true } device ? device.ContainerId : null;
 
         if (!reopen && wanted == _targetContainer)
         {

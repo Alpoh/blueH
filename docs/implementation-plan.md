@@ -22,9 +22,10 @@ because Windows exposes almost none of this where a user can act on it.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
 - A "Now playing" panel shows the current media session's title, artist and source app, with previous, play/pause and next buttons enabled from what the session itself allows.
 - Phase 4 verified by hand on 2026-10-11: track display, play/pause from the app and from the earbuds, skipping, and the session ending all behave.
-- Phase 7 (OPPO Enco Air5 noise control) is built end to end and awaits hand verification; see
-  Phase 7 below for the protocol findings.
-- Next: verify phase 7 by hand. Interface and visual design work is tracked separately in `docs/gui-redesign-plan.md`.
+- Phase 7 (OPPO Enco Air5 noise control) is built end to end and verified by hand on 2026-10-17;
+  see Phase 7 below for the protocol findings.
+- Phase 5: Connect and Disconnect verified by hand on 2026-10-17; pairing and unpairing still
+  unverified. Interface and visual design work is tracked separately in `docs/gui-redesign-plan.md`.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -456,7 +457,7 @@ tablet, cross-checked by a read-only spike from this PC:
   device in the list.
 - **The Air5 is multipoint**: the PC and a phone can hold the vendor channel at the same time.
 
-Built 2026-10-17 (7.2 to 7.4), not yet verified by hand:
+Built 2026-10-17 (7.2 to 7.4):
 
 - `OppoNoiseControlSession` matches each response to its request by command and sequence, times
   out after 3 s, and raises `ModeReported` for notifications. `RfcommOppoChannel` reads in one
@@ -469,6 +470,30 @@ Built 2026-10-17 (7.2 to 7.4), not yet verified by hand:
   by name) and re-applied on connect when the earbuds report something else. A change made on
   the earbuds after the connection has settled replaces the stored mode: the most recent
   explicit change wins, wherever it was made.
+
+Hand verification, 2026-10-17, against the OPPO Enco Air5:
+
+- The card opens with the earbuds' real mode selected (transparency, as left by the capture).
+- Choosing noise cancelling in the app switches it on, audibly.
+- A gesture on the earbuds updates the card by itself, through the `0x0204` notification.
+- With noise cancelling stored, the page closed, and the earbuds switched to transparency by
+  gesture, reopening the page switched them back to noise cancelling by itself.
+- Not yet tried: re-applying after the earbuds are switched off and on. It goes through the same
+  session-opening path as reopening the page.
+
+Found during this check, in phase 5: **the app's Disconnect button stopped the audio but left the
+device connected**, in BlueH and in Windows Settings. Two causes, both needed for the link to drop:
+
+- **The Hands-Free filter was never asked.** The Air5 exposes two KS filters: A2DP behind the
+  render endpoint `Headphones`, and Hands-Free (`bthhfenum`) behind the *capture* endpoint
+  `Headset`. Only render endpoints were enumerated, so only A2DP was disconnected. Both filters
+  accept the one-shot disconnect; endpoints are now enumerated in both directions.
+- **An open RFCOMM channel keeps the link up on its own.** With both audio profiles gone, the
+  device stayed connected until the noise control channel closed. The device page now suspends
+  noise control while disconnecting or unpairing, and reopens it if the attempt is cancelled.
+
+Verified by hand, 2026-10-17: Connect works (5.1), and Disconnect from the device page with noise
+control open now disconnects in BlueH and in Windows.
 
 ## 8. Platform feasibility
 

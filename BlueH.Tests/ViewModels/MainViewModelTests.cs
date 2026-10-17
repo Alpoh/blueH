@@ -364,6 +364,64 @@ public class MainViewModelTests
     }
 
     [Test]
+    public async Task DisconnectingClosesTheNoiseControlFirstBecauseItsChannelKeepsTheLinkUp()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        await using FakeNoiseControlSession session = new();
+        _noiseControlService.Sessions[EarbudsContainer] = session;
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+        devices.SelectedContainerId = EarbudsContainer;
+
+        viewModel.SelectedDevice.DisconnectCommand.Execute(null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(session.IsDisposed, Is.True);
+            Assert.That(_connectionService.DisconnectCalls, Is.EqualTo(new[] { EarbudsContainer }));
+        });
+    }
+
+    [Test]
+    public async Task ACancelledDisconnectReopensTheNoiseControl()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        _noiseControlService.Sessions[EarbudsContainer] = new FakeNoiseControlSession();
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+        devices.SelectedContainerId = EarbudsContainer;
+        viewModel.SelectedDevice.DisconnectCommand.Execute(null);
+
+        await ((AsyncRelayCommand)viewModel.SelectedDevice.CancelCommand).ExecuteAsync(null);
+        await Task.Yield();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_noiseControlService.OpenCalls, Has.Count.EqualTo(2));
+            Assert.That(viewModel.DevicePage.NoiseControl.IsReady, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task UnpairingClosesTheNoiseControlFirst()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        await using FakeNoiseControlSession session = new();
+        _noiseControlService.Sessions[EarbudsContainer] = session;
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+        devices.SelectedContainerId = EarbudsContainer;
+        viewModel.SelectedDevice.UnpairCommand.Execute(null);
+
+        viewModel.SelectedDevice.ConfirmUnpairCommand.Execute(null);
+
+        Assert.That(session.IsDisposed, Is.True);
+    }
+
+    [Test]
     public async Task DisposingClosesTheOpenNoiseControl()
     {
         _deviceService.Endpoints.Add(Classic(isConnected: true));

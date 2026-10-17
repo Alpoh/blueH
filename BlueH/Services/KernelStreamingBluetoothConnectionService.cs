@@ -231,7 +231,7 @@ public sealed class KernelStreamingBluetoothConnectionService : IBluetoothConnec
     private static HashSet<string> CollectBluetoothFilterIds(IMMDeviceEnumerator enumerator, Guid containerId)
     {
         int enumerationResult = enumerator.EnumAudioEndpoints(
-            AudioDataFlow.Render,
+            AudioDataFlow.All,
             CoreAudioConstants.DeviceStateMaskAll,
             out IMMDeviceCollection collection);
 

@@ -414,4 +414,37 @@
   <data name="SettingsVersionFormat" xml:space="preserve">
     <value>Version {0}</value>
   </data>
+  <data name="NoiseControlHeader" xml:space="preserve">
+    <value>Noise control</value>
+  </data>
+  <data name="NoiseControlOffLabel" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="NoiseControlTransparencyLabel" xml:space="preserve">
+    <value>Transparency</value>
+  </data>
+  <data name="NoiseControlNoiseCancellingLabel" xml:space="preserve">
+    <value>Noise cancelling</value>
+  </data>
+  <data name="NoiseControlConnectingMessage" xml:space="preserve">
+    <value>Connecting to the noise control…</value>
+  </data>
+  <data name="NoiseControlUnknownModeMessage" xml:space="preserve">
+    <value>The earbuds report a mode BlueH does not recognise.</value>
+  </data>
+  <data name="NoiseControlRetryLabel" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="NoiseControlOpenFailedFormat" xml:space="preserve">
+    <value>Could not reach the noise control: {0}</value>
+  </data>
+  <data name="NoiseControlChangeFailedFormat" xml:space="preserve">
+    <value>Could not change the mode: {0}</value>
+  </data>
+  <data name="NoiseControlRestoreFailedFormat" xml:space="preserve">
+    <value>Could not restore your preferred mode: {0}</value>
+  </data>
+  <data name="NoiseControlChannelLostMessage" xml:space="preserve">
+    <value>The connection to the noise control was lost.</value>
+  </data>
 </root>

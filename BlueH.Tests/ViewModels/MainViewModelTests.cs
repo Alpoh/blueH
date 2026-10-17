@@ -23,6 +23,7 @@ public class MainViewModelTests
     private FakeBluetoothPairingService _pairingService = null!;
     private FakeBatteryService _batteryService = null!;
     private FakeSettingsStore _settingsStore = null!;
+    private FakeNoiseControlService _noiseControlService = null!;
     private RecordingUiScheduler _uiScheduler = null!;
     private InMemoryDiagnosticsLog _diagnosticsLog = null!;
     private FakeTimeProvider _timeProvider = null!;
@@ -37,6 +38,7 @@ public class MainViewModelTests
         _pairingService = new FakeBluetoothPairingService();
         _batteryService = new FakeBatteryService();
         _settingsStore = new FakeSettingsStore();
+        _noiseControlService = new FakeNoiseControlService();
         _uiScheduler = new RecordingUiScheduler();
         _timeProvider = new FakeTimeProvider();
         _diagnosticsLog = new InMemoryDiagnosticsLog(_timeProvider);
@@ -328,6 +330,56 @@ public class MainViewModelTests
     }
 
     [Test]
+    public async Task OpeningAConnectedDeviceOpensItsNoiseControl()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        _noiseControlService.Sessions[EarbudsContainer] = new FakeNoiseControlSession();
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+
+        devices.SelectedContainerId = EarbudsContainer;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_noiseControlService.OpenCalls, Is.EqualTo(new[] { EarbudsContainer }));
+            Assert.That(viewModel.DevicePage.NoiseControl.IsReady, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task LeavingTheDevicePageClosesItsNoiseControl()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        await using FakeNoiseControlSession session = new();
+        _noiseControlService.Sessions[EarbudsContainer] = session;
+        DevicesViewModel devices = CreateDevicesViewModel();
+        using MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+        devices.SelectedContainerId = EarbudsContainer;
+
+        viewModel.Navigator.GoBackCommand.Execute(null);
+
+        Assert.That(session.IsDisposed, Is.True);
+    }
+
+    [Test]
+    public async Task DisposingClosesTheOpenNoiseControl()
+    {
+        _deviceService.Endpoints.Add(Classic(isConnected: true));
+        await using FakeNoiseControlSession session = new();
+        _noiseControlService.Sessions[EarbudsContainer] = session;
+        DevicesViewModel devices = CreateDevicesViewModel();
+        MainViewModel viewModel = CreateViewModel(devices);
+        await devices.RefreshAsync(CancellationToken.None);
+        devices.SelectedContainerId = EarbudsContainer;
+
+        viewModel.Dispose();
+
+        Assert.That(session.IsDisposed, Is.True);
+    }
+
+    [Test]
     public void GoingBackReturnsToTheListAndClearsTheSelection()
     {
         DevicesViewModel devices = CreateDevicesViewModel();
@@ -451,6 +503,7 @@ public class MainViewModelTests
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
             new MediaTransportViewModel(_mediaService, _uiScheduler, _diagnosticsLog),
+            new NoiseControlViewModel(_noiseControlService, _settingsStore, _uiScheduler, _diagnosticsLog),
             new DiagnosticsViewModel(_diagnosticsLog, _uiScheduler));
     }
 }

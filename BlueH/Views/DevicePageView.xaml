@@ -5,6 +5,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="{StaticResource ScrollContentMargin}">
             <views:DeviceHeaderView DataContext="{Binding Device}" />
+            <views:NoiseControlView DataContext="{Binding NoiseControl}" />
             <TextBlock Text="{Binding OutputsHeader}"
                        Style="{StaticResource SubtitleTextBlockStyle}"
                        Margin="{StaticResource SectionHeaderMargin}" />

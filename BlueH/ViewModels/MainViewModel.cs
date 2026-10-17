@@ -21,6 +21,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         EndpointsViewModel allOutputs,
         EndpointsViewModel deviceOutputs,
         MediaTransportViewModel mediaTransport,
+        NoiseControlViewModel noiseControl,
         DiagnosticsViewModel diagnostics)
     {
         Devices = devices;
@@ -34,7 +35,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
         DevicesPage = new DevicesPageViewModel(devices);
         AddDevicePage = new AddDevicePageViewModel(pairing);
-        DevicePage = new DevicePageViewModel(selectedDevice, deviceOutputs);
+        DevicePage = new DevicePageViewModel(selectedDevice, deviceOutputs, noiseControl);
         AudioPage = new AudioPageViewModel(allOutputs);
         SettingsPage = new SettingsPageViewModel(settings);
         DiagnosticsPage = new DiagnosticsPageViewModel(diagnostics);

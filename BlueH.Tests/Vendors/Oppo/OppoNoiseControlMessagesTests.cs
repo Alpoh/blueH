@@ -53,6 +53,28 @@ public class OppoNoiseControlMessagesTests
         Assert.That(OppoNoiseControlMessages.DecodeModeResponse(payload), Is.Null);
     }
 
+    [TestCase(new byte[] { 0x03, 0x01, 0x01, 0x10 }, NoiseControlMode.NoiseCancelling)]
+    [TestCase(new byte[] { 0x03, 0x01, 0x01, 0x04 }, NoiseControlMode.Transparency)]
+    [TestCase(new byte[] { 0x03, 0x01, 0x01, 0x01 }, NoiseControlMode.Off)]
+    [TestCase(new byte[] { 0x03, 0x02, 0x05, 0x07, 0x01, 0x10 }, NoiseControlMode.NoiseCancelling)]
+    public void AModeNotificationIsDecoded(byte[] payload, NoiseControlMode expected)
+    {
+        Assert.That(OppoNoiseControlMessages.DecodeModeNotification(payload), Is.EqualTo(expected));
+    }
+
+    [TestCase(new byte[] { 0x01, 0x03, 0x01, 0x5A, 0x02, 0x5A, 0x03, 0x00 })]
+    [TestCase(new byte[] { 0x01, 0x01, 0x01, 0x10 })]
+    [TestCase(new byte[] { 0x03, 0x01, 0x01, 0x02 })]
+    [TestCase(new byte[] { 0x03, 0x01, 0x02, 0x10 })]
+    [TestCase(new byte[] { 0x03, 0x02, 0x01, 0x10 })]
+    [TestCase(new byte[] { 0x03, 0x01, 0x01 })]
+    [TestCase(new byte[] { 0x03 })]
+    [TestCase(new byte[0])]
+    public void AnyOtherNotificationDecodesToNoMode(byte[] payload)
+    {
+        Assert.That(OppoNoiseControlMessages.DecodeModeNotification(payload), Is.Null);
+    }
+
     [Test]
     public void AnAcknowledgementSucceedsOnlyWithAZeroStatus()
     {

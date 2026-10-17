@@ -956,5 +956,104 @@ namespace BlueH.Properties {
                 return ResourceManager.GetString("SettingsVersionFormat", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Noise control.
+        /// </summary>
+        internal static string NoiseControlHeader {
+            get {
+                return ResourceManager.GetString("NoiseControlHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        internal static string NoiseControlOffLabel {
+            get {
+                return ResourceManager.GetString("NoiseControlOffLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transparency.
+        /// </summary>
+        internal static string NoiseControlTransparencyLabel {
+            get {
+                return ResourceManager.GetString("NoiseControlTransparencyLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Noise cancelling.
+        /// </summary>
+        internal static string NoiseControlNoiseCancellingLabel {
+            get {
+                return ResourceManager.GetString("NoiseControlNoiseCancellingLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to the noise control….
+        /// </summary>
+        internal static string NoiseControlConnectingMessage {
+            get {
+                return ResourceManager.GetString("NoiseControlConnectingMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The earbuds report a mode BlueH does not recognise..
+        /// </summary>
+        internal static string NoiseControlUnknownModeMessage {
+            get {
+                return ResourceManager.GetString("NoiseControlUnknownModeMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Retry.
+        /// </summary>
+        internal static string NoiseControlRetryLabel {
+            get {
+                return ResourceManager.GetString("NoiseControlRetryLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not reach the noise control: {0}.
+        /// </summary>
+        internal static string NoiseControlOpenFailedFormat {
+            get {
+                return ResourceManager.GetString("NoiseControlOpenFailedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not change the mode: {0}.
+        /// </summary>
+        internal static string NoiseControlChangeFailedFormat {
+            get {
+                return ResourceManager.GetString("NoiseControlChangeFailedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not restore your preferred mode: {0}.
+        /// </summary>
+        internal static string NoiseControlRestoreFailedFormat {
+            get {
+                return ResourceManager.GetString("NoiseControlRestoreFailedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The connection to the noise control was lost..
+        /// </summary>
+        internal static string NoiseControlChannelLostMessage {
+            get {
+                return ResourceManager.GetString("NoiseControlChannelLostMessage", resourceCulture);
+            }
+        }
     }
 }

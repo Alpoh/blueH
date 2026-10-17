@@ -35,6 +35,39 @@ public class DevicePropertyReaderTests
         Assert.That(DevicePropertyReader.ReadContainerId(properties), Is.EqualTo(Guid.Empty));
     }
 
+    [Test]
+    public void AServiceContainerIdIsReadFromTheGuidWindowsActuallyReturns()
+    {
+        Dictionary<string, object?> properties = new()
+        {
+            [DevicePropertyReader.ServiceContainerIdProperty] = AnyContainer
+        };
+
+        Assert.That(DevicePropertyReader.ReadServiceContainerId(properties), Is.EqualTo(AnyContainer));
+    }
+
+    [Test]
+    public void AServiceContainerIdIsNotReadFromTheEndpointProperty()
+    {
+        Dictionary<string, object?> properties = new()
+        {
+            [DevicePropertyReader.ContainerIdProperty] = AnyContainer
+        };
+
+        Assert.That(DevicePropertyReader.ReadServiceContainerId(properties), Is.EqualTo(Guid.Empty));
+    }
+
+    [Test]
+    public void AServiceContainerIdOfTheWrongTypeReadsAsEmpty()
+    {
+        Dictionary<string, object?> properties = new()
+        {
+            [DevicePropertyReader.ServiceContainerIdProperty] = AnyContainer.ToString()
+        };
+
+        Assert.That(DevicePropertyReader.ReadServiceContainerId(properties), Is.EqualTo(Guid.Empty));
+    }
+
     [TestCase(true)]
     [TestCase(false)]
     public void TheConnectionStateIsReadWhenWindowsSuppliesABoolean(bool isConnected)

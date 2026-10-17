@@ -1,6 +1,6 @@
 # BlueH — Implementation Plan
 
-Last updated: 2026-10-11
+Last updated: 2026-10-17
 
 ## 1. Goal
 
@@ -22,7 +22,9 @@ because Windows exposes almost none of this where a user can act on it.
 - Services are hand-wired in `App.xaml.cs`; there is no container yet.
 - A "Now playing" panel shows the current media session's title, artist and source app, with previous, play/pause and next buttons enabled from what the session itself allows.
 - Phase 4 verified by hand on 2026-10-11: track display, play/pause from the app and from the earbuds, skipping, and the session ending all behave.
-- Next: finish phase 7 (vendor ANC). Interface and visual design work is tracked separately in `docs/gui-redesign-plan.md`.
+- Phase 7 (OPPO Enco Air5 noise control) is built end to end and awaits hand verification; see
+  Phase 7 below for the protocol findings.
+- Next: verify phase 7 by hand. Interface and visual design work is tracked separately in `docs/gui-redesign-plan.md`.
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -431,6 +433,42 @@ with no headset attached.
 Scope depends entirely on which headphones are available to test against — currently unknown.
 Sony, Jabra, and Bose have community-documented protocols. Each vendor is an optional plug-in,
 never a dependency of the core app.
+
+First vendor: **OPPO Enco Air5**. The framing (preamble `0xAA`, LEB128 length, little-endian
+command, sequence byte, payload length) follows the protocol documented by the Gadgetbridge
+project. Gadgetbridge is AGPLv3, so only facts about the protocol were taken from it, never code.
+
+Findings, 2026-10-17, from an HCI snoop capture of the vendor app (HeyMelody) on an Android
+tablet, cross-checked by a read-only spike from this PC:
+
+- **The Air5's noise control codes differ from Gadgetbridge's, and noise cancelling is
+  asymmetric.** Set (`0x0404`, payload `01 01 XX`): off `0x01`, noise cancelling `0x02`,
+  transparency `0x04`. Read (`0x810C` response) and notification: off `0x01`, noise cancelling
+  `0x10`, transparency `0x04`. Gadgetbridge's table (off `01`, transparency `02`, noise
+  cancelling `08`) would have switched noise cancelling on when transparency was asked for.
+- **The earbuds push notifications on their own** (`0x0204`, payload `type count (id value)…`):
+  type `03` is the noise control mode, type `01` the battery per earbud and case. A mode change
+  made by a gesture on the earbuds arrives as a type `03` notification.
+- **No handshake is needed.** A mode request sent straight after connecting is answered in about
+  60 ms. The earbuds also ask for the time (`0x0500`); leaving it unanswered has had no effect.
+- **The vendor RFCOMM service carries no `System.Devices.ContainerId`**, but it carries
+  `System.Devices.AepService.ContainerId` as a `Guid`, which is how the service is matched to a
+  device in the list.
+- **The Air5 is multipoint**: the PC and a phone can hold the vendor channel at the same time.
+
+Built 2026-10-17 (7.2 to 7.4), not yet verified by hand:
+
+- `OppoNoiseControlSession` matches each response to its request by command and sequence, times
+  out after 3 s, and raises `ModeReported` for notifications. `RfcommOppoChannel` reads in one
+  loop that is never cancelled, and closing the socket ends it.
+- `NoiseControlViewModel` opens a session when the selected device is connected and closes it
+  when the device disconnects, changes, or the page is left. A failed change re-announces the
+  previous selection so the radio buttons never show a mode the earbuds do not have. A lost
+  channel shows an error with a retry button rather than reconnecting by itself.
+- The desired mode is stored per container id in `settings.json` (`noiseControlModes`, written
+  by name) and re-applied on connect when the earbuds report something else. A change made on
+  the earbuds after the connection has settled replaces the stored mode: the most recent
+  explicit change wins, wherever it was made.
 
 ## 8. Platform feasibility
 

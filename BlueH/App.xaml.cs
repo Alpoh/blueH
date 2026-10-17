@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Markup;
 using BlueH.Diagnostics;
 using BlueH.Services;
+using BlueH.Vendors.Oppo;
 using BlueH.ViewModels;
 using AppResources = BlueH.Properties.Resources;
 
@@ -73,6 +74,11 @@ public partial class App
             allOutputs,
             deviceOutputs,
             mediaTransport,
+            new NoiseControlViewModel(
+                new OppoNoiseControlService(diagnosticsLog, TimeProvider.System),
+                settingsStore,
+                uiScheduler,
+                diagnosticsLog),
             new DiagnosticsViewModel(diagnosticsLog, uiScheduler));
 
         MainWindow window = new()

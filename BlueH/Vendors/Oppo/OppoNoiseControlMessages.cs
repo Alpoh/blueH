@@ -11,6 +11,9 @@ public static class OppoNoiseControlMessages
     private const byte TransparencyCode = 0x04;
     private const byte NoiseCancellingSetCode = 0x02;
     private const byte NoiseCancellingReportedCode = 0x10;
+    private const byte ModeNotificationType = 0x03;
+    private const int NotificationHeaderLength = 2;
+    private const int NotificationEntryLength = 2;
 
     public static OppoFrame ModeRequest(byte sequence)
     {
@@ -30,6 +33,26 @@ public static class OppoNoiseControlMessages
         }
 
         return ModeOfReportedCode(payload[^1]);
+    }
+
+    public static NoiseControlMode? DecodeModeNotification(ReadOnlySpan<byte> payload)
+    {
+        if (payload.Length < NotificationHeaderLength
+            || payload[0] != ModeNotificationType
+            || payload.Length != NotificationHeaderLength + (payload[1] * NotificationEntryLength))
+        {
+            return null;
+        }
+
+        for (int entry = NotificationHeaderLength; entry < payload.Length; entry += NotificationEntryLength)
+        {
+            if (payload[entry] == ModeSetting)
+            {
+                return ModeOfReportedCode(payload[entry + 1]);
+            }
+        }
+
+        return null;
     }
 
     public static bool IsSuccessfulAcknowledgement(ReadOnlySpan<byte> payload)

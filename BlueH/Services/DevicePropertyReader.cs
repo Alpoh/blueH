@@ -3,6 +3,7 @@ namespace BlueH.Services;
 public static class DevicePropertyReader
 {
     public const string ContainerIdProperty = "System.Devices.Aep.ContainerId";
+    public const string ServiceContainerIdProperty = "System.Devices.AepService.ContainerId";
     public const string IsConnectedProperty = "System.Devices.Aep.IsConnected";
     public const string MinorClassProperty = "System.Devices.Aep.Bluetooth.Cod.Minor";
     public const string MajorClassProperty = "System.Devices.Aep.Bluetooth.Cod.Major";
@@ -11,6 +12,11 @@ public static class DevicePropertyReader
     public static Guid ReadContainerId(IReadOnlyDictionary<string, object?> properties)
     {
         return Read(properties, ContainerIdProperty) is Guid containerId ? containerId : Guid.Empty;
+    }
+
+    public static Guid ReadServiceContainerId(IReadOnlyDictionary<string, object?> properties)
+    {
+        return Read(properties, ServiceContainerIdProperty) is Guid containerId ? containerId : Guid.Empty;
     }
 
     public static bool? ReadConnectionState(IReadOnlyDictionary<string, object?> properties)

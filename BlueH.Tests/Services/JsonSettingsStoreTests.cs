@@ -31,6 +31,41 @@ public class JsonSettingsStoreTests
     }
 
     [Test]
+    public void SaveThenLoadRoundTripsTheNoiseControlModes()
+    {
+        Guid earbuds = Guid.Parse("0ac66fc7-8a44-50f8-ae2b-25ffdd18b301");
+        JsonSettingsStore store = new(_filePath);
+        store.Save(AppSettings.Default with
+        {
+            NoiseControlModes = new Dictionary<Guid, NoiseControlMode> { [earbuds] = NoiseControlMode.NoiseCancelling }
+        });
+
+        Assert.That(
+            store.Load().Settings.NoiseControlModes,
+            Is.EqualTo(new Dictionary<Guid, NoiseControlMode> { [earbuds] = NoiseControlMode.NoiseCancelling }));
+    }
+
+    [Test]
+    public void ANoiseControlModeIsWrittenByNameSoReorderingTheEnumCannotChangeIt()
+    {
+        JsonSettingsStore store = new(_filePath);
+        store.Save(AppSettings.Default with
+        {
+            NoiseControlModes = new Dictionary<Guid, NoiseControlMode> { [Guid.NewGuid()] = NoiseControlMode.Transparency }
+        });
+
+        Assert.That(File.ReadAllText(_filePath), Does.Contain($"\"{nameof(NoiseControlMode.Transparency)}\""));
+    }
+
+    [Test]
+    public void AFileWithoutNoiseControlModesLoadsWithNone()
+    {
+        File.WriteAllText(_filePath, "{ \"languageTag\": \"es-ES\" }");
+
+        Assert.That(new JsonSettingsStore(_filePath).Load().Settings.NoiseControlModes, Is.Null);
+    }
+
+    [Test]
     public void SaveThenLoadRoundTripsTheSelectedDevice()
     {
         JsonSettingsStore store = new(_filePath);

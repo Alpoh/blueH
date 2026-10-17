@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using BlueH.Models;
 
 namespace BlueH.Services;
@@ -12,7 +13,8 @@ public sealed class JsonSettingsStore : ISettingsStore
     {
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly string _filePath;

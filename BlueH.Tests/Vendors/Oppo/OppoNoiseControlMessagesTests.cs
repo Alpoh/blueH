@@ -20,8 +20,8 @@ public class OppoNoiseControlMessagesTests
     }
 
     [TestCase(NoiseControlMode.Off, (byte)0x01)]
-    [TestCase(NoiseControlMode.Transparency, (byte)0x02)]
-    [TestCase(NoiseControlMode.NoiseCancelling, (byte)0x08)]
+    [TestCase(NoiseControlMode.Transparency, (byte)0x04)]
+    [TestCase(NoiseControlMode.NoiseCancelling, (byte)0x02)]
     public void SettingAModeSendsItsCode(NoiseControlMode mode, byte code)
     {
         OppoFrame set = OppoNoiseControlMessages.SetMode(mode, sequence: 0);
@@ -33,19 +33,20 @@ public class OppoNoiseControlMessagesTests
         });
     }
 
-    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x08 }, NoiseControlMode.NoiseCancelling)]
-    [TestCase(new byte[] { 0x00, 0x01, 0x02 }, NoiseControlMode.Transparency)]
+    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x10 }, NoiseControlMode.NoiseCancelling)]
+    [TestCase(new byte[] { 0x00, 0x01, 0x04 }, NoiseControlMode.Transparency)]
     [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x01 }, NoiseControlMode.Off)]
     public void BothResponseShapesAreDecoded(byte[] payload, NoiseControlMode expected)
     {
         Assert.That(OppoNoiseControlMessages.DecodeModeResponse(payload), Is.EqualTo(expected));
     }
 
-    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x04 })]
-    [TestCase(new byte[] { 0x01, 0x01, 0x01, 0x08 })]
-    [TestCase(new byte[] { 0x00, 0x02, 0x01, 0x08 })]
+    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x02 })]
+    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x08 })]
+    [TestCase(new byte[] { 0x01, 0x01, 0x01, 0x10 })]
+    [TestCase(new byte[] { 0x00, 0x02, 0x01, 0x10 })]
     [TestCase(new byte[] { 0x00, 0x01 })]
-    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x08, 0x00 })]
+    [TestCase(new byte[] { 0x00, 0x01, 0x01, 0x10, 0x00 })]
     [TestCase(new byte[0])]
     public void AnythingElseDecodesToNoMode(byte[] payload)
     {

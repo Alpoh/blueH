@@ -1,6 +1,6 @@
 # BlueH — Implementation Plan
 
-Last updated: 2026-10-17
+Last updated: 2026-10-18
 
 ## 1. Goal
 
@@ -15,7 +15,7 @@ because Windows exposes almost none of this where a user can act on it.
   `TreatWarningsAsErrors`.
 - Fluent dark theme enabled (`ThemeMode="Dark"` in `App.xaml`).
 - `BlueH.Tests` (NUnit 4, NSubstitute, FakeTimeProvider) on the same TFM as the app.
-- Phases 0 to 4 complete and verified by hand. 291 tests green.
+- Phases 0 to 4 complete and verified by hand. 736 tests green as of 2026-10-18.
 - The window lists paired Bluetooth audio devices with their type, connection state and battery, above the diagnostics panel. Verified against real hardware: OPPO Enco Air5 as connected headphones at 80%, Sony SRS-XE300 as a disconnected speaker with battery unknown.
 - Battery is polled every minute and whenever a device becomes connected, through `FirstKnownBatteryService` over the Hands-Free device property, with GATT behind it as an unverified fallback.
 - Selecting a device lists its audio outputs with a volume slider, a mute toggle, and buttons to make an output the default for playback or for calls. Volume writes are coalesced so dragging the slider issues one call per completed write.
@@ -26,6 +26,12 @@ because Windows exposes almost none of this where a user can act on it.
   see Phase 7 below for the protocol findings.
 - Phase 5: Connect and Disconnect verified by hand on 2026-10-17; pairing and unpairing still
   unverified. Interface and visual design work is tracked separately in `docs/gui-redesign-plan.md`.
+- Phase 6 is built (restart-only language switching, Spanish and a pseudo-locale) but not yet
+  verified by hand.
+- The desktop widget is built and verified by hand on 2026-10-18; see `docs/widget-plan.md`.
+- Audio outputs now follow Windows rather than being read once: an output created after its
+  device connects, and volume or mute changed outside BlueH, both reach every page and the widget
+  (increments 3.10 and 3.11, verified by hand on 2026-10-18).
 - Conventions, critical invariants, and WPF rules are recorded in `CLAUDE.md`.
 
 ## 3. Data: everything is read live, almost nothing is stored
@@ -295,7 +301,10 @@ Spike findings, 2026-10-10. Core Audio reads work, the join to Bluetooth works, 
   `Headphones (OPPO Enco Air5)` while connected, and once they disconnected the endpoint was gone
   from both the WinRT selector and Core Audio. So "connected device with no endpoint yet" and
   "disconnected device with no endpoint" are both real states, and neither is an error. Volume,
-  mute and default-switching are only meaningful for a connected device.
+  mute and default-switching are only meaningful for a connected device. Correction found in
+  phase 5: the endpoint of a disconnected device still exists in state `0x8` (unplugged) when
+  enumerated with `DEVICE_STATEMASK_ALL`, with a matching `ContainerId`; it only disappears from
+  enumerations filtered on active endpoints, which is what the app uses for outputs.
 - **Volume and mute are per endpoint, not per device.** At one moment the INZONE's
   `Headset Earphone (… - Chat)` read 100% while its `Headphones (… - Game)` read 76%. A single
   per-device volume would be wrong; the UI shows one row per endpoint.
@@ -332,6 +341,8 @@ increments 3.2 onward by hand.
 | 3.7 | Make an endpoint the default, per role (`IPolicyConfig`) | one click makes the headset the default output | command enablement and state; the adapter itself verified by hand |
 | 3.8 | Type an exact volume (double-click the number) | the number beside the slider becomes an editable field | the text is parsed per culture; out-of-range and non-numeric entries are rejected rather than clamped, and reported through `INotifyDataErrorInfo`; cancelling discards the entry and its error |
 | 3.9 | Refresh the audio outputs when a device connects or disconnects | connecting a headset updates the outputs panel without clicking the device | the connected-container set announces additions and removals; a rename announces nothing; the outputs refresh on connect, on disconnect and on selection |
+| 3.10 | Refresh the audio outputs when Windows adds or removes one | an output created after its device connected still appears | a change refreshes; an output that goes away is dropped; a slower older refresh does not overwrite a newer one; watching twice subscribes once; disposing stops and releases the watcher |
+| 3.11 | Follow volume and mute changed outside BlueH | the slider and mute icon move with the keyboard volume keys | a burst of changes during a refresh causes exactly one more; the last change of a burst is the one shown; a change after a burst refreshes again |
 
 Increment 3.7 is the only place in the project that depends on an undocumented API. It is built
 last, lives in one file behind the port, and 3.1-3.6 deliver value without it.
@@ -359,6 +370,40 @@ container-id collapse holds; their endpoints are listed; battery reads a real pe
 than unknown; volume and mute act per endpoint; and 3.6 and 3.7 behave — the default badges are
 correct and `IPolicyConfig.SetDefaultEndpoint` moves the Windows default. That undocumented call is
 now verified against this build rather than merely reachable.
+
+Spikes and fix, 2026-10-18 (increments 3.10 and 3.11), found through the widget:
+
+- **3.9 was not enough: the endpoint arrives after the connection.** The widget's volume row
+  stayed empty whenever the Air5 connected while BlueH was open, and appeared when they were
+  connected before BlueH started. A timing spike with both watchers running measured
+  `IsConnected=True` at 12:15:58.398 and the render endpoint `Added` at 12:15:59.620: **1.2 s
+  later**. Refreshing on the connection read the endpoints too early and nothing read them again.
+  The SRS-XE300 creates its endpoint fast enough to hide the bug. On disconnect the two events
+  arrive within 14 ms.
+- Fix: `IAudioEndpointChangeWatcher`, a `DeviceWatcher` on `MediaDevice.GetAudioRenderSelector()`
+  that raises `Changed` once when its initial enumeration completes and then on every added,
+  updated or removed endpoint. Every `EndpointsViewModel` (Audio page, device page, widget)
+  refreshes on it. Refreshes are numbered and only the latest is applied, so a slow older one
+  cannot overwrite a newer one.
+- **Volume changed outside BlueH was never shown.** BlueH read levels only while listing
+  endpoints. A spike registering `IAudioEndpointVolumeCallback` on every render endpoint
+  received the Logitech keyboard's volume and mute keys: 286 notifications in 28 s, **every
+  change twice** (event contexts `00000000-…` and `0de6c1af-…`), on five different thread-pool
+  threads, several in the same millisecond, so arrival order is not change order. Lowering the
+  volume to 0 makes Windows mute the endpoint by itself.
+- Fix: `CoreAudioLevelNotifications` keeps the callback registered on every active render
+  endpoint, follows endpoints as they come and go, and raises the same `Changed`. A notification
+  is only a trigger to re-read, never a value to apply. `EndpointsViewModel` coalesces bursts to
+  one refresh in flight and at most one pending.
+- The COM part was checked against the SRS-XE300 by two console harnesses driving the real
+  classes: a volume change is reported, nothing is reported after disposal, disposing from an
+  STA thread takes 6 ms, and the harness catches each of three deliberate breakages (no
+  registration, no unregistration, no disposed guard).
+
+Hand verification, 2026-10-18: with the Air5 taken out of the case while BlueH is open, the
+widget's volume row appears about a second after they connect and goes away when they are put
+back. The slider and the mute icon follow the keyboard keys, and dragging the slider does not
+jump back. The Audio page goes through the same code but was not checked separately.
 
 ### Phase 4 — Media transport
 
@@ -404,6 +449,17 @@ hangs when a device is asleep.
 | 5.2 | Pair a new device | discover and pair from the app | the consent callback path; failure codes; cancelling mid-pair |
 | 5.3 | Unpair | remove a device | confirmation required; failure handled and logged |
 
+Built: **there is no public API to connect or disconnect a paired audio device.** Windows
+Settings uses `KSPROPSETID_BtAudio` one-shot reconnect and disconnect on the device's kernel
+streaming filters, reached through `IDeviceTopology`, and `KernelStreamingBluetoothConnectionService`
+does the same on every Bluetooth filter of the container. Filters that are not Bluetooth answer
+`0x80070492`. Pairing goes through `WinRtBluetoothPairingService` with a discovery watcher;
+unpairing works by container and asks for confirmation inside the page.
+
+Status: Connect and Disconnect verified by hand on 2026-10-17 (see the Disconnect fix under
+phase 7). Pairing and unpairing have not been tried by hand, and the `Cod.Major` of unpaired
+devices during discovery is unverified.
+
 ### Phase 6 — Internationalization
 
 Decision to settle before 6.1: **runtime language switching or restart-only.** Runtime switching
@@ -417,6 +473,15 @@ localized view.
 | 6.2 | Key-coverage enforcement | a test, not a checklist | **every key in the neutral `.resx` exists in every culture `.resx`** |
 | 6.3 | `Resources.es.resx` | the app runs in Spanish | 6.2 passes with the new file |
 | 6.4 | Pseudo-locale pass (`qps-ploc`) | lengthened accented strings reveal clipping | a test that fails on any user-facing string literal found in XAML, turning the convention into something the build enforces |
+
+Decided and built: **restart-only.** The language is chosen in Settings from a closed list in
+`CultureSelection` and applies on the next start. Only the UI culture changes; number formatting
+stays the system's. `Resources.es.resx` holds Spanish; `Resources.qps-ploc.resx` is generated by
+`tools/New-PseudoLocale.ps1` and offered only in Debug builds. Tests enforce key coverage in every
+culture, matching placeholders, the hand-maintained `Resources.Designer.cs` staying in sync, and
+no literals in XAML. ICU normalises `qps-ploc` to `qps-Ploc`, reading `ploc` as a script subtag.
+
+Status: built, not yet verified by hand.
 
 ### Phase 7 — Vendor-specific features
 
@@ -531,10 +596,9 @@ of `dotnet test`. Green means "the logic is correct", not "the app works".
 
 ## 10. Open decisions
 
-1. **Which headphones are available for testing.** Gates phase 7 entirely and provides the only
-   real verification target for phases 1-5.
-2. **Runtime language switching versus restart-only.** Must be settled before increment 6.1, and
-   it constrains every XAML file written from phase 1 onward.
+1. ~~Which headphones are available for testing.~~ Settled: OPPO Enco Air5 (earbuds with noise
+   control) and Sony SRS-XE300 (speaker, no battery reporting).
+2. ~~Runtime language switching versus restart-only.~~ Settled: restart-only (see phase 6).
 3. **Battery history.** The one feature that would introduce SQLite. Default assumption: out of
    scope, so no database.
 4. **Theme as a user setting.** Currently hardcoded to dark. `ThemeMode` is settable at runtime,
@@ -551,5 +615,6 @@ of `dotnet test`. Green means "the logic is correct", not "the app works".
 - Mutation-checked whenever the increment adds logic: break the implementation deliberately and confirm the new tests go red. Check that the tests actually ran: a mutation that fails to compile, or one that makes a test hang instead of fail, proves nothing. Both have happened — the second is a signal to rewrite the test so it fails fast. A test that has never failed proves nothing — this is how the string-interning gap in increment 0.1 was found.
 - Verified by hand against a real headset, with the result written down.
 - One increment, one commit.
-- Run the suite with `-p:UseAppHost=false` when a running instance of the app locks `BlueH.exe` and the build cannot replace it. This happens often during mutation checks and silently turns them into no-ops.
+- Run the suite with `-p:UseAppHost=false`, or with `--artifacts-path` pointing outside the repo, when a running instance of the app locks `BlueH.exe` and the build cannot replace it. This happens often during mutation checks and silently turns them into no-ops.
+- Interop that unit tests cannot reach is checked by a throwaway console harness driving the real class against hardware, and the harness is mutation-checked too: one deliberate breakage per behaviour it claims to catch.
 - `CLAUDE.md` updated if a convention or a platform constraint changed.

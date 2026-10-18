@@ -5,7 +5,7 @@ Windows 7 desktop gadgets but without their security model. The main window's de
 in `gui-redesign-plan.md` and platform work in `implementation-plan.md`; this file covers only
 the widget.
 
-Last updated: 2026-10-17
+Last updated: 2026-10-18
 
 ## 1. Why
 
@@ -35,10 +35,24 @@ The user asked for the whole plan in one go, so the simplest choice was taken fo
 is cheap to change:
 
 1. **The widget follows the first connected device.** Pinning a device can come later.
-2. **Closing the main window closes everything** (`ShutdownMode="OnMainWindowClose"`). This makes
-   the tray icon unnecessary, so W5 was not built.
-3. **It is opened from Settings** ("Desktop widget", remembered across sessions) and hidden
-   with its own close button, which turns the same setting off.
+2. ~~Closing the main window closes everything, and the widget is opened from Settings.~~
+   Replaced the same day after the user tried it; see below.
+
+### Revised: the widget is a display mode (2026-10-17)
+
+- **The widget replaces the main window rather than sitting beside it.** A button at the top
+  right of the main window hides it and shows the widget; double-clicking the widget, or its
+  expand button, brings the main window back. `DisplayModeViewModel` owns the switch, so only
+  one of the two is ever visible.
+- **The widget's close button exits the app.** The widget shows in the taskbar, so there is
+  always a way back to it, and the tray icon (W5) is still not needed.
+- **BlueH always starts in the full window.** The Settings toggle for the widget was removed.
+- **Contents:** device name and battery; noise control as three icon radio buttons (off,
+  transparency, noise cancelling); the current track with previous, play/pause and next; and a
+  volume row for the followed device's default output.
+- **Text colour is set on the widget's own style.** The widget's window style is not based on
+  the theme's `Window` style, so it inherited black text until `WidgetWindowStyle` set the
+  foreground.
 
 ## 4. Risks to spike first (W0)
 
@@ -87,3 +101,36 @@ from the screen:
 | W3 | Position and always on top | Remembers its position per monitor, always-on-top toggle, returns on screen if its monitor is gone | Position clamping tests; persistence round trip |
 | W4 | Noise control from the widget | The three modes, sharing the device page's session | Shared-session test: one open per device |
 | W5 | Tray icon (optional) | Show or hide the widget and the main window | Screenshot |
+
+W0 to W4 are built; W5 is not, since the widget shows in the taskbar.
+
+## 6. Hand verification (2026-10-17 and 2026-10-18)
+
+Against the OPPO Enco Air5 and the Sony SRS-XE300, all confirmed working:
+
+- The switch button hides the main window and shows the widget; double-clicking the widget
+  returns to the main window.
+- Text is readable, the three noise control icons show, and transparency set from the widget
+  reaches the earbuds.
+- Dragging moves the widget, and it comes back to the same place after switching modes and
+  after restarting BlueH.
+- Always on top keeps it above other windows, and turning the setting off lets them cover it.
+- After changing the noise control mode from the widget, Disconnect on the device page really
+  drops the link, and Connect brings back noise control and the volume row.
+- The close button exits the app.
+- The volume row appears when the earbuds connect while BlueH is open, and follows the keyboard
+  volume and mute keys; dragging the slider does not jump back.
+
+Not checked: other DPI settings or a second monitor (this machine has one monitor at 100 %).
+
+## 7. Bugs found while verifying (2026-10-18)
+
+Both were platform timing issues rather than widget code, and both are fixed for every page,
+not only the widget. Details and measurements are in `implementation-plan.md`, increments 3.10
+and 3.11.
+
+- **The volume row was missing when the earbuds connected after BlueH started.** Windows creates
+  the audio endpoint about 1.2 s after Bluetooth reports the connection, and the outputs were
+  read only at the connection. They now refresh whenever Windows adds or removes an endpoint.
+- **Volume changed outside BlueH was not shown.** The levels now follow Core Audio's volume
+  notifications.

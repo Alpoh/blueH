@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BlueH is a WPF desktop application for **Windows 11** that aims to expose and control everything Windows knows about connected Bluetooth headphones from a single GUI: battery level, connection and pairing state, audio profile and default-endpoint switching, volume, media transport, and — where a vendor protocol is implemented — device-specific features such as active noise cancelling and equaliser presets. It exists because Windows surfaces almost none of this in a usable interface.
 
-The project is at an early stage: solution layout, MVVM base, and conventions are in place; no feature code has been written yet. See the Planned work section for the intended order of implementation.
+Discovery, battery, audio endpoint control, media transport, pairing, internationalization, OPPO Enco Air5 noise control and a desktop widget are built. What has been verified by hand on real hardware, and what has only been built, is tracked per phase in `docs/implementation-plan.md`; the widget in `docs/widget-plan.md`; the interface design in `docs/gui-redesign-plan.md`.
 
 ## Build and run
 
@@ -24,15 +24,16 @@ dotnet build -c Release
 dotnet publish BlueH -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-Requires the **.NET 10 SDK**. There is no test project in the solution yet.
+Requires the **.NET 10 SDK**. Run the tests with `dotnet test`. While BlueH is running it locks its own output, so build and test into a separate folder instead: `dotnet test --artifacts-path <folder outside the repo>`. Otherwise the build cannot replace `BlueH.exe`, and a mutation check silently runs the old code.
 
 ## Architecture notes
 
-- `BlueH.sln` contains a single project, `BlueH\BlueH.csproj`.
+- `BlueH.sln` contains `BlueH\BlueH.csproj` and the unit tests in `BlueH.Tests\BlueH.Tests.csproj`.
 - `TargetFramework` is `net10.0-windows10.0.26100.0` — the Windows SDK version in the TFM is what makes the WinRT Bluetooth and audio APIs (`Windows.Devices.Bluetooth`, `Windows.Devices.Enumeration`, `Windows.Media.Control`) available. Do not reduce it to a plain `net10.0-windows`, which drops those projections.
 - `SupportedOSPlatformVersion` is `10.0.22000.0` (Windows 11 RTM) — the minimum OS the app runs on, and the baseline for platform-compatibility analyzer warnings.
 - `RootNamespace`/`AssemblyName` is `BlueH`; the WPF startup object is `App` (`App.xaml` with `StartupUri="MainWindow.xaml"`).
-- `MainWindow.xaml` / `MainWindow.xaml.cs` is the only window and currently has an empty `Grid`.
+- Services are wired by hand in `App.xaml.cs`; there is no DI container. `App` owns two windows: `MainWindow` (side menu and pages, `ViewModels/Pages`) and `Views/WidgetWindow`. `DisplayModeViewModel` switches between them, so only one is visible at a time.
+- Folders: `Models` (domain records, no UI), `Services` (project-owned interfaces and their WinRT/Core Audio adapters, interop under `Services/Interop`), `Vendors/<Vendor>` (proprietary protocols), `ViewModels`, `Views`, `Themes` (`Layout.xaml` spacing tokens, `Glyphs.cs`), `Diagnostics` (the in-app log shown on the Diagnostics page).
 - `ViewModels/ViewModelBase.cs` is the `INotifyPropertyChanged` base for all ViewModels.
 - Assembly metadata lives in `BlueH.csproj` properties; there is no `AssemblyInfo.cs`. There is no `App.config` either — runtime configuration is `runtimeconfig.json`, generated from the project file.
 - `Nullable` and `ImplicitUsings` are enabled and `TreatWarningsAsErrors` is on: a warning fails the build, so fix it rather than suppress it.
@@ -131,6 +132,14 @@ Common WPF practice as it applies to this project.
 - **Never pattern-match a WinRT device property on the type you expect.** The values arrive boxed and the runtime type is often not the obvious one: `System.Devices.Aep.Bluetooth.Cod.Minor` is a `UInt16`, not a `UInt32`. A `value is uint` check against it fails silently and yields an absent value, so the UI quietly shows "unknown" instead of an error. Read every property through `DevicePropertyReader`, which accepts any plausible type and is unit-tested against each one, and add a case there rather than matching inline.
 - **Verify every new property against real hardware**, printing its runtime type, before writing the code that reads it. Unit tests cannot catch this class of bug, because the test supplies the type the code already expects.
 
+### Watching for changes
+
+- **Never read once at the moment of an event and assume it is final.** Bluetooth reports a connection about 1.2 s before Windows creates that device's audio endpoint (measured on the OPPO Enco Air5, 2026-10-18; a speaker was fast enough to hide the bug). Anything that depends on the endpoint listens to the endpoint watcher (`IAudioEndpointChangeWatcher`), not to the Bluetooth connection event.
+- **Volume and mute can change outside the app** (keyboard keys, the Windows flyout, other apps). `IAudioEndpointVolumeCallback` reports it, but each change arrives twice, on several thread-pool threads at once, so arrival order is not change order. Treat a notification as a trigger to re-read the current state, never as the value to apply, and coalesce bursts: one refresh in flight, at most one pending.
+- **A slower, older refresh must not overwrite a newer one.** `EndpointsViewModel` numbers its refreshes and applies only the latest.
+- **Identify a vendor RFCOMM service by `System.Devices.AepService.ContainerId`** (a `Guid`); its `System.Devices.ContainerId` is empty.
+- **Disconnecting needs every profile and every channel gone.** Hands-Free sits behind the *capture* endpoint, so KS filters are enumerated in both directions, and an open RFCOMM channel alone keeps the link up; close vendor channels before disconnecting.
+
 ### Threading
 
 - WinRT device callbacks and `DeviceWatcher` events arrive on a thread pool thread. Marshal to the UI thread with `Dispatcher.InvokeAsync` before touching bound state that WPF is not synchronizing.
@@ -205,6 +214,8 @@ One part of the project reaches an undocumented Windows interface, and it comes 
 - **Guard the call site.** Verify the target endpoint still exists in the live enumeration before passing an id to an undocumented method, so a stale id never reaches it.
 - **Release what you create.** Every COM object obtained from an enumerator, collection, or `Activate` call is released in a `finally`; the interop code uses no `using` because these are COM wrappers rather than `IDisposable`.
 - **Report the `HRESULT`.** Interop members are declared `[PreserveSig]`, so failures arrive as a number and must be recorded in diagnostics rather than ignored.
+- **Callbacks from Windows run on Windows' threads.** `AudioEndpointVolumeCallback` is called on arbitrary thread-pool threads, possibly several at once: keep `OnNotify` short, never block in it, and marshal to the UI thread through `IUiScheduler`. The callback is handed to Core Audio as one pointer from `Marshal.GetComInterfaceForObject`, released once on dispose, and every registration is undone before that release. `CoreAudioLevelNotifications` refuses to register after it has been disposed, so a late notification cannot leave a callback registered after the app has closed.
+- **COM code has no unit tests; check it against hardware.** A throwaway console harness referencing `BlueH.csproj` that drives the real class, mutation-checked like a unit test, is the standard for interop.
 
 ## Testing / TDD
 
@@ -214,7 +225,8 @@ TDD is the intended workflow for everything below the view, and the service-inte
 - **What is faked**: every WinRT and Core Audio call, behind the project's own interfaces. A test double returns domain models, so no device, no driver, and no pairing is involved.
 - **Clock**: inject `TimeProvider` and use `FakeTimeProvider` (`Microsoft.Extensions.TimeProvider.Testing`) in tests; never `DateTime.Now` in testable code.
 - **Tooling**: NUnit with `Microsoft.NET.Test.Sdk`, NSubstitute for test doubles, and NUnit's constraint model (`Assert.That`).
-- **No test project exists yet.** When one is added, create `BlueH.Tests\BlueH.Tests.csproj` targeting the same TFM as the app, add it to `BlueH.sln`, and run it with `dotnet test`. Test names are English and describe behavior, not method names.
+- **The test project is `BlueH.Tests`**, on the same TFM as the app, with hand-written fakes in `BlueH.Tests/Fakes`. Test names are English and describe behavior, not method names.
+- **Mutation-check new logic**: break the implementation on purpose and confirm the new tests go red. A mutation that does not compile (CS0162, CS0414 — warnings are errors) or that makes a test hang proves nothing.
 - **Hardware verification is separate** from the unit suite: anything that needs a real headset goes in a manual checklist or an explicitly opt-in integration project, never in the default `dotnet test` run.
 
 ## Planned work

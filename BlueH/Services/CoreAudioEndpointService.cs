@@ -130,6 +130,11 @@ public sealed class CoreAudioEndpointService : IAudioEndpointService
         return Task.CompletedTask;
     }
 
+    public IAudioEndpointChangeWatcher CreateChangeWatcher()
+    {
+        return new WinRtAudioEndpointChangeWatcher(_diagnosticsLog);
+    }
+
     private static CoreAudioRole ToCoreAudioRole(AudioEndpointRole role)
     {
         return role == AudioEndpointRole.Communications ? CoreAudioRole.Communications : CoreAudioRole.Console;
@@ -140,7 +145,7 @@ public sealed class CoreAudioEndpointService : IAudioEndpointService
         return string.Create(CultureInfo.InvariantCulture, $"{role} hr=0x{result:X8}");
     }
 
-    private static IMMDeviceEnumerator CreateEnumerator()
+    internal static IMMDeviceEnumerator CreateEnumerator()
     {
         return (IMMDeviceEnumerator)Activator.CreateInstance(
             Type.GetTypeFromCLSID(CoreAudioConstants.DeviceEnumeratorClassId)!)!;
@@ -163,7 +168,7 @@ public sealed class CoreAudioEndpointService : IAudioEndpointService
         }
     }
 
-    private static List<string> ActiveRenderEndpointIds(IMMDeviceEnumerator enumerator)
+    internal static List<string> ActiveRenderEndpointIds(IMMDeviceEnumerator enumerator)
     {
         List<string> ids = [];
 

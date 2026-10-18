@@ -121,6 +121,8 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         Navigator.PropertyChanged -= OnNavigatorPropertyChanged;
         DevicePage.Dispose();
         Devices.Dispose();
+        AllOutputs.Dispose();
+        DeviceOutputs.Dispose();
         MediaTransport.Dispose();
         Pairing.Dispose();
         Diagnostics.Dispose();

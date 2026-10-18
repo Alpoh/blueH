@@ -323,6 +323,136 @@ public class EndpointsViewModelTests
             Is.EqualTo(new[] { true, false }));
     }
 
+    [Test]
+    public void WatchingStartsTheChangeWatcher()
+    {
+        using EndpointsViewModel viewModel = CreateViewModel();
+
+        viewModel.StartWatching();
+
+        Assert.That(_endpointService.ChangeWatcher.IsStarted, Is.True);
+    }
+
+    [Test]
+    public void AnEndpointThatAppearsLaterIsListed()
+    {
+        using EndpointsViewModel viewModel = CreateViewModel();
+        viewModel.StartWatching();
+        _endpointService.Endpoints.Add(Endpoint(GameEndpointId, HeadsetContainer, GameEndpointName, 76));
+
+        _endpointService.ChangeWatcher.RaiseChanged();
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Endpoints.Select(endpoint => endpoint.MmDeviceId), Is.EqualTo(new[] { GameEndpointId }));
+    }
+
+    [Test]
+    public async Task AnEndpointThatGoesAwayIsDropped()
+    {
+        _endpointService.Endpoints.Add(Endpoint(GameEndpointId, HeadsetContainer, GameEndpointName, 76));
+        using EndpointsViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _uiScheduler.RunPendingWork();
+        viewModel.StartWatching();
+        _endpointService.Endpoints.Clear();
+
+        _endpointService.ChangeWatcher.RaiseChanged();
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Endpoints, Is.Empty);
+    }
+
+    [Test]
+    public async Task ASlowOlderRefreshDoesNotOverwriteANewerOne()
+    {
+        using EndpointsViewModel viewModel = CreateViewModel();
+        TaskCompletionSource olderRefreshHold = _endpointService.HoldNextFind();
+        Task olderRefresh = viewModel.RefreshAsync(CancellationToken.None);
+        _endpointService.Endpoints.Add(Endpoint(GameEndpointId, HeadsetContainer, GameEndpointName, 76));
+        await viewModel.RefreshAsync(CancellationToken.None);
+
+        olderRefreshHold.SetResult();
+        await olderRefresh;
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Endpoints.Select(endpoint => endpoint.MmDeviceId), Is.EqualTo(new[] { GameEndpointId }));
+    }
+
+    [Test]
+    public void WatchingTwiceRefreshesOncePerChange()
+    {
+        using EndpointsViewModel viewModel = CreateViewModel();
+        viewModel.StartWatching();
+        viewModel.StartWatching();
+
+        _endpointService.ChangeWatcher.RaiseChanged();
+
+        Assert.That(_endpointService.FindCalls, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ABurstOfChangesWhileARefreshRunsCausesOnlyOneMore()
+    {
+        using EndpointsViewModel viewModel = CreateViewModel();
+        viewModel.StartWatching();
+        TaskCompletionSource runningRefreshHold = _endpointService.HoldNextFind();
+        _endpointService.ChangeWatcher.RaiseChanged();
+
+        _endpointService.ChangeWatcher.RaiseChanged();
+        _endpointService.ChangeWatcher.RaiseChanged();
+        _endpointService.ChangeWatcher.RaiseChanged();
+        runningRefreshHold.SetResult();
+
+        Assert.That(_endpointService.FindCalls, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task TheLastChangeOfABurstIsTheOneShown()
+    {
+        _endpointService.Endpoints.Add(Endpoint(GameEndpointId, HeadsetContainer, GameEndpointName, 30));
+        using EndpointsViewModel viewModel = CreateViewModel();
+        await viewModel.RefreshAsync(CancellationToken.None);
+        _uiScheduler.RunPendingWork();
+        viewModel.StartWatching();
+        TaskCompletionSource runningRefreshHold = _endpointService.HoldNextFind();
+        _endpointService.ChangeWatcher.RaiseChanged();
+        _endpointService.Endpoints[0] = Endpoint(GameEndpointId, HeadsetContainer, GameEndpointName, 50);
+        _endpointService.ChangeWatcher.RaiseChanged();
+
+        runningRefreshHold.SetResult();
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(viewModel.Endpoints[0].VolumePercent, Is.EqualTo(50));
+    }
+
+    [Test]
+    public void AChangeAfterTheBurstEndsRefreshesAgain()
+    {
+        using EndpointsViewModel viewModel = CreateViewModel();
+        viewModel.StartWatching();
+        _endpointService.ChangeWatcher.RaiseChanged();
+
+        _endpointService.ChangeWatcher.RaiseChanged();
+
+        Assert.That(_endpointService.FindCalls, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void DisposingStopsAndReleasesTheChangeWatcher()
+    {
+        EndpointsViewModel viewModel = CreateViewModel();
+        viewModel.StartWatching();
+
+        viewModel.Dispose();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_endpointService.ChangeWatcher.HasSubscribers, Is.False);
+            Assert.That(_endpointService.ChangeWatcher.IsStopped, Is.True);
+            Assert.That(_endpointService.ChangeWatcher.IsDisposed, Is.True);
+        });
+    }
+
     private async Task<AudioEndpointViewModel> SingleEndpointAsync(
         int volumePercent,
         bool? isMuted = false,

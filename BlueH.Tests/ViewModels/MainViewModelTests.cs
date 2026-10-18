@@ -447,6 +447,28 @@ public class MainViewModelTests
     }
 
     [Test]
+    public void DisposingStopsWatchingTheAudioPageOutputs()
+    {
+        MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+        viewModel.AllOutputs.StartWatching();
+
+        viewModel.Dispose();
+
+        Assert.That(_endpointService.ChangeWatcher.IsDisposed, Is.True);
+    }
+
+    [Test]
+    public void DisposingStopsWatchingTheDevicePageOutputs()
+    {
+        MainViewModel viewModel = CreateViewModel(CreateDevicesViewModel());
+        viewModel.DeviceOutputs.StartWatching();
+
+        viewModel.Dispose();
+
+        Assert.That(_endpointService.ChangeWatcher.IsDisposed, Is.True);
+    }
+
+    [Test]
     public void GoingBackReturnsToTheListAndClearsTheSelection()
     {
         DevicesViewModel devices = CreateDevicesViewModel();

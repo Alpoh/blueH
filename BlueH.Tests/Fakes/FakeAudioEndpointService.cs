@@ -5,9 +5,13 @@ namespace BlueH.Tests.Fakes;
 
 public sealed class FakeAudioEndpointService : IAudioEndpointService
 {
+    private readonly Queue<TaskCompletionSource> _heldFinds = [];
+
     private TaskCompletionSource? _gate;
 
     public List<AudioEndpoint> Endpoints { get; } = [];
+
+    public FakeAudioEndpointChangeWatcher ChangeWatcher { get; } = new();
 
     public List<(string MmDeviceId, int VolumePercent)> VolumeCalls { get; } = [];
 
@@ -28,6 +32,14 @@ public sealed class FakeAudioEndpointService : IAudioEndpointService
         _gate = null;
     }
 
+    public TaskCompletionSource HoldNextFind()
+    {
+        TaskCompletionSource hold = new();
+        _heldFinds.Enqueue(hold);
+
+        return hold;
+    }
+
     public int FindCalls { get; private set; }
 
     public Task<IReadOnlyList<AudioEndpoint>> FindRenderEndpointsAsync(CancellationToken cancellationToken)
@@ -39,7 +51,23 @@ public sealed class FakeAudioEndpointService : IAudioEndpointService
             return Task.FromException<IReadOnlyList<AudioEndpoint>>(FailureToThrow);
         }
 
-        return Task.FromResult<IReadOnlyList<AudioEndpoint>>([.. Endpoints]);
+        IReadOnlyList<AudioEndpoint> snapshot = [.. Endpoints];
+
+        if (_heldFinds.TryDequeue(out TaskCompletionSource? hold))
+        {
+            return hold.Task.ContinueWith(
+                _ => snapshot,
+                CancellationToken.None,
+                TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+        }
+
+        return Task.FromResult(snapshot);
+    }
+
+    public IAudioEndpointChangeWatcher CreateChangeWatcher()
+    {
+        return ChangeWatcher;
     }
 
     public async Task SetVolumePercentAsync(string mmDeviceId, int volumePercent, CancellationToken cancellationToken)

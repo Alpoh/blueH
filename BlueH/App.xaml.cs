@@ -62,6 +62,10 @@ public partial class App
         CoreAudioEndpointService endpointService = new(diagnosticsLog);
         EndpointsViewModel allOutputs = new(endpointService, uiScheduler, diagnosticsLog);
         EndpointsViewModel deviceOutputs = new(endpointService, uiScheduler, diagnosticsLog);
+        EndpointsViewModel widgetOutputs = new(endpointService, uiScheduler, diagnosticsLog);
+        allOutputs.StartWatching();
+        deviceOutputs.StartWatching();
+        widgetOutputs.StartWatching();
         _mediaTransportService = new WindowsMediaTransportService(diagnosticsLog);
         MediaTransportViewModel mediaTransport = new(_mediaTransportService, uiScheduler, diagnosticsLog);
 
@@ -99,7 +103,7 @@ public partial class App
             selectedDevice,
             mediaTransport,
             new NoiseControlViewModel(noiseControlService, settingsStore, uiScheduler, diagnosticsLog),
-            new EndpointsViewModel(endpointService, uiScheduler, diagnosticsLog),
+            widgetOutputs,
             displayMode,
             settings);
         _settings = settings;

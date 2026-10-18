@@ -6,7 +6,7 @@ using AppResources = BlueH.Properties.Resources;
 
 namespace BlueH.ViewModels;
 
-public sealed class EndpointsViewModel : ViewModelBase
+public sealed class EndpointsViewModel : ViewModelBase, IDisposable
 {
     private const string RefreshEndpointsOperation = "Refresh audio endpoints";
 
@@ -14,6 +14,11 @@ public sealed class EndpointsViewModel : ViewModelBase
     private readonly IUiScheduler _uiScheduler;
     private readonly IDiagnosticsLog _diagnosticsLog;
 
+    private IAudioEndpointChangeWatcher? _changeWatcher;
+    private long _latestRefresh;
+    private readonly Lock _changeGate = new();
+    private bool _changeRefreshRunning;
+    private bool _changeRefreshPending;
     private Guid? _containerFilter;
     private string? _errorDetail;
 
@@ -72,8 +77,35 @@ public sealed class EndpointsViewModel : ViewModelBase
 
     public string DefaultForCommunicationsLabel => AppResources.EndpointDefaultForCommunicationsLabel;
 
+    public void StartWatching()
+    {
+        if (_changeWatcher is not null)
+        {
+            return;
+        }
+
+        _changeWatcher = _endpointService.CreateChangeWatcher();
+        _changeWatcher.Changed += OnEndpointsChanged;
+        _changeWatcher.Start();
+    }
+
+    public void Dispose()
+    {
+        if (_changeWatcher is null)
+        {
+            return;
+        }
+
+        _changeWatcher.Changed -= OnEndpointsChanged;
+        _changeWatcher.Stop();
+        _changeWatcher.Dispose();
+        _changeWatcher = null;
+    }
+
     public async Task RefreshAsync(CancellationToken cancellationToken)
     {
+        long refresh = Interlocked.Increment(ref _latestRefresh);
+
         try
         {
             IReadOnlyList<AudioEndpoint> endpoints =
@@ -81,6 +113,11 @@ public sealed class EndpointsViewModel : ViewModelBase
 
             _uiScheduler.Post(() =>
             {
+                if (refresh != Interlocked.Read(ref _latestRefresh))
+                {
+                    return;
+                }
+
                 ErrorDetail = null;
                 Apply(endpoints);
             });
@@ -93,6 +130,43 @@ public sealed class EndpointsViewModel : ViewModelBase
         {
             _uiScheduler.Post(() => ErrorDetail = failure.Message);
             _diagnosticsLog.Record(DiagnosticOutcome.Failure, RefreshEndpointsOperation, failure.Message);
+        }
+    }
+
+    private void OnEndpointsChanged(object? sender, EventArgs e)
+    {
+        lock (_changeGate)
+        {
+            if (_changeRefreshRunning)
+            {
+                _changeRefreshPending = true;
+
+                return;
+            }
+
+            _changeRefreshRunning = true;
+        }
+
+        _ = RefreshUntilChangesSettleAsync();
+    }
+
+    private async Task RefreshUntilChangesSettleAsync()
+    {
+        while (true)
+        {
+            await RefreshAsync(CancellationToken.None);
+
+            lock (_changeGate)
+            {
+                if (!_changeRefreshPending)
+                {
+                    _changeRefreshRunning = false;
+
+                    return;
+                }
+
+                _changeRefreshPending = false;
+            }
         }
     }
 

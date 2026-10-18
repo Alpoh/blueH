@@ -11,4 +11,6 @@ public interface IAudioEndpointService
     Task SetMutedAsync(string mmDeviceId, bool isMuted, CancellationToken cancellationToken);
 
     Task SetDefaultAsync(string mmDeviceId, AudioEndpointRole role, CancellationToken cancellationToken);
+
+    IAudioEndpointChangeWatcher CreateChangeWatcher();
 }

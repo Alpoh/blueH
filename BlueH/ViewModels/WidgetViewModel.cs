@@ -100,6 +100,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         _outputs.Endpoints.CollectionChanged -= OnOutputsChanged;
         _settings.PropertyChanged -= OnSettingsPropertyChanged;
         NoiseControl.Dispose();
+        _outputs.Dispose();
     }
 
     private void FollowFirstConnectedDevice()

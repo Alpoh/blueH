@@ -257,6 +257,21 @@ public class WidgetViewModelTests
     }
 
     [Test]
+    public async Task TheVolumeAppearsWhenTheOutputIsCreatedAfterTheDeviceConnects()
+    {
+        _deviceService.Endpoints.Add(Earbuds(isConnected: true));
+        using WidgetViewModel widget = CreateWidget();
+        await _devices.RefreshAsync(CancellationToken.None);
+        _uiScheduler.RunPendingWork();
+        _endpointService.Endpoints.Add(Output("earbuds", EarbudsContainer, isDefaultForPlayback: true));
+
+        _endpointService.ChangeWatcher.RaiseChanged();
+        _uiScheduler.RunPendingWork();
+
+        Assert.That(widget.Volume?.MmDeviceId, Is.EqualTo("earbuds"));
+    }
+
+    [Test]
     public async Task TheVolumeGoesAwayWhenTheDeviceDisconnects()
     {
         _endpointService.Endpoints.Add(Output("earbuds", EarbudsContainer, isDefaultForPlayback: true));
@@ -311,14 +326,27 @@ public class WidgetViewModelTests
         Assert.That(_earbudsSession.IsDisposed, Is.True);
     }
 
+    [Test]
+    public void DisposingStopsWatchingTheOutputs()
+    {
+        WidgetViewModel widget = CreateWidget();
+
+        widget.Dispose();
+
+        Assert.That(_endpointService.ChangeWatcher.IsDisposed, Is.True);
+    }
+
     private WidgetViewModel CreateWidget(INoiseControlService? noiseControlService = null)
     {
+        EndpointsViewModel outputs = new(_endpointService, _uiScheduler, _diagnosticsLog);
+        outputs.StartWatching();
+
         return new WidgetViewModel(
             _devices,
             _selectedDevice,
             _media,
             new NoiseControlViewModel(noiseControlService ?? _noiseControlService, _settingsStore, _uiScheduler, _diagnosticsLog),
-            new EndpointsViewModel(_endpointService, _uiScheduler, _diagnosticsLog),
+            outputs,
             _displayMode,
             _settings);
     }

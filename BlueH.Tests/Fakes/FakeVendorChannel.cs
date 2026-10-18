@@ -1,8 +1,8 @@
-using BlueH.Vendors.Oppo;
+using BlueH.Vendors;
 
 namespace BlueH.Tests.Fakes;
 
-public sealed class FakeOppoChannel : IOppoChannel
+public sealed class FakeVendorChannel : IVendorChannel
 {
     public List<byte[]> Sent { get; } = [];
 

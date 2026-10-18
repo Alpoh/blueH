@@ -1,6 +1,6 @@
-namespace BlueH.Vendors.Oppo;
+namespace BlueH.Vendors;
 
-public interface IOppoChannel : IAsyncDisposable
+public interface IVendorChannel : IAsyncDisposable
 {
     event EventHandler<byte[]>? BytesReceived;
 

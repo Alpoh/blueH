@@ -20,7 +20,7 @@ public sealed class OppoNoiseControlSession : INoiseControlSession
     private const string TimedOutFormat = "no response to command 0x{0:X4} within {1} ms";
     private const string ClosedDetail = "the OPPO channel is closed";
 
-    private readonly IOppoChannel _channel;
+    private readonly IVendorChannel _channel;
     private readonly IDiagnosticsLog _diagnosticsLog;
     private readonly TimeProvider _timeProvider;
     private readonly OppoFrameDecoder _decoder = new();
@@ -30,7 +30,7 @@ public sealed class OppoNoiseControlSession : INoiseControlSession
     private byte _nextSequence;
     private bool _isClosed;
 
-    public OppoNoiseControlSession(IOppoChannel channel, IDiagnosticsLog diagnosticsLog, TimeProvider timeProvider)
+    public OppoNoiseControlSession(IVendorChannel channel, IDiagnosticsLog diagnosticsLog, TimeProvider timeProvider)
     {
         _channel = channel;
         _diagnosticsLog = diagnosticsLog;

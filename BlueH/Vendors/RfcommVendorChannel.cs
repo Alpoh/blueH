@@ -2,9 +2,9 @@ using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
-namespace BlueH.Vendors.Oppo;
+namespace BlueH.Vendors;
 
-public sealed class RfcommOppoChannel : IOppoChannel
+public sealed class RfcommVendorChannel : IVendorChannel
 {
     private const uint ReadBufferLength = 1024;
     private const string EndOfStreamDetail = "the remote device closed the connection";
@@ -17,7 +17,7 @@ public sealed class RfcommOppoChannel : IOppoChannel
 
     private int _isDisposed;
 
-    public RfcommOppoChannel(RfcommDeviceService service, StreamSocket socket)
+    public RfcommVendorChannel(RfcommDeviceService service, StreamSocket socket)
     {
         _service = service;
         _socket = socket;

@@ -525,7 +525,7 @@ tablet, cross-checked by a read-only spike from this PC:
 Built 2026-10-17 (7.2 to 7.4):
 
 - `OppoNoiseControlSession` matches each response to its request by command and sequence, times
-  out after 3 s, and raises `ModeReported` for notifications. `RfcommOppoChannel` reads in one
+  out after 3 s, and raises `ModeReported` for notifications. `RfcommVendorChannel` reads in one
   loop that is never cancelled, and closing the socket ends it.
 - `NoiseControlViewModel` opens a session when the selected device is connected and closes it
   when the device disconnects, changes, or the page is left. A failed change re-announces the

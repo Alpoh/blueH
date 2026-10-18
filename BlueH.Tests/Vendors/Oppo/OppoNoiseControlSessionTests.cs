@@ -19,14 +19,14 @@ public class OppoNoiseControlSessionTests
 
     private static readonly byte[] BatteryNotification = Convert.FromHexString("aa0f000004020008000103015002500300");
 
-    private FakeOppoChannel _channel = null!;
+    private FakeVendorChannel _channel = null!;
     private FakeTimeProvider _timeProvider = null!;
     private InMemoryDiagnosticsLog _diagnosticsLog = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _channel = new FakeOppoChannel();
+        _channel = new FakeVendorChannel();
         _timeProvider = new FakeTimeProvider();
         _diagnosticsLog = new InMemoryDiagnosticsLog(_timeProvider);
     }

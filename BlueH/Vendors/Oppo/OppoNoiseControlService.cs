@@ -94,7 +94,7 @@ public sealed class OppoNoiseControlService : INoiseControlService
             throw;
         }
 
-        RfcommOppoChannel channel = new(service, socket);
+        RfcommVendorChannel channel = new(service, socket);
         OppoNoiseControlSession session = new(channel, _diagnosticsLog, _timeProvider);
         channel.StartReading();
 
